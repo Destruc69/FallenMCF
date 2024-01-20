@@ -1,0 +1,28 @@
+modLoader="javafml" #mandatory
+loaderVersion="[36,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
+license="MIT"
+[[mods]] #mandatory
+modId="fallen" #mandatory
+version="1.16.5" #mandatory
+displayName="Fallen" #mandatory
+credits=""
+authors="Paul"
+description='''
+ Fallen, a powerful Minecraft anarchy client.
+'''
+
+[[dependencies.bdsm]] #optional
+    modId="forge"
+    mandatory=true
+    versionRange="[36,)" #mandatory
+    # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
+    ordering="NONE"
+    # Side this dependency is applied on - BOTH, CLIENT or SERVER
+    side="BOTH"
+# Here's another dependency
+[[dependencies.bdsm]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.16.5]"
+    ordering="NONE"
+    side="BOTH"
