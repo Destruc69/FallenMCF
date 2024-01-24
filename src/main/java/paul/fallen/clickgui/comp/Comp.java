@@ -1,6 +1,5 @@
 package paul.fallen.clickgui.comp;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import paul.fallen.clickgui.Clickgui;
 import paul.fallen.module.Module;
 import paul.fallen.setting.Setting;
@@ -16,11 +15,11 @@ public class Comp {
 
     }
 
-    public void mouseReleased(double mouseX, double mouseY, int button) {
+    public void mouseReleased(int mouseX, int mouseY, int state) {
 
     }
 
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void drawScreen(int mouseX, int mouseY) {
 
     }
 

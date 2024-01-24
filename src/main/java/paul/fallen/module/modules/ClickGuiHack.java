@@ -5,6 +5,7 @@ import paul.fallen.FALLENClient;
 import paul.fallen.module.Module;
 
 public class ClickGuiHack extends Module {
+
     public ClickGuiHack(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
     }

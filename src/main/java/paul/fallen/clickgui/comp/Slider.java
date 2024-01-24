@@ -1,6 +1,5 @@
 package paul.fallen.clickgui.comp;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import paul.fallen.clickgui.Clickgui;
 import paul.fallen.module.Module;
 import paul.fallen.setting.Setting;
@@ -27,20 +26,20 @@ public class Slider extends Comp {
     @Override
     public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
         super.mouseClicked(mouseX, mouseY, mouseButton);
-        if (isInside(mouseX, mouseY, parent.posX + x - 70, parent.posY + y + 10, parent.posX + x - 70 + renderWidth2, parent.posY + y + 20) && mouseButton == 0) {
+        if (isInside(mouseX, mouseY, parent.posX + x - 70, parent.posY + y + 10,parent.posX + x - 70 + renderWidth2, parent.posY + y + 20) && mouseButton == 0) {
             dragging = true;
         }
     }
 
     @Override
-    public void mouseReleased(double mouseX, double mouseY, int button) {
-        super.mouseReleased(mouseX, mouseY, button);
+    public void mouseReleased(int mouseX, int mouseY, int state) {
+        super.mouseReleased(mouseX, mouseY, state);
         dragging = false;
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
+    public void drawScreen(int mouseX, int mouseY) {
+        super.drawScreen(mouseX, mouseY);
 
         double min = setting.getMin();
         double max = setting.getMax();
@@ -53,17 +52,18 @@ public class Slider extends Comp {
         if (dragging) {
             if (diff == 0) {
                 setting.setValDouble(setting.getMin());
-            } else {
+            }
+            else {
                 double newValue = roundToPlace(((diff / l) * (max - min) + min), 1);
                 setting.setValDouble((float) newValue);
             }
         }
         //Gui.drawRect(parent.posX + x - 70, parent.posY + y + 10,parent.posX + x - 70 + renderWidth2, parent.posY + y + 20, new Color(230,10,230).darker().getRGB());
-        UIUtils.drawRect(parent.posX + x - 70, parent.posY + y + 10, 70 + renderWidth2, 20, new Color(230, 10, 230).darker().getRGB());
+        UIUtils.drawRect(parent.posX + x - 70, parent.posY + y + 10, renderWidth2, 20, new Color(230,10,230).darker().getRGB());
         //Gui.drawRect(parent.posX + x - 70, parent.posY + y + 10, parent.posX + x - 70 + renderWidth, parent.posY + y + 20, new Color(230,10,230).getRGB());
-        UIUtils.drawRect(parent.posX + x - 70, parent.posY + y + 10, 70 + renderWidth, 20, new Color(230, 10, 230).getRGB());
+        UIUtils.drawRect(parent.posX + x - 70, parent.posY + y + 10, renderWidth, 20, new Color(230,10,230).getRGB());
         //Minecraft.getMinecraft().fontRendererObj.drawString(setting.getName() + ": " + setting.getValDouble(),(int)(parent.posX + x - 70),(int)(parent.posY + y), -1);
-        UIUtils.drawTextOnScreen(setting.getName() + ": " + setting.getValDouble(), (int) (parent.posX + x - 70), (int) (parent.posY + y), -1);
+        UIUtils.drawTextOnScreen(setting.getName() + ": " + setting.getValDouble(),(int)(parent.posX + x - 70),(int)(parent.posY + y), -1);
     }
 
     private double roundToPlace(double value, int places) {

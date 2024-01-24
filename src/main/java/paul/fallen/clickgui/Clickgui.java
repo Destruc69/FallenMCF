@@ -4,7 +4,6 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraftforge.common.MinecraftForge;
 import paul.fallen.FALLENClient;
 import paul.fallen.clickgui.comp.CheckBox;
 import paul.fallen.clickgui.comp.Combo;
@@ -22,9 +21,11 @@ public class Clickgui extends Screen {
     public double posX, posY, width, height, dragX, dragY;
     public boolean dragging;
     public Module.Category selectedCategory;
-    public int modeIndex;
-    public ArrayList<Comp> comps = new ArrayList<>();
+
     private Module selectedModule;
+    public int modeIndex;
+
+    public ArrayList<Comp> comps = new ArrayList<>();
 
     public Clickgui() {
         super(new StringTextComponent("clickgui"));
@@ -36,47 +37,42 @@ public class Clickgui extends Screen {
         width = posX + 150 * 2 * 2;
         height = height + 200 * 2;
         selectedCategory = Module.Category.Combat;
-
-        MinecraftForge.EVENT_BUS.register(this);
     }
 
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         super.render(matrixStack, mouseX, mouseY, partialTicks);
-
-
         if (dragging) {
             posX = mouseX - dragX;
             posY = mouseY - dragY;
         }
-
         //Gui.drawRect(posX, posY - 10, width, posY, new Color(100,10,100).getRGB());
-        UIUtils.drawRect(posX, posY - 10, width, 10, new Color(100, 10, 100).getRGB());
+        UIUtils.drawRect(posX, posY - 10, width, 10, new Color(100,10,100).getRGB());
         //Gui.drawRect(posX, posY, width, height, new Color(45,45,45).getRGB());
-        UIUtils.drawRect(posX, posY, width, height, new Color(45, 45, 45).getRGB());
+        UIUtils.drawRect(posX, posY, width, height, new Color(45,45,45).getRGB());
 
+        UIUtils.drawTextOnScreen("F A L L E N", (int) posX, (int) (posY - 10), Color.CYAN.getRGB());
 
         int offset = 0;
         for (Module.Category category : Module.Category.values()) {
             //Gui.drawRect(posX,posY + 1 + offset,posX + 60,posY + 15 + offset,category.equals(selectedCategory) ? new Color(230,10,230).getRGB() : new Color(28,28,28).getRGB());
-            UIUtils.drawRect(posX, posY + 1 + offset, 60, 15, category.equals(selectedCategory) ? new Color(230, 10, 230).getRGB() : new Color(28, 28, 28).getRGB());
+            UIUtils.drawRect(posX,posY + 1 + offset,60, 15,category.equals(selectedCategory) ? new Color(230,10,230).getRGB() : new Color(28,28,28).getRGB());
             //fontRendererObj.drawString(category.name(),(int)posX + 2, (int)(posY + 5) + offset, new Color(170,170,170).getRGB());
-            UIUtils.drawTextOnScreen(category.name(), (int) posX + 2, (int) (posY + 5) + offset, new Color(170, 170, 170).getRGB());
+            UIUtils.drawTextOnScreen(category.name(),(int)posX + 2, (int)(posY + 5) + offset, new Color(170,170,170).getRGB());
             offset += 15;
         }
         offset = 0;
         for (Module m : FALLENClient.INSTANCE.getModuleManager().getModulesInCategory(selectedCategory)) {
             //Gui.drawRect(posX + 65,posY + 1 + offset,posX + 125,posY + 15 + offset,m.isToggled() ? new Color(230,10,230).getRGB() : new Color(28,28,28).getRGB());
-            UIUtils.drawRect(posX + 65, posY + 1 + offset, 100, 15, m.toggled ? new Color(230, 10, 230).getRGB() : new Color(28, 28, 28).getRGB());
+            UIUtils.drawRect(posX + 65,posY + 1 + offset,125,15,m.toggled ? new Color(230,10,230).getRGB() : new Color(28,28,28).getRGB());
             //fontRendererObj.drawString(m.getName(),(int)posX + 67, (int)(posY + 5) + offset, new Color(170,170,170).getRGB());
-            UIUtils.drawTextOnScreen(m.getName(), (int) posX + 67, (int) (posY + 5) + offset, new Color(170, 170, 170).getRGB());
+            UIUtils.drawTextOnScreen(m.getName(),(int)posX + 67, (int)(posY + 5) + offset, new Color(170,170,170).getRGB());
             offset += 15;
         }
 
         for (Comp comp : comps) {
-            comp.render(matrixStack, mouseX, mouseY, partialTicks);
+            comp.drawScreen(mouseX, mouseY);
         }
-
     }
 
     @Override
@@ -98,21 +94,21 @@ public class Clickgui extends Screen {
         }
         int offset = 0;
         for (Module.Category category : Module.Category.values()) {
-            if (isInside(mouseX, mouseY, posX, posY + 1 + offset, posX + 60, posY + 15 + offset) && button == 0) {
+            if (isInside(mouseX, mouseY,posX,posY + 1 + offset,posX + 60,posY + 15 + offset) && button == 0) {
                 selectedCategory = category;
             }
             offset += 15;
         }
         offset = 0;
         for (Module m : FALLENClient.INSTANCE.getModuleManager().getModulesInCategory(selectedCategory)) {
-            if (isInside(mouseX, mouseY, posX + 65, posY + 1 + offset, posX + 125, posY + 15 + offset)) {
+            if (isInside(mouseX, mouseY,posX + 65,posY + 1 + offset,posX + 125,posY + 15 + offset)) {
                 if (button == 0) {
                     m.toggle();
                 }
                 if (button == 1) {
                     int sOffset = 3;
                     comps.clear();
-                    if (FALLENClient.INSTANCE.getSettingManager().getSettingsByMod(m) != null)
+                    if (FALLENClient.INSTANCE.getSettingManager().getSettingsByMod(m) != null) {
                         for (Setting setting : FALLENClient.INSTANCE.getSettingManager().getSettingsByMod(m)) {
                             selectedModule = m;
                             if (setting.isCombo()) {
@@ -125,9 +121,10 @@ public class Clickgui extends Screen {
                             }
                             if (setting.isSlider()) {
                                 comps.add(new Slider(275, sOffset, this, selectedModule, setting));
-                                sOffset += 25;
+                                sOffset += 35;
                             }
                         }
+                    }
                 }
             }
             offset += 15;
@@ -135,7 +132,7 @@ public class Clickgui extends Screen {
         for (Comp comp : comps) {
             comp.mouseClicked((int) mouseX, (int) mouseY, button);
         }
-        return false;
+        return true;
     }
 
     @Override
@@ -143,9 +140,9 @@ public class Clickgui extends Screen {
         super.mouseReleased(mouseX, mouseY, button);
         dragging = false;
         for (Comp comp : comps) {
-            comp.mouseReleased(mouseX, mouseY, button);
+            comp.mouseReleased((int) mouseX, (int) mouseY, button);
         }
-        return false;
+        return true;
     }
 
     @Override

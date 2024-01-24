@@ -2,6 +2,8 @@ package paul.fallen.module;
 
 import net.minecraftforge.common.MinecraftForge;
 import paul.fallen.ClientSupport;
+import paul.fallen.FALLENClient;
+import paul.fallen.setting.Setting;
 import paul.fallen.utils.render.ColorUtils;
 
 public class Module implements ClientSupport {
@@ -37,9 +39,6 @@ public class Module implements ClientSupport {
                 break;
             case Render:
                 this.categoryColor = 0xffb39ddb;
-                break;
-            case Misc:
-                this.categoryColor = 0xffb0bec5;
                 break;
         }
     }
@@ -137,8 +136,12 @@ public class Module implements ClientSupport {
     public void onToggle() {
     }
 
+    public void addSetting(Setting setting) {
+        FALLENClient.INSTANCE.getSettingManager().addSetting(setting);
+    }
+
     public enum Category {
-        Combat, Player, Movement, World, Render, Exploits, Misc
+        Combat, Player, Movement, World, Render
     }
 
 }

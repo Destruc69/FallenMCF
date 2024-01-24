@@ -151,5 +151,10 @@ public class BlockUtils implements ClientSupport {
         return false;
     }
 
-
+    public static AxisAlignedBB getBoundingBox(BlockPos pos)
+    {
+        assert mc.world != null;
+        return mc.world.getBlockState(pos).getCollisionShape(mc.world, pos)
+                .getBoundingBox();
+    }
 }

@@ -54,9 +54,9 @@ public class SettingManager implements ClientSupport {
 
     public void saveConfig(Gson gson) {
         for (Setting s : this.settings) {
-            File file = new File(mc.gameDir + File.separator + "BDSM" + File.separator + "settings" + File.separator + s.getParentMod().getName() + File.separator + s.getName() + ".json");
+            File file = new File(mc.gameDir + File.separator + "Fallen" + File.separator + "settings" + File.separator + s.getParentMod().getName() + File.separator + s.getName() + ".json");
             if (!file.exists()) {
-                new File(mc.gameDir + File.separator + "BDSM" + File.separator + "settings" + File.separator + s.getParentMod().getName()).mkdirs();
+                new File(mc.gameDir + File.separator + "Fallen" + File.separator + "settings" + File.separator + s.getParentMod().getName()).mkdirs();
                 try {
                     file.createNewFile();
                     Logger.log(LogState.Normal, "Created new Json file: " + file.getName());

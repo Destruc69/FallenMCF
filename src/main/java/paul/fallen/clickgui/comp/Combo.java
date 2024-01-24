@@ -1,6 +1,5 @@
 package paul.fallen.clickgui.comp;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import paul.fallen.clickgui.Clickgui;
 import paul.fallen.module.Module;
 import paul.fallen.setting.Setting;
@@ -34,14 +33,11 @@ public class Combo extends Comp {
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
+    public void drawScreen(int mouseX, int mouseY) {
+        super.drawScreen(mouseX, mouseY);
         //Gui.drawRect(parent.posX + x - 70, parent.posY + y, parent.posX + x, parent.posY + y + 10,setting.getValBoolean() ? new Color(230,10,230).getRGB() : new Color(30,30,30).getRGB());
-
-        // Remove background
-        //UIUtils.drawRect(parent.posX + x - 70, parent.posY + y, 25, 35,setting.getValBoolean() ? new Color(230,10,230).getRGB() : new Color(30,30,30).getRGB());
-
+        // REMOVE TEMP MAYBE: UIUtils.drawRect(parent.posX + x - 70, parent.posY + y, 50, 10,setting.getValBoolean() ? new Color(230,10,230).getRGB() : new Color(30,30,30).getRGB());
         //Minecraft.getMinecraft().fontRendererObj.drawString(setting.getName() + ": " + setting.getValString(), (int)(parent.posX + x - 69), (int)(parent.posY + y + 1), new Color(200,200,200).getRGB());
-        UIUtils.drawTextOnScreen(setting.getName() + ": " + setting.getValString(), (int) (parent.posX + x - 69), (int) (parent.posY + y + 1), new Color(200, 200, 200).getRGB());
+        UIUtils.drawTextOnScreen(setting.getName() + ": " + setting.getValString(), (int)(parent.posX + x - 69), (int)(parent.posY + y + 1), new Color(200,200,200).getRGB());
     }
 }

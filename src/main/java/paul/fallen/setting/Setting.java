@@ -21,19 +21,19 @@ public class Setting {
     public float max;
 
 
-    public Setting(String name, Module parent, String sval, ArrayList<String> options) {
+    public Setting(String name, Module parent, String sval, ArrayList<String> options){
         this(name, name, parent, sval, options);
     }
 
-    public Setting(String name, Module parent, boolean bval) {
+    public Setting(String name, Module parent, boolean bval){
         this(name, name, parent, bval);
     }
 
-    public Setting(String name, Module parent, float dval, float min, float max) {
+    public Setting(String name, Module parent, float dval, float min, float max){
         this(name, name, parent, dval, min, max);
     }
 
-    public Setting(String name, String displayName, Module parent, String sval, ArrayList<String> options) {
+    public Setting(String name, String displayName, Module parent, String sval, ArrayList<String> options){
         this.name = name;
         this.displayName = displayName;
         this.parent = parent;
@@ -42,7 +42,7 @@ public class Setting {
         this.mode = "Combo";
     }
 
-    public Setting(String name, String displayName, Module parent, boolean bval) {
+    public Setting(String name, String displayName, Module parent, boolean bval){
         this.name = name;
         this.displayName = displayName;
         this.parent = parent;
@@ -50,7 +50,7 @@ public class Setting {
         this.mode = "Check";
     }
 
-    public Setting(String name, String displayName, Module parent, float dval, float min, float max) {
+    public Setting(String name, String displayName, Module parent, float dval, float min, float max){
         this.name = name;
         this.displayName = displayName;
         this.parent = parent;
@@ -60,7 +60,7 @@ public class Setting {
         this.mode = "Slider";
     }
 
-    public String getName() {
+    public String getName(){
         return name;
     }
 
@@ -68,55 +68,55 @@ public class Setting {
         return displayName;
     }
 
-    public Module getParentMod() {
+    public Module getParentMod(){
         return parent;
     }
 
-    public String getValString() {
+    public String getValString(){
         return this.sval;
     }
 
-    public void setValString(String in) {
+    public void setValString(String in){
         this.sval = in;
     }
 
-    public ArrayList<String> getOptions() {
+    public ArrayList<String> getOptions(){
         return this.options;
     }
 
-    public boolean getValBoolean() {
+    public boolean getValBoolean(){
         return this.bval;
     }
 
-    public void setValBoolean(boolean in) {
+    public void setValBoolean(boolean in){
         this.bval = in;
     }
 
-    public float getValDouble() {
+    public float getValDouble(){
         return this.dval;
     }
 
-    public void setValDouble(float in) {
+    public void setValDouble(float in){
         this.dval = in;
     }
 
-    public float getMin() {
+    public float getMin(){
         return this.min;
     }
 
-    public float getMax() {
+    public float getMax(){
         return this.max;
     }
 
-    public boolean isCombo() {
+    public boolean isCombo(){
         return this.mode.equalsIgnoreCase("Combo");
     }
 
-    public boolean isCheck() {
+    public boolean isCheck(){
         return this.mode.equalsIgnoreCase("Check");
     }
 
-    public boolean isSlider() {
+    public boolean isSlider(){
         return this.mode.equalsIgnoreCase("Slider");
     }
 }
