@@ -15,7 +15,6 @@ public final class AntiFog extends Module {
 
     public AntiFog(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        this.setState(true);
     }
 
     @SubscribeEvent

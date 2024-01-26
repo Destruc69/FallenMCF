@@ -14,7 +14,6 @@ import paul.fallen.module.Module;
 public final class AutoSneak extends Module {
     public AutoSneak(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        setState(true);
     }
 
     @SubscribeEvent

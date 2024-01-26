@@ -15,6 +15,8 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import paul.fallen.ClientSupport;
 
@@ -151,10 +153,17 @@ public class BlockUtils implements ClientSupport {
         return false;
     }
 
-    public static AxisAlignedBB getBoundingBox(BlockPos pos)
-    {
+    public static AxisAlignedBB getBoundingBox(BlockPos pos) {
         assert mc.world != null;
         return mc.world.getBlockState(pos).getCollisionShape(mc.world, pos)
                 .getBoundingBox();
+    }
+
+    public static boolean canBeClicked(BlockPos pos) {
+        return getOutlineShape(pos) != VoxelShapes.empty();
+    }
+
+    private static VoxelShape getOutlineShape(BlockPos pos) {
+        return mc.world.getBlockState(pos).getShape(mc.world, pos);
     }
 }

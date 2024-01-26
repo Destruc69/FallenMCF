@@ -30,7 +30,6 @@ public final class Disabler extends Module {
         cConfirmTransaction = new Setting("CPacketConfirmTransaction", this, false);
         antiFlag = new Setting("AntiFlag", this, false);
         sConfirmTransaction = new Setting("SPacketConfirmTransaction", this, false);
-        setState(true);
         addSetting(keepAlive);
         addSetting(cConfirmTransaction);
         addSetting(antiFlag);

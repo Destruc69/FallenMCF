@@ -39,7 +39,6 @@ public final class AutoArmorHack extends Module {
 
     public AutoArmorHack(int bind, String name, String displayName, Module.Category category) {
         super(bind, name, displayName, category);
-        setState(true);
 
         useEnchantements = new Setting("UseEnchantements", this, true);
         swapWhileMoving = new Setting("SwapWhileMoving", this, true);

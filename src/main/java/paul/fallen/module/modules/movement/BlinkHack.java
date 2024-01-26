@@ -27,7 +27,6 @@ public final class BlinkHack extends Module {
         super(bind, name, displayName, category);
         limit = new Setting("Limit", "Limit", this, 100, 20, 500);
         addSetting(limit);
-        setState(true);
     }
 
     @Override

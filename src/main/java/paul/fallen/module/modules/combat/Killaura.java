@@ -23,7 +23,6 @@ public final class Killaura extends Module {
 
     public Killaura(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        this.setState(true);
 
         distancee = new Setting("Distance", this, 4, 1, 6);
         addSetting(distancee);

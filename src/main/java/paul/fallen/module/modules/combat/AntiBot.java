@@ -33,7 +33,6 @@ public final class AntiBot extends Module {
 
     public AntiBot(int bind, String name, String displayName, Module.Category category) {
         super(bind, name, displayName, category);
-        setState(true);
 
         impMotionCheck = new Setting("ImpossibleMotionCheck", this, false);
         healthCheck = new Setting("HealthCheck", this, false);

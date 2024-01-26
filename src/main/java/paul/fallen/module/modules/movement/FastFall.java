@@ -26,7 +26,6 @@ public final class FastFall extends Module {
 
     public FastFall(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        setState(true);
 
         mode = new Setting("mode", this, "normal", new ArrayList<>(Arrays.asList("normal", "ncp")));
         addSetting(mode);

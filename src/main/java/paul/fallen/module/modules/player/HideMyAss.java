@@ -14,7 +14,6 @@ public final class HideMyAss extends Module {
 
     public HideMyAss(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        setState(true);
     }
 
 

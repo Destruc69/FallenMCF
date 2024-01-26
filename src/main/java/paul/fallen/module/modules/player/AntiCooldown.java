@@ -15,7 +15,6 @@ import paul.fallen.module.Module;
 public final class AntiCooldown extends Module {
     public AntiCooldown(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        setState(true);
     }
 
     @SubscribeEvent

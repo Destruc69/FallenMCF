@@ -21,7 +21,6 @@ public final class AutoMount extends Module {
 
     public AutoMount(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        this.setState(true);
 
         maxDistance = new Setting("MaxDistance", this, 4, 2, 6);
         delay = new Setting("Delay", this, 10, 2, 10);

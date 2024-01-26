@@ -29,7 +29,6 @@ public class AutoEat extends Module {
 
     public AutoEat(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        setState(true);
 
         mode = new Setting("mode", "Mode", this, "packet", new ArrayList<>(Arrays.asList("packet", "legit")));
         addSetting(mode);

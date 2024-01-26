@@ -26,7 +26,6 @@ public final class Arson extends Module {
 
     public Arson(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        setState(true);
 
         mode = new Setting("mode", "Mode", this, "packet", new ArrayList<>(Arrays.asList("packet", "legit")));
 
@@ -46,7 +45,8 @@ public final class Arson extends Module {
                         assert mc.world != null;
                         if (mc.world.getBlockState(posToLight).getBlock() != Blocks.FIRE) {
                             //mc.playerController.processRightClickBlock(mc.player, mc.world, posToLight, EnumFacing.UP, new Vec3d(0.5, 0, 0.5), EnumHand.MAIN_HAND);
-                            PlayerControllerUtils.rightClickBlock(posToLight, Direction.UP);
+                            assert mc.playerController != null;
+                            PlayerControllerUtils.rightClickBlock(new Vector3d(0.5, 0, 0.5), Direction.DOWN, posToLight);
                             mc.player.swingArm(Hand.MAIN_HAND);
 
                             int[] rot = RotationUtils.getYawAndPitch(new Vector3d(posToLight.getX() + 0.5, posToLight.getY(), posToLight.getZ() + 0.5));

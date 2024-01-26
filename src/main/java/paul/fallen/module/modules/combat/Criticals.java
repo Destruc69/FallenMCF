@@ -23,7 +23,6 @@ public final class Criticals extends Module {
 
     public Criticals(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        setState(true);
 
         mode = new Setting("mode", "Mode", this, "bypass", new ArrayList<>(Arrays.asList("bypass", "basic")));
         addSetting(mode);

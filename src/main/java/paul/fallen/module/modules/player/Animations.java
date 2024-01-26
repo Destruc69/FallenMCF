@@ -31,7 +31,6 @@ public final class Animations extends Module {
         this.leftHandX = new Setting("leftHandX", "Left Hand X offset", this, 0.0f, -2.0f, 2.0f);
         this.leftHandY = new Setting("leftHandY", "Left Hand Y offset", this, 0.0f, -2.0f, 2.0f);
         this.leftHandZ = new Setting("leftHandZ", "Left Hand Z offset", this, 0.0f, -2.0f, 2.0f);
-        setState(true);
         addSetting(this.rightHandX);
         addSetting(this.rightHandY);
         addSetting(this.rightHandZ);

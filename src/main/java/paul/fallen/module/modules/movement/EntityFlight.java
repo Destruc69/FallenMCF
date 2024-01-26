@@ -32,7 +32,6 @@ public final class EntityFlight extends Module {
         addSetting(downSpeed);
         addSetting(bypass);
         addSetting(velocity);
-        setState(true);
     }
 
     @SubscribeEvent

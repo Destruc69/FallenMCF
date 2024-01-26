@@ -30,28 +30,29 @@ public class ModuleManager implements ClientSupport {
 
 	private final ArrayList<Module> modules = new ArrayList<Module>();
 
+	private static ClickGuiHack clickGuiHack;
+
 	public ModuleManager() {
 		MinecraftForge.EVENT_BUS.register(this);
 
 		Logger.log(LogState.Normal, "Adding modules to ModuleManager");
-		addModule(new NoWeather(0, "NoWeather", "No Weather", Category.Render));
 		addModule(new HUD(0, "HUD", Category.Render));
-		addModule(new Aimbot(0, "Aimbot", "Aimbot", Category.Combat));
 		addModule(new AntiSwing(0, "AntiSwing", "AntiSwing", Category.Combat));
 		addModule(new Killaura(0, "Killaura", "Killaura", Category.Combat));
 		addModule(new AntiBot(0, "AntiBot", "AntiBot", Category.Combat));
-		addModule(new Arson(0, "Arson", "Arson", Category.Combat));
 		addModule(new AutoArmorHack(0, "AutoArmor", "AutoArmor", Category.Combat));
 		addModule(new AutoEat(0, "AutoEat", "AutoEat", Category.Combat));
-		addModule(new AutoTNT(0, "AutoTNT", "AutoTNT", Category.Combat));
 		addModule(new AutoTotem(0, "AutoTotem", "AutoTotem", Category.Combat));
 		addModule(new Criticals(0, "Criticals", "Criticals", Category.Combat));
 		addModule(new CrystalAuraHack(0, "CrystalAura", "CrystalAura", Category.Combat));
 		addModule(new FastBow(0, "FastBow", "FastBow", Category.Combat));
 		addModule(new NoKnockBack(0, "NoKnockback", "NoKnockback", Category.Combat));
-		addModule(new ClickGuiHack(KeyEvent.VK_P, "ClickGUI", "ClickGUI", Category.Render));
+
+		clickGuiHack = new ClickGuiHack(KeyEvent.VK_P, "ClickGUI", "ClickGUI", Category.Render);
+		addModule(clickGuiHack);
 
 		addModule(new AntiAFK(0, "AntiAFK", "AntiAFK", Category.Movement));
+		addModule(new ElytraFlight(0, "ElytraFlight", "ElytraFlight", Category.Movement));
 		addModule(new AntiHunger(0, "AntiHunger", "AntiHunger", Category.Movement));
 		addModule(new AntiVoid(0, "AntiVoid", "AntiVoid", Category.Movement));
 		addModule(new AutoMove(0, "AutoMove", "AutoMove", Category.Movement));

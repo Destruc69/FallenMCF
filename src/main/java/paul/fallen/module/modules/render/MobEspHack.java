@@ -22,20 +22,16 @@ public final class MobEspHack extends Module {
 
     public MobEspHack(int bind, String name, String displayName, Module.Category category) {
         super(bind, name, displayName, category);
-        setState(true);
     }
-
 
     @SubscribeEvent
     public void onRenderWorldLast(RenderWorldLastEvent event) {
-        try {
+
             Stream<Entity> entityStream = StreamSupport.stream(mc.world.getAllEntities().spliterator(), false)
                     .filter(e -> e instanceof MobEntity);
 
             for (Entity entity : entityStream.collect(Collectors.toList())) {
-                RenderUtils.drawOutlinedBox(entity.getPosition(), 1, 1, 0);
+                RenderUtils.drawOutlinedBox(entity.getPosition(), 1, 1, 0, event);
             }
-        } catch (Exception ignored) {
-        }
     }
 }

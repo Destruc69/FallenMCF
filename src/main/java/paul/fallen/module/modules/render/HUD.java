@@ -66,7 +66,7 @@ public class HUD extends Module {
 
 		if (coords.bval) {
 			String coordString = Math.round(mc.player.lastTickPosX) + " " + Math.round(mc.player.lastTickPosY) + " " + Math.round(mc.player.lastTickPosZ);
-			drawText(coordString, 6 + mc.fontRenderer.getStringWidth(coordString), 10, Color.WHITE);
+			drawText(coordString, 10 + mc.fontRenderer.getStringWidth(coordString), 10, Color.WHITE);
 
 			StringBuilder stringBuilder = new StringBuilder();
 			for (int i = 0; i < coordString.length(); i ++) {

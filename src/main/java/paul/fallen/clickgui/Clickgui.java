@@ -3,6 +3,7 @@ package paul.fallen.clickgui;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.StringTextComponent;
 import paul.fallen.FALLENClient;
 import paul.fallen.clickgui.comp.CheckBox;
@@ -15,12 +16,20 @@ import paul.fallen.utils.render.UIUtils;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class Clickgui extends Screen {
 
     public double posX, posY, width, height, dragX, dragY;
     public boolean dragging;
     public Module.Category selectedCategory;
+
+    public Vector3d fragmentA;
+    public Vector3d fragmentB;
+    public Vector3d fragmentC;
+    public Vector3d fragmentD;
+
+    public Vector3d textRGB;
 
     private Module selectedModule;
     public int modeIndex;
@@ -46,27 +55,37 @@ public class Clickgui extends Screen {
             posX = mouseX - dragX;
             posY = mouseY - dragY;
         }
-        //Gui.drawRect(posX, posY - 10, width, posY, new Color(100,10,100).getRGB());
-        UIUtils.drawRect(posX, posY - 10, width, 10, new Color(100,10,100).getRGB());
-        //Gui.drawRect(posX, posY, width, height, new Color(45,45,45).getRGB());
-        UIUtils.drawRect(posX, posY, width, height, new Color(45,45,45).getRGB());
 
-        UIUtils.drawTextOnScreen("F A L L E N", (int) posX, (int) (posY - 10), Color.CYAN.getRGB());
+        // 100 10 100 = A
+        // 45 45 45 = B
+        // 230 10 230 = C
+        // 28 28 28 = D
+        // 1701 170 170 = Text RGB
+
+        //Gui.drawRect(posX, posY - 10, width, posY, new Color(100,10,100).getRGB());
+        UIUtils.drawRect(posX, posY - 10, width, 10, new Color((int) fragmentA.x, (int) fragmentA.y, (int) fragmentA.z).getRGB());
+        //Gui.drawRect(posX, posY, width, height, new Color(45,45,45).getRGB());
+        UIUtils.drawRect(posX, posY, width, height, new Color((int) fragmentB.x, (int) fragmentB.y, (int) fragmentB.z).getRGB());
+
+        UIUtils.drawTextOnScreen("Fallen", (int) posX + 2, (int) (posY - 8), Color.CYAN.getRGB());
+
+        Calendar calendar = Calendar.getInstance();
+        UIUtils.drawTextOnScreen(calendar.getTime().toString(), (int) ((int) posX + width - 160), (int) (posY - 8), Color.CYAN.getRGB());
 
         int offset = 0;
         for (Module.Category category : Module.Category.values()) {
             //Gui.drawRect(posX,posY + 1 + offset,posX + 60,posY + 15 + offset,category.equals(selectedCategory) ? new Color(230,10,230).getRGB() : new Color(28,28,28).getRGB());
-            UIUtils.drawRect(posX,posY + 1 + offset,60, 15,category.equals(selectedCategory) ? new Color(230,10,230).getRGB() : new Color(28,28,28).getRGB());
+            UIUtils.drawRect(posX, posY + 1 + offset, 60, 15, category.equals(selectedCategory) ? new Color((int) fragmentC.x, (int) fragmentC.y, (int) fragmentC.z).getRGB() : new Color((int) fragmentD.x, (int) fragmentD.y, (int) fragmentD.z).getRGB());
             //fontRendererObj.drawString(category.name(),(int)posX + 2, (int)(posY + 5) + offset, new Color(170,170,170).getRGB());
-            UIUtils.drawTextOnScreen(category.name(),(int)posX + 2, (int)(posY + 5) + offset, new Color(170,170,170).getRGB());
+            UIUtils.drawTextOnScreen(category.name(), (int) posX + 2, (int) (posY + 5) + offset, new Color((int) textRGB.x, (int) textRGB.y, (int) textRGB.z).getRGB());
             offset += 15;
         }
         offset = 0;
         for (Module m : FALLENClient.INSTANCE.getModuleManager().getModulesInCategory(selectedCategory)) {
             //Gui.drawRect(posX + 65,posY + 1 + offset,posX + 125,posY + 15 + offset,m.isToggled() ? new Color(230,10,230).getRGB() : new Color(28,28,28).getRGB());
-            UIUtils.drawRect(posX + 65,posY + 1 + offset,125,15,m.toggled ? new Color(230,10,230).getRGB() : new Color(28,28,28).getRGB());
+            UIUtils.drawRect(posX + 65, posY + 1 + offset, 125, 15, m.toggled ? new Color((int) fragmentC.x, (int) fragmentC.y, (int) fragmentC.z).getRGB() : new Color((int) fragmentD.x, (int) fragmentD.y, (int) fragmentD.z).getRGB());
             //fontRendererObj.drawString(m.getName(),(int)posX + 67, (int)(posY + 5) + offset, new Color(170,170,170).getRGB());
-            UIUtils.drawTextOnScreen(m.getName(),(int)posX + 67, (int)(posY + 5) + offset, new Color(170,170,170).getRGB());
+            UIUtils.drawTextOnScreen(m.getName(), (int) posX + 67, (int) (posY + 5) + offset, new Color((int) textRGB.x, (int) textRGB.y, (int) textRGB.z).getRGB());
             offset += 15;
         }
 
@@ -106,22 +125,38 @@ public class Clickgui extends Screen {
                     m.toggle();
                 }
                 if (button == 1) {
-                    int sOffset = 3;
                     comps.clear();
+                    int column = 0;
+                    int count = 0;
+                    int maxSettingsPerColumn = 10;
+                    int columnOffsetBase = 275;
+                    int columnOffset = columnOffsetBase;
+                    int yOffset = 3;
+
                     if (FALLENClient.INSTANCE.getSettingManager().getSettingsByMod(m) != null) {
                         for (Setting setting : FALLENClient.INSTANCE.getSettingManager().getSettingsByMod(m)) {
                             selectedModule = m;
+
+                            if (count >= maxSettingsPerColumn) {
+                                count = 0;
+                                column++;
+                                columnOffset = columnOffsetBase + column * 150; // Adjust the column spacing as needed
+                                yOffset = 3;
+                            }
+
+                            count++;
+
                             if (setting.isCombo()) {
-                                comps.add(new Combo(275, sOffset, this, selectedModule, setting));
-                                sOffset += 15;
+                                comps.add(new Combo(columnOffset, yOffset, this, selectedModule, setting));
+                                yOffset += 15;
                             }
                             if (setting.isCheck()) {
-                                comps.add(new CheckBox(275, sOffset, this, selectedModule, setting));
-                                sOffset += 15;
+                                comps.add(new CheckBox(columnOffset, yOffset, this, selectedModule, setting));
+                                yOffset += 15;
                             }
                             if (setting.isSlider()) {
-                                comps.add(new Slider(275, sOffset, this, selectedModule, setting));
-                                sOffset += 35;
+                                comps.add(new Slider(columnOffset, yOffset, this, selectedModule, setting));
+                                yOffset += 35;
                             }
                         }
                     }

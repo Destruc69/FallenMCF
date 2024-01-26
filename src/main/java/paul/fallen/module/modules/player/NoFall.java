@@ -19,7 +19,6 @@ public final class NoFall extends Module {
 
     public NoFall(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        setState(true);
 
         damage = new Setting("Damage", this, false);
         addSetting(damage);

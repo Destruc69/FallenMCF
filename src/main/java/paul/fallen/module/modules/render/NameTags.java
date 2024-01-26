@@ -19,7 +19,6 @@ public final class NameTags extends Module {
 
     public NameTags(int bind, String name, String displayName, Module.Category category) {
         super(bind, name, displayName, category);
-        setState(true);
     }
 
     @SubscribeEvent

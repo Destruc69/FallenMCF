@@ -8,7 +8,6 @@ public final class FullbrightHack extends Module {
 
     public FullbrightHack(int bind, String name, String displayName, Module.Category category) {
         super(bind, name, displayName, category);
-        setState(true);
     }
 
     @SubscribeEvent

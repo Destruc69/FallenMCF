@@ -28,7 +28,6 @@ public final class EntitySpeed extends Module {
         bypass = new Setting("Bypass", this, false);
         addSetting(speed);
         addSetting(bypass);
-        setState(true);
     }
 
     @SubscribeEvent

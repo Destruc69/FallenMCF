@@ -25,7 +25,6 @@ public final class AntiHunger extends Module {
         groundSpoof = new Setting("GroundSpoof", this, false);
         addSetting(cancelSprintPacket);
         addSetting(groundSpoof);
-        setState(true);
     }
 
     @Override

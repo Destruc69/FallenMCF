@@ -14,7 +14,6 @@ import paul.fallen.module.Module;
 public final class AntiVoid extends Module {
     public AntiVoid(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        setState(true);
     }
 
     @SubscribeEvent

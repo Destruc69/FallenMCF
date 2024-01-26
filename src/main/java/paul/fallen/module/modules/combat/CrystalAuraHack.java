@@ -29,8 +29,8 @@ import paul.fallen.setting.Setting;
 import paul.fallen.utils.client.MathUtils;
 import paul.fallen.utils.entity.EntityUtils;
 import paul.fallen.utils.entity.InventoryUtils;
-import paul.fallen.utils.entity.PlayerControllerUtils;
 import paul.fallen.utils.entity.RotationUtils;
+import paul.fallen.utils.world.BlockUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -48,7 +48,6 @@ public class CrystalAuraHack extends Module {
 
     public CrystalAuraHack(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        setState(true);
 
         range = new Setting("range", this, 4, 2, 6);
         autoPlace = new Setting("autoPlace", "Auto-place crystals", this, true);
@@ -288,7 +287,7 @@ public class CrystalAuraHack extends Module {
 
             // Place the crystal
             //mc.playerController.processRightClickBlock(mc.player, mc.world, neighbor, side, hitVec, Hand.MAIN_HAND);
-            PlayerControllerUtils.rightClickBlock(neighbor, side);
+            BlockUtils.placeCrystalOnBlock(neighbor, Hand.MAIN_HAND);
             return true;
         }
 

@@ -15,7 +15,6 @@ public final class AntiCollide extends Module {
 
     public AntiCollide(int bind, String name, String displayName, Module.Category category) {
         super(bind, name, displayName, category);
-        setState(true);
     }
 
     @SubscribeEvent

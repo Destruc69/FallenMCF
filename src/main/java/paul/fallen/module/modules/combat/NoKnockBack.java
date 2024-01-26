@@ -10,7 +10,6 @@ public class NoKnockBack extends Module {
 
     public NoKnockBack(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        setState(true);
     }
 
     @SubscribeEvent

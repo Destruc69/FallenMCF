@@ -8,14 +8,14 @@
 package paul.fallen.utils.entity;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.client.CPlayerTryUseItemOnBlockPacket;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.vector.Vector3d;
 
 public final class PlayerControllerUtils {
     private static final Minecraft mc = Minecraft.getInstance();
@@ -35,23 +35,8 @@ public final class PlayerControllerUtils {
                 mc.player);
     }
 
-    public static void rightClickBlock(BlockPos blockPos, Direction direction) {
+    public static void rightClickBlock(Vector3d hitVec, Direction side, BlockPos pos) {
         assert mc.player != null;
-        MinecraftForge.EVENT_BUS.post(new PlayerInteractEvent.RightClickBlock(mc.player, Hand.MAIN_HAND, blockPos, direction));
-    }
-
-    public static void rightClickItem(Hand hand) {
-        assert mc.player != null;
-        MinecraftForge.EVENT_BUS.post(new PlayerInteractEvent.RightClickItem(mc.player, hand));
-    }
-
-    public static void interactWithEntity(Hand hand, Entity entity) {
-        assert mc.player != null;
-        MinecraftForge.EVENT_BUS.post(new PlayerInteractEvent.EntityInteract(mc.player, hand, entity));
-    }
-
-    public static void leftClickBlock(BlockPos blockPos, Direction direction) {
-        assert mc.player != null;
-        MinecraftForge.EVENT_BUS.post(new PlayerInteractEvent.LeftClickBlock(mc.player, blockPos, direction));
+        mc.player.connection.sendPacket(new CPlayerTryUseItemOnBlockPacket(Hand.MAIN_HAND, new BlockRayTraceResult(hitVec, side, pos, false)));
     }
 }

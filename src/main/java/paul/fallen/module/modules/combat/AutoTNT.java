@@ -33,7 +33,6 @@ public final class AutoTNT extends Module {
 
     public AutoTNT(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        setState(true);
 
         mode = new Setting("mode", "Mode", this, "legit", new ArrayList<>(Arrays.asList("packet", "legit")));
         addSetting(mode);
@@ -108,7 +107,9 @@ public final class AutoTNT extends Module {
             assert mc.player != null;
             mc.player.inventory.currentItem = getSlot(Items.FLINT_AND_STEEL);
             if (mc.player.ticksExisted % 5 == 0) {
-                PlayerControllerUtils.rightClickBlock(tntPos, Direction.DOWN);
+                //PlayerControllerUtils.rightClickBlock(tntPos, Direction.DOWN);
+                //mc.playerController.clickBlock(tntPos, Direction.DOWN);
+                PlayerControllerUtils.rightClickBlock(new Vector3d(0.5, 0.5, 0.5), Direction.DOWN, tntPos);
                 mc.player.swingArm(Hand.MAIN_HAND);
 
                 int[] rot = RotationUtils.getYawAndPitch(new Vector3d(tntPos.getX() + 0.5, tntPos.getY() + 0.5, tntPos.getZ() + 0.5));
@@ -123,7 +124,8 @@ public final class AutoTNT extends Module {
             assert mc.player != null;
             mc.player.inventory.currentItem = getSlot(Item.getItemFromBlock(Blocks.TNT));
             if (mc.player.ticksExisted % 5 == 0) {
-                PlayerControllerUtils.rightClickBlock(tntPos, Direction.DOWN);
+                //PlayerControllerUtils.rightClickBlock(tntPos, Direction.DOWN);
+                PlayerControllerUtils.rightClickBlock(new Vector3d(0.5, 0, 0.5), Direction.DOWN, tntPos);
                 mc.player.swingArm(Hand.MAIN_HAND);
 
                 int[] rot = RotationUtils.getYawAndPitch(new Vector3d(tntPos.getX() + 0.5, tntPos.getY(), tntPos.getZ() + 0.5));

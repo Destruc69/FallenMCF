@@ -1,6 +1,7 @@
 package paul.fallen.utils.entity;
 
 import net.minecraft.block.Blocks;
+import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -31,6 +32,35 @@ public class PlayerUtils implements ClientSupport {
         return 0.2873D;
     }
 
+    public static double[] calculateMotion(double speed, double increment) {
+        double[] motion = new double[2];
+        double currentSpeed = 0.0;
+
+        while (currentSpeed < speed) {
+            // Increment motion gradually
+            motion[0] += increment;
+            motion[1] += increment;
+
+            // Calculate current speed (hypotenuse of motion in x and z directions)
+            currentSpeed = Math.sqrt(motion[0] * motion[0] + motion[1] * motion[1]);
+        }
+
+        return motion;
+    }
+
+    public static double calculateMotionY(double speed, double increment) {
+        double motion = 0;
+        double currentSpeed = 0.0;
+
+        // Use a for loop to increment motion until currentSpeed reaches speed
+        for (; currentSpeed < speed; currentSpeed += increment) {
+            // Increment motion gradually
+            motion += increment;
+        }
+
+        return motion;
+    }
+
     public static void setMoveSpeed(double speed) {
         double forward = mc.player.moveForward;
         double strafe = mc.player.moveStrafing;
@@ -49,6 +79,46 @@ public class PlayerUtils implements ClientSupport {
             }
         }
         mc.player.setVelocity(forward * speed * Math.cos(Math.toRadians((yaw + 90.0F))) + strafe * speed * Math.sin(Math.toRadians((yaw + 90.0F))), mc.player.getMotion().getY(), forward * speed * Math.sin(Math.toRadians((yaw + 90.0F))) - strafe * speed * Math.cos(Math.toRadians((yaw + 90.0F))));
+    }
+
+    public static double[] getMotions(double speed) {
+        double forward = getForward();
+        double strafe = getStrafe();
+        float yaw = mc.player.rotationYaw;
+        if (forward != 0) {
+            if (strafe > 0) {
+                yaw += ((forward > 0) ? -45 : 45);
+            } else if (strafe < 0) {
+                yaw += ((forward > 0) ? 45 : -45);
+            }
+            strafe = 0;
+            if (forward > 0) {
+                forward = 1;
+            } else {
+                forward = -1;
+            }
+        }
+        return new double[]{forward * speed * Math.cos(Math.toRadians((yaw + 90.0F))) + strafe * speed * Math.sin(Math.toRadians((yaw + 90.0F))), forward * speed * Math.sin(Math.toRadians((yaw + 90.0F))) - strafe * speed * Math.cos(Math.toRadians((yaw + 90.0F)))};
+    }
+
+    public static int getForward() {
+        if (mc.gameSettings.keyBindForward.isKeyDown()) {
+            return 1;
+        } else if (mc.gameSettings.keyBindBack.isKeyDown()) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+
+    public static int getStrafe() {
+        if (mc.gameSettings.keyBindRight.isKeyDown()) {
+            return 1;
+        } else if (mc.gameSettings.keyBindLeft.isKeyDown()) {
+            return -1;
+        } else {
+            return 0;
+        }
     }
 
     public static void setMoveSpeedRidingEntity(double speed) {
@@ -281,4 +351,14 @@ public class PlayerUtils implements ClientSupport {
         return new BlockPos(Math.floor(player.getPosX()), Math.floor(player.getPosY()), Math.floor(player.getPosZ()));
     }
 
+    public static Vector3d getCameraPos() {
+        Minecraft mc = Minecraft.getInstance();
+        Entity renderViewEntity = mc.getRenderViewEntity();
+
+        if (renderViewEntity != null) {
+            return renderViewEntity.getEyePosition(mc.getRenderPartialTicks());
+        }
+
+        return Vector3d.ZERO;
+    }
 }

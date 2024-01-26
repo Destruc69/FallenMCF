@@ -12,7 +12,6 @@ public final class FreeCam extends Module {
 
     public FreeCam(int bind, String name, String displayName, Module.Category category) {
         super(bind, name, displayName, category);
-        setState(true);
     }
 
     @SubscribeEvent

@@ -22,7 +22,6 @@ public final class ItemEspHack extends Module {
 
     public ItemEspHack(int bind, String name, String displayName, Module.Category category) {
         super(bind, name, displayName, category);
-        setState(true);
     }
 
     @SubscribeEvent
@@ -33,7 +32,7 @@ public final class ItemEspHack extends Module {
                     .filter(e -> e instanceof ItemEntity);
 
             for (Entity entity : entityStream.collect(Collectors.toList())) {
-                RenderUtils.drawOutlinedBox(entity.getPosition(), 0, 1, 0);
+                RenderUtils.drawOutlinedBox(entity.getPosition(), 0, 1, 0, event);
             }
         } catch (Exception ignored) {
         }

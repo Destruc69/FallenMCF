@@ -17,7 +17,6 @@ public final class Discord extends Module {
 
     public Discord(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        setState(true);
         onEnable();
     }
 

@@ -23,7 +23,6 @@ public final class AutoSwimHack extends Module {
         super(bind, name, displayName, category);
         mode = new Setting("Mode", this, "Dolphin", new ArrayList<>(Arrays.asList("Dolphin", "Fish")));
         addSetting(mode);
-        setState(true);
     }
 
     @SubscribeEvent

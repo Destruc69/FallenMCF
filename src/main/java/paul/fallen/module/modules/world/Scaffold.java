@@ -10,6 +10,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
@@ -28,7 +29,6 @@ public final class Scaffold extends Module {
 
     public Scaffold(int bind, String name, String displayName, Module.Category category) {
         super(bind, name, displayName, category);
-        setState(true);
 
         rotationMode = new Setting("RoationMode", this, "a", new ArrayList<>(Arrays.asList("a", "b")));
         swing = new Setting("Swing", this, true);
@@ -118,7 +118,7 @@ public final class Scaffold extends Module {
                     mc.player.connection.sendPacket(new CHeldItemChangePacket(i));
                     mc.player.inventory.currentItem = i;
                     //mc.playerController.processRightClickBlock(mc.player, mc.world, pos, face, new Vec3d(0.5D, 0.5D, 0.5D), EnumHand.MAIN_HAND);
-                    PlayerControllerUtils.rightClickBlock(pos, face);
+                    PlayerControllerUtils.rightClickBlock(new Vector3d(0.5, 0.5, 0.5), face, pos);
                     if (swing.bval) {
                         mc.player.swingArm(Hand.MAIN_HAND);
                     } else {
@@ -144,7 +144,7 @@ public final class Scaffold extends Module {
 
         if (mc.player.getHeldItem(Hand.MAIN_HAND).getItem() instanceof BlockItem) {
             //mc.playerController.processRightClickBlock(mc.player, mc.world, pos, face, new Vec3d(0.5D, 0.5D, 0.5D), EnumHand.MAIN_HAND);
-            PlayerControllerUtils.rightClickBlock(pos, face);
+            PlayerControllerUtils.rightClickBlock(new Vector3d(0.5, 0.5, 0.5), face, pos);
             if (swing.bval) {
                 mc.player.swingArm(Hand.MAIN_HAND);
             } else {

@@ -28,7 +28,6 @@ public final class AutoTool extends Module {
 
     public AutoTool(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        this.setState(true);
 
         useSwords = new Setting("UseSwords", this, true);
         useHands = new Setting("UseHands", this, true);
@@ -129,5 +128,4 @@ public final class AutoTool extends Module {
     private boolean isTooDamaged(ItemStack stack, boolean repairMode) {
         return repairMode && stack.getMaxDamage() - stack.getDamage() <= 4;
     }
-
 }

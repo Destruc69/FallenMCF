@@ -28,7 +28,6 @@ public final class AutoTotem extends Module {
 
     public AutoTotem(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        setState(true);
 
         delay = new Setting("delay", "Delay", this, 0, 0, 20);
         health = new Setting("health", "Health", this, 0, 0, 20);

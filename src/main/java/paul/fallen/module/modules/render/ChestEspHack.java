@@ -23,7 +23,6 @@ public final class ChestEspHack extends Module {
 
     public ChestEspHack(int bind, String name, String displayName, Module.Category category) {
         super(bind, name, displayName, category);
-        setState(true);
     }
 
     @SubscribeEvent
@@ -35,11 +34,11 @@ public final class ChestEspHack extends Module {
 
             for (TileEntity tileEntity : tileEntityStream.collect(Collectors.toList())) {
                 if (tileEntity instanceof ShulkerBoxTileEntity) {
-                    RenderUtils.drawOutlinedBox(tileEntity.getPos(), 1, 0, 0);
+                    RenderUtils.drawOutlinedBox(tileEntity.getPos(), 1, 0, 0, event);
                 } else if (tileEntity instanceof ChestTileEntity) {
-                    RenderUtils.drawOutlinedBox(tileEntity.getPos(), 0, 1, 0);
+                    RenderUtils.drawOutlinedBox(tileEntity.getPos(), 0, 1, 0, event);
                 } else if (tileEntity instanceof EnderChestTileEntity) {
-                    RenderUtils.drawOutlinedBox(tileEntity.getPos(), 0, 0, 1);
+                    RenderUtils.drawOutlinedBox(tileEntity.getPos(), 0, 0, 1, event);
                 }
             }
         } catch (Exception ignored) {

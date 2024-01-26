@@ -23,10 +23,11 @@ public final class NoSlowDown extends Module {
 
     public NoSlowDown(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        setState(true);
 
         ncp = new Setting("NCP", "ncp", this, false);
         other = new Setting("Other", "other", this, true);
+        addSetting(ncp);
+        addSetting(other);
     }
 
     @SubscribeEvent

@@ -19,7 +19,6 @@ public final class AntiAFK extends Module {
         super(bind, name, displayName, category);
         crazy = new Setting("CrazyMode", this, false);
         addSetting(crazy);
-        setState(true);
     }
 
     @SubscribeEvent

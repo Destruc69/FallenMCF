@@ -37,7 +37,6 @@ public final class AutoMove extends Module {
         addSetting(left);
         addSetting(lockX);
         addSetting(lockZ);
-        setState(true);
     }
 
     @SubscribeEvent

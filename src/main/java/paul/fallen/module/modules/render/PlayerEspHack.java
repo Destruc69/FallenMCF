@@ -22,17 +22,16 @@ public final class PlayerEspHack extends Module {
 
     public PlayerEspHack(int bind, String name, String displayName, Module.Category category) {
         super(bind, name, displayName, category);
-        setState(true);
     }
 
     @SubscribeEvent
     public void onRenderWorldLast(RenderWorldLastEvent event) {
         try {
             Stream<Entity> entityStream = StreamSupport.stream(mc.world.getAllEntities().spliterator(), false)
-                    .filter(e -> e instanceof PlayerEntity);
+                    .filter(e -> e instanceof PlayerEntity && !(e == mc.player));
 
             for (Entity entity : entityStream.collect(Collectors.toList())) {
-                RenderUtils.drawOutlinedBox(entity.getPosition(), 0, 1, 1);
+                RenderUtils.drawOutlinedBox(entity.getPosition(), 0, 1, 1, event);
             }
         } catch (Exception ignored) {
         }
