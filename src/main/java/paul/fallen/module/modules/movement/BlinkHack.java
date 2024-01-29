@@ -10,8 +10,8 @@ package paul.fallen.module.modules.movement;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import paul.fallen.events.PacketSendEvent;
 import paul.fallen.module.Module;
+import paul.fallen.packetevent.PacketEvent;
 import paul.fallen.setting.Setting;
 
 import java.util.Deque;
@@ -46,7 +46,7 @@ public final class BlinkHack extends Module {
     }
 
     @SubscribeEvent
-    public void onPacketOutput(PacketSendEvent event) {
+    public void onPacketOutput(PacketEvent event) {
         if (!(event.getPacket() instanceof CPlayerPacket))
             return;
 

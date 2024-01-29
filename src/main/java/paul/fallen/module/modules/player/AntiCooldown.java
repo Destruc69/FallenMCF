@@ -9,8 +9,8 @@ package paul.fallen.module.modules.player;
 
 import net.minecraft.network.play.server.SCooldownPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import paul.fallen.events.PacketReceiveEvent;
 import paul.fallen.module.Module;
+import paul.fallen.packetevent.PacketEvent;
 
 public final class AntiCooldown extends Module {
     public AntiCooldown(int bind, String name, String displayName, Category category) {
@@ -18,7 +18,7 @@ public final class AntiCooldown extends Module {
     }
 
     @SubscribeEvent
-    public void onPacket(PacketReceiveEvent event) {
+    public void onPacket(PacketEvent event) {
         if (event.getPacket() instanceof SCooldownPacket) {
             event.setCanceled(true);
         }

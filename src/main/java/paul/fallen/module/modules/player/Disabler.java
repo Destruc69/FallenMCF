@@ -12,9 +12,8 @@ import net.minecraft.network.play.client.CKeepAlivePacket;
 import net.minecraft.network.play.server.SConfirmTransactionPacket;
 import net.minecraft.network.play.server.SPlayerPositionLookPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import paul.fallen.events.PacketReceiveEvent;
-import paul.fallen.events.PacketSendEvent;
 import paul.fallen.module.Module;
+import paul.fallen.packetevent.PacketEvent;
 import paul.fallen.setting.Setting;
 
 public final class Disabler extends Module {
@@ -37,7 +36,7 @@ public final class Disabler extends Module {
     }
 
     @SubscribeEvent
-    public void onPacketOut(PacketSendEvent event) {
+    public void onPacketOut(PacketEvent event) {
         if (keepAlive.bval) {
             if (event.getPacket() instanceof CKeepAlivePacket) {
                 assert mc.player != null;
@@ -56,7 +55,7 @@ public final class Disabler extends Module {
     }
 
     @SubscribeEvent
-    public void onPacketIn(PacketReceiveEvent event) {
+    public void onPacketIn(PacketEvent event) {
         if (antiFlag.bval) {
             if (event.getPacket() instanceof SPlayerPositionLookPacket) {
                 SPlayerPositionLookPacket sPacketPlayerPosLook = (SPlayerPositionLookPacket) event.getPacket();

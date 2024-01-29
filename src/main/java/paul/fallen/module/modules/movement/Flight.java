@@ -6,8 +6,8 @@ import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.network.play.server.SPlayerPositionLookPacket;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import paul.fallen.events.PacketReceiveEvent;
 import paul.fallen.module.Module;
+import paul.fallen.packetevent.PacketEvent;
 import paul.fallen.setting.Setting;
 import paul.fallen.utils.client.MathUtils;
 import paul.fallen.utils.entity.EntityUtils;
@@ -131,7 +131,7 @@ public final class Flight extends Module {
     }
 
     @SubscribeEvent
-    public void onPackets(PacketReceiveEvent event) {
+    public void onPackets(PacketEvent event) {
         assert mc.player != null;
         if (mc.player.ticksExisted > 20) {
             if (!mc.player.isOnGround()) {

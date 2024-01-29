@@ -92,6 +92,10 @@ public final class Scaffold extends Module {
                     }
                 }
             }
+
+            if (mc.player.isOnGround() && mc.world.isAirBlock(mc.player.getPosition().down())) {
+                mc.player.setMotion(0, mc.player.getMotion().y, 0);
+            }
         } catch (Exception ignored) {
         }
     }

@@ -11,9 +11,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.FireworkRocketEntity;
 import net.minecraft.network.play.client.CEntityActionPacket;
+import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
+import paul.fallen.packetevent.PacketEvent;
 import paul.fallen.setting.Setting;
 import paul.fallen.utils.client.MathUtils;
 import paul.fallen.utils.entity.EntityUtils;
@@ -29,24 +31,21 @@ public final class ElytraFlight extends Module {
     private final Setting downSpeed;
     private final Setting autoTakeOff;
     private final Setting antiFireworkLag;
-    private final Setting glideSpeed;
     private boolean autoTakeOffSwitchBool;
 
     public ElytraFlight(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        mode = new Setting("Mode", "Mode", this, "boost", new ArrayList<>(Arrays.asList("boost", "control", "strict")));
+        mode = new Setting("Mode", "Mode", this, "boost", new ArrayList<>(Arrays.asList("boost", "control", "bounce", "fallen")));
         upSpeed = new Setting("up-speed", "Up-Speed", this, 0.05F, (float) 0.005, 10.0F);
         baseSpeed = new Setting("base-speed", "Base-Speed", this, 0.05F, (float) 0.005, 10.0F);
         downSpeed = new Setting("down-speed", "Down-Speed", this, 0.05F, (float) 0.005, 10.0F);
-        glideSpeed = new Setting("glide-speed", "Glide-Speed", this, 0.08f, 0f, 1);
         autoTakeOff = new Setting("AutoTakeOff", "AutoTakeOff", this, "help", new ArrayList<>(Arrays.asList("help", "auto", "off")));
         antiFireworkLag = new Setting("AntiFireworkLag", this, false);
         addSetting(mode);
         addSetting(upSpeed);
         addSetting(baseSpeed);
         addSetting(downSpeed);
-        addSetting(glideSpeed);
         addSetting(autoTakeOff);
     }
 
@@ -66,28 +65,25 @@ public final class ElytraFlight extends Module {
                         EntityUtils.setMotionY(mc.player.getMotion().y + Math.sin(Math.toRadians(pitch)) * upSpeed.dval);
                     if (Minecraft.getInstance().gameSettings.keyBindSneak.isKeyDown())
                         EntityUtils.setMotionY(mc.player.getMotion().y - Math.sin(Math.toRadians(pitch)) * downSpeed.dval);
-
-                    if (glideSpeed.dval > 0) {
-                        EntityUtils.setMotionY(mc.player.getMotion().y - Math.sin(Math.toRadians(pitch)) * glideSpeed.dval);
-                    }
                 } else if (mode.sval == "control") {
                     if (mc.gameSettings.keyBindForward.isKeyDown() ||
                             mc.gameSettings.keyBindRight.isKeyDown() ||
                             mc.gameSettings.keyBindBack.isKeyDown() ||
                             mc.gameSettings.keyBindLeft.isKeyDown()) {
                         MathUtils.setSpeed(baseSpeed.dval);
+                    } else {
+                        EntityUtils.setMotionX(0);
+                        EntityUtils.setMotionZ(0);
                     }
                     if (mc.gameSettings.keyBindJump.isKeyDown() && !mc.gameSettings.keyBindSneak.isKeyDown()) {
                         EntityUtils.setMotionY(upSpeed.dval);
                     } else if (!mc.gameSettings.keyBindJump.isKeyDown() && mc.gameSettings.keyBindSneak.isKeyDown()) {
                         EntityUtils.setMotionY(-downSpeed.dval);
-                    } else {
-                        if (glideSpeed.dval > 0) {
-                            EntityUtils.setMotionY(glideSpeed.dval);
-                        }
+                    } else if (!mc.gameSettings.keyBindJump.isKeyDown() && !mc.gameSettings.keyBindSneak.isKeyDown()) {
+                        EntityUtils.setMotionY(0);
                     }
-                } else if (mode.sval == "strict") {
-                    // TODO: do this
+                } else if (mode.sval == "fallen") {
+                    mc.player.setMotion(mc.player.getMotion().x * 1.005, mc.player.getMotion().y * 1.005, mc.player.getMotion().z * 1.005);
                 }
 
                 if (antiFireworkLag.bval) {
@@ -99,8 +95,6 @@ public final class ElytraFlight extends Module {
                         }
                     }
                 }
-
-
             } else {
                 if (autoTakeOff.sval == "help") {
                     if (mc.player.getMotion().y < 0 && !mc.player.isOnGround()) {
@@ -126,6 +120,16 @@ public final class ElytraFlight extends Module {
                 }
             }
         } catch (Exception ignored) {
+        }
+    }
+
+    @SubscribeEvent
+    public void onPacketSend(PacketEvent event) {
+        if (mode.sval == "bounce") {
+            if (event.getPacket() instanceof CPlayerPacket) {
+                mc.player.connection.sendPacket(new CPlayerPacket(false));
+                event.setCanceled(true);
+            }
         }
     }
 }

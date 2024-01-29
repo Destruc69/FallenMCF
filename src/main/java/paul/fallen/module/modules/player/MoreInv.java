@@ -10,9 +10,8 @@ package paul.fallen.module.modules.player;
 import net.minecraft.network.play.client.CCloseWindowPacket;
 import net.minecraft.network.play.server.SCloseWindowPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import paul.fallen.events.PacketReceiveEvent;
-import paul.fallen.events.PacketSendEvent;
 import paul.fallen.module.Module;
+import paul.fallen.packetevent.PacketEvent;
 
 public final class MoreInv extends Module {
 
@@ -21,14 +20,14 @@ public final class MoreInv extends Module {
     }
 
     @SubscribeEvent
-    public void onPacketOut(PacketSendEvent event) {
+    public void onPacketOut(PacketEvent event) {
         if (event.getPacket() instanceof CCloseWindowPacket) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
-    public void onPacketIn(PacketReceiveEvent event) {
+    public void onPacketIn(PacketEvent event) {
         if (event.getPacket() instanceof SCloseWindowPacket) {
             event.setCanceled(true);
         }

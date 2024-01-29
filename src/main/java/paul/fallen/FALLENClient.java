@@ -8,6 +8,7 @@ import paul.fallen.clickgui.Clickgui;
 import paul.fallen.command.CommandManager;
 import paul.fallen.friend.FriendManager;
 import paul.fallen.module.ModuleManager;
+import paul.fallen.packetevent.ChannelHandlerInput;
 import paul.fallen.setting.SettingManager;
 import paul.fallen.utils.client.Logger;
 import paul.fallen.utils.client.Logger.LogState;
@@ -34,6 +35,8 @@ public class FALLENClient implements ClientSupport {
         Logger.log(LogState.Normal, "Initializing EventManager");
 
         MinecraftForge.EVENT_BUS.register(this);
+
+        MinecraftForge.EVENT_BUS.register(new ChannelHandlerInput());
 
         Logger.log(LogState.Normal, "Initializing Gson with pretty printing");
         this.gson = new GsonBuilder().setPrettyPrinting().create();

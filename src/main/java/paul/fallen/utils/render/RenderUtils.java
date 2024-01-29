@@ -16,6 +16,8 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import org.lwjgl.opengl.GL11;
 import paul.fallen.ClientSupport;
 
+import java.util.ArrayList;
+
 public class RenderUtils implements ClientSupport {
 
     public static void drawOutlinedBox(BlockPos pos, int red, int green, int blue, RenderWorldLastEvent event) {
@@ -24,6 +26,17 @@ public class RenderUtils implements ClientSupport {
 
         final AxisAlignedBB aab = new AxisAlignedBB(0, 0, 0, 1, 1, 1);
         drawBoundingBoxAtBlockPos(event.getMatrixStack(), aab, red, green, blue, 1.0F, pos);
+    }
+
+    public static void drawPath(ArrayList<BlockPos> blockPosArrayList, int red, int green, int blue, RenderWorldLastEvent event) {
+        final GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
+        gameRenderer.resetProjectionMatrix(event.getProjectionMatrix());
+
+        final AxisAlignedBB aab = new AxisAlignedBB(0, 1, 0, 1, 1.1, 1);
+
+        for (BlockPos blockPos : blockPosArrayList) {
+            drawBoundingBoxAtBlockPos(event.getMatrixStack(), aab, red, green, blue, 1.0F, blockPos);
+        }
     }
 
     private static void drawBoundingBoxAtBlockPos(MatrixStack matrixStackIn, AxisAlignedBB aabbIn, float red, float green, float blue, float alpha, BlockPos pos) {

@@ -40,43 +40,46 @@ public class HUD extends Module {
 
 	@SubscribeEvent
 	public void onRenderHUD(RenderGameOverlayEvent.Post event) {
-		if (watermark.bval) {
-			drawText("Fallen", 2, 2, Color.CYAN, 2);
-		}
-		if (arrayList.bval) {
-			ArrayList<Module> moduleArrayList = FALLENClient.INSTANCE.getModuleManager().getModulesForArrayList();
-			moduleArrayList.sort(new NameLengthComparator().reversed());
+		try {
+			if (watermark.bval) {
+				drawText("Fallen", 2, 2, new Color((int) FALLENClient.INSTANCE.getClickgui().textRGB.x, (int) FALLENClient.INSTANCE.getClickgui().textRGB.y, (int) FALLENClient.INSTANCE.getClickgui().textRGB.z), 2);
+			}
+			if (arrayList.bval) {
+				ArrayList<Module> moduleArrayList = FALLENClient.INSTANCE.getModuleManager().getModulesForArrayList();
+				moduleArrayList.sort(new NameLengthComparator().reversed());
 
-			int y = 22;
-			for (Module module : moduleArrayList) {
-				if (module.getCategory() == Category.Combat) {
-					drawText(module.getDisplayName(), 2, y, Color.RED);
-				} else if (module.getCategory() == Category.Render) {
-					drawText(module.getDisplayName(), 2, y, Color.GREEN);
-				} else if (module.getCategory() == Category.Movement) {
-					drawText(module.getDisplayName(), 2, y, Color.BLUE);
-				} else if (module.getCategory() == Category.Player) {
-					drawText(module.getDisplayName(), 2, y, Color.ORANGE);
-				} else if (module.getCategory() == Category.World) {
-					drawText(module.getDisplayName(), 2, y, Color.YELLOW);
+				int y = 22;
+				for (Module module : moduleArrayList) {
+					if (module.getCategory() == Category.Combat) {
+						drawText(module.getDisplayName(), 2, y, Color.RED);
+					} else if (module.getCategory() == Category.Render) {
+						drawText(module.getDisplayName(), 2, y, Color.GREEN);
+					} else if (module.getCategory() == Category.Movement) {
+						drawText(module.getDisplayName(), 2, y, Color.BLUE);
+					} else if (module.getCategory() == Category.Player) {
+						drawText(module.getDisplayName(), 2, y, Color.ORANGE);
+					} else if (module.getCategory() == Category.World) {
+						drawText(module.getDisplayName(), 2, y, Color.YELLOW);
+					}
+					y += 12;
 				}
-				y+=12;
 			}
-		}
 
-		if (coords.bval) {
-			String coordString = Math.round(mc.player.lastTickPosX) + " " + Math.round(mc.player.lastTickPosY) + " " + Math.round(mc.player.lastTickPosZ);
-			drawText(coordString, 10 + mc.fontRenderer.getStringWidth(coordString), 10, Color.WHITE);
+			if (coords.bval) {
+				String coordString = Math.round(mc.player.lastTickPosX) + " " + Math.round(mc.player.lastTickPosY) + " " + Math.round(mc.player.lastTickPosZ);
+				drawText(coordString, 10 + mc.fontRenderer.getStringWidth(coordString), 10, Color.WHITE);
 
-			StringBuilder stringBuilder = new StringBuilder();
-			for (int i = 0; i < coordString.length(); i ++) {
-				stringBuilder.append("_");
+				StringBuilder stringBuilder = new StringBuilder();
+				for (int i = 0; i < coordString.length(); i++) {
+					stringBuilder.append("_");
+				}
+				drawText(stringBuilder.toString(), 7 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
+				drawText(stringBuilder.toString(), 6 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
+				drawText(stringBuilder.toString(), 5 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
 			}
-			drawText(stringBuilder.toString(), 7 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
-			drawText(stringBuilder.toString(), 6 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
-			drawText(stringBuilder.toString(), 5 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
-		}
 
+		} catch (Exception ignored) {
+		}
 	}
 
 	private void drawText(String text, int x, int y, Color color) {

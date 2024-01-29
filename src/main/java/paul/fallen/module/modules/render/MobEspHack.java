@@ -12,6 +12,7 @@ import net.minecraft.entity.MobEntity;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
+import paul.fallen.setting.Setting;
 import paul.fallen.utils.render.RenderUtils;
 
 import java.util.stream.Collectors;
@@ -20,8 +21,13 @@ import java.util.stream.StreamSupport;
 
 public final class MobEspHack extends Module {
 
+    Setting glow;
+
     public MobEspHack(int bind, String name, String displayName, Module.Category category) {
         super(bind, name, displayName, category);
+
+        glow = new Setting("Glow", this, false);
+        addSetting(glow);
     }
 
     @SubscribeEvent
@@ -32,6 +38,8 @@ public final class MobEspHack extends Module {
 
             for (Entity entity : entityStream.collect(Collectors.toList())) {
                 RenderUtils.drawOutlinedBox(entity.getPosition(), 1, 1, 0, event);
+
+                entity.setGlowing(glow.bval);
             }
     }
 }

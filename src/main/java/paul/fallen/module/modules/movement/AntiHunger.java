@@ -10,8 +10,8 @@ package paul.fallen.module.modules.movement;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import paul.fallen.events.PacketSendEvent;
 import paul.fallen.module.Module;
+import paul.fallen.packetevent.PacketEvent;
 import paul.fallen.setting.Setting;
 import paul.fallen.utils.client.MathUtils;
 
@@ -41,7 +41,7 @@ public final class AntiHunger extends Module {
     }
 
     @SubscribeEvent
-    public void onPacketOut(PacketSendEvent event) {
+    public void onPacketOut(PacketEvent event) {
         if (cancelSprintPacket.bval && event.getPacket() instanceof CEntityActionPacket) {
             CEntityActionPacket cPacketEntityAction = (CEntityActionPacket) event.getPacket();
             if (cPacketEntityAction.getAction().equals(CEntityActionPacket.Action.START_SPRINTING) || cPacketEntityAction.getAction().equals(CEntityActionPacket.Action.STOP_SPRINTING)) {

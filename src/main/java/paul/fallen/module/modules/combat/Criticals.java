@@ -10,8 +10,8 @@ package paul.fallen.module.modules.combat;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.network.play.client.CUseEntityPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import paul.fallen.events.PacketSendEvent;
 import paul.fallen.module.Module;
+import paul.fallen.packetevent.PacketEvent;
 import paul.fallen.setting.Setting;
 
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public final class Criticals extends Module {
     }
 
     @SubscribeEvent
-    public void onPacketOut(PacketSendEvent event) {
+    public void onPacketOut(PacketEvent event) {
         if (event.getPacket() instanceof CUseEntityPacket) {
             CUseEntityPacket cPacketUseEntity = (CUseEntityPacket) event.getPacket();
 

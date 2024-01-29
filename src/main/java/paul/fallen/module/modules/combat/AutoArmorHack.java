@@ -21,8 +21,8 @@ import net.minecraft.network.play.client.CClickWindowPacket;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import paul.fallen.events.PacketSendEvent;
 import paul.fallen.module.Module;
+import paul.fallen.packetevent.PacketEvent;
 import paul.fallen.setting.Setting;
 import paul.fallen.utils.entity.PlayerControllerUtils;
 
@@ -142,7 +142,7 @@ public final class AutoArmorHack extends Module {
     }
 
     @SubscribeEvent
-    public void onPacketOutput(PacketSendEvent event) {
+    public void onPacketOutput(PacketEvent event) {
         if (event.getPacket() instanceof CClickWindowPacket)
             timer = (int) delay.dval;
     }

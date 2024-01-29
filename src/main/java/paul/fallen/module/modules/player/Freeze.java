@@ -3,9 +3,8 @@ package paul.fallen.module.modules.player;
 import net.minecraft.network.IPacket;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import paul.fallen.events.PacketReceiveEvent;
-import paul.fallen.events.PacketSendEvent;
 import paul.fallen.module.Module;
+import paul.fallen.packetevent.PacketEvent;
 import paul.fallen.setting.Setting;
 
 import java.util.ArrayList;
@@ -17,7 +16,6 @@ public final class Freeze extends Module {
 
     public Freeze(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        onEnable();
     }
 
     public void onEnable() {
@@ -39,7 +37,7 @@ public final class Freeze extends Module {
     }
 
     @SubscribeEvent
-    public void onPacketOut(PacketReceiveEvent event) {
+    public void onPacketOut(PacketEvent event) {
         if (!inputPackets.bval) {
             packets.add(event.getPacket());
             event.setCanceled(true);
@@ -47,7 +45,7 @@ public final class Freeze extends Module {
     }
 
     @SubscribeEvent
-    public void onPacketIn(PacketSendEvent event) {
+    public void onPacketIn(PacketEvent event) {
         if (inputPackets.bval) {
             event.setCanceled(true);
         }

@@ -32,6 +32,8 @@ public class ClickGuiHack extends Module {
     private static Setting textGreen;
     private static Setting textBlue;
 
+    private static Setting cape;
+
     public ClickGuiHack(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
@@ -55,6 +57,8 @@ public class ClickGuiHack extends Module {
         textGreen = new Setting("TextGreen", this, 170, 0, 255);
         textBlue = new Setting("TextBlue", this, 170, 0, 255);
 
+        cape = new Setting("Cape", this, false);
+
         addSetting(fragmentARed);
         addSetting(fragmentAGreen);
         addSetting(fragmentABlue);
@@ -74,6 +78,9 @@ public class ClickGuiHack extends Module {
         addSetting(textRed);
         addSetting(textGreen);
         addSetting(textBlue);
+
+        // I just put the setting in clickgui settings for now
+        addSetting(cape);
     }
 
     @Override

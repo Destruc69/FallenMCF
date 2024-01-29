@@ -85,6 +85,7 @@ public class ModuleManager implements ClientSupport {
 
 		addModule(new ChestEspHack(0, "ChestESP", "ChestESP", Category.Render));
 		addModule(new FreeCam(0, "Freecam", "Freecam", Category.Render));
+		addModule(new Breadcrumbs(0, "Breadcrumbs", "Breadcrumbs", Category.Render));
 		addModule(new FullbrightHack(0, "Fullbright", "Fullbright", Category.Render));
 		addModule(new ItemEspHack(0,"ItemESP", "ItemESP", Category.Render));
 		addModule(new MobEspHack(0, "MobESP", "MobESP", Category.Render));
