@@ -84,6 +84,8 @@ public class ClickGuiHack extends Module {
 
         // I just put the setting in clickgui settings for now
         addSetting(prefix);
+
+        setState(true);
     }
 
     @Override
@@ -121,10 +123,13 @@ public class ClickGuiHack extends Module {
 
     @SubscribeEvent
     public void onKeyPress(InputEvent.KeyInputEvent event) {
-        if (event.getKey() == GLFW.GLFW_KEY_ESCAPE) {
-            ClientSupport.mc.currentScreen.closeScreen();
-            setState(false);
-            onDisable();
+        try {
+            if (event.getKey() == GLFW.GLFW_KEY_ESCAPE) {
+                ClientSupport.mc.currentScreen.closeScreen();
+                setState(false);
+                onDisable();
+            }
+        } catch (Exception ignored) {
         }
     }
 }
