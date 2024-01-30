@@ -10,6 +10,9 @@ import paul.fallen.FALLENClient;
 import paul.fallen.module.Module;
 import paul.fallen.setting.Setting;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class ClickGuiHack extends Module {
 
     private static Setting fragmentARed;
@@ -32,7 +35,7 @@ public class ClickGuiHack extends Module {
     private static Setting textGreen;
     private static Setting textBlue;
 
-    private static Setting cape;
+    private static Setting prefix;
 
     public ClickGuiHack(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
@@ -57,7 +60,7 @@ public class ClickGuiHack extends Module {
         textGreen = new Setting("TextGreen", this, 170, 0, 255);
         textBlue = new Setting("TextBlue", this, 170, 0, 255);
 
-        cape = new Setting("Cape", this, false);
+        prefix = new Setting("Prefix", "Prefix", this, "dot", new ArrayList<>(Arrays.asList("dot", "minus")));
 
         addSetting(fragmentARed);
         addSetting(fragmentAGreen);
@@ -80,7 +83,7 @@ public class ClickGuiHack extends Module {
         addSetting(textBlue);
 
         // I just put the setting in clickgui settings for now
-        addSetting(cape);
+        addSetting(prefix);
     }
 
     @Override
@@ -105,6 +108,8 @@ public class ClickGuiHack extends Module {
             FALLENClient.INSTANCE.getClickgui().fragmentC = new Vector3d(fragmentCRed.dval, fragmentCGreen.dval, fragmentCBlue.dval);
             FALLENClient.INSTANCE.getClickgui().fragmentD = new Vector3d(fragmentDRed.dval, fragmentDGreen.dval, fragmentDBlue.dval);
             FALLENClient.INSTANCE.getClickgui().textRGB = new Vector3d(textRed.dval, textGreen.dval, textBlue.dval);
+
+            FALLENClient.INSTANCE.getCommandManager().prefix = prefix.sval == "minus" ? "-" : ".";
 
             if (!(mc.currentScreen == FALLENClient.INSTANCE.getClickgui())) {
                 setState(false);

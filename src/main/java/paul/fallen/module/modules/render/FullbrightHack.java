@@ -12,7 +12,7 @@ public final class FullbrightHack extends Module {
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
-        /*
+
         if (getState()) {
             if (mc.gameSettings.gamma < 16)
                 mc.gameSettings.gamma =
@@ -27,9 +27,7 @@ public final class FullbrightHack extends Module {
         else
             setState(false);
 
-         */
 
-        mc.player.setGlowing(true);
     }
 
 }

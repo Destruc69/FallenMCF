@@ -67,15 +67,15 @@ public class HUD extends Module {
 
 			if (coords.bval) {
 				String coordString = Math.round(mc.player.lastTickPosX) + " " + Math.round(mc.player.lastTickPosY) + " " + Math.round(mc.player.lastTickPosZ);
-				drawText(coordString, 10 + mc.fontRenderer.getStringWidth(coordString), 10, Color.WHITE);
+				drawText(coordString, 25 + mc.fontRenderer.getStringWidth(coordString), 10, Color.WHITE);
 
 				StringBuilder stringBuilder = new StringBuilder();
 				for (int i = 0; i < coordString.length(); i++) {
 					stringBuilder.append("_");
 				}
-				drawText(stringBuilder.toString(), 7 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
-				drawText(stringBuilder.toString(), 6 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
-				drawText(stringBuilder.toString(), 5 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
+				drawText(stringBuilder.toString(), 25 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
+				drawText(stringBuilder.toString(), 26 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
+				drawText(stringBuilder.toString(), 24 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
 			}
 
 		} catch (Exception ignored) {

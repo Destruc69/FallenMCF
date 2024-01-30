@@ -30,7 +30,7 @@ public class ModuleManager implements ClientSupport {
 
 	private final ArrayList<Module> modules = new ArrayList<Module>();
 
-	private static ClickGuiHack clickGuiHack;
+	public ClickGuiHack clickGuiHack;
 
 	public ModuleManager() {
 		MinecraftForge.EVENT_BUS.register(this);
@@ -48,7 +48,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new FastBow(0, "FastBow", "FastBow", Category.Combat));
 		addModule(new NoKnockBack(0, "NoKnockback", "NoKnockback", Category.Combat));
 
-		clickGuiHack = new ClickGuiHack(KeyEvent.VK_P, "ClickGUI", "ClickGUI", Category.Render);
+		clickGuiHack = new ClickGuiHack(KeyEvent.VK_P, "ClickGUI", "ClickGUI", Category.Client);
 		addModule(clickGuiHack);
 
 		addModule(new AntiAFK(0, "AntiAFK", "AntiAFK", Category.Movement));
@@ -91,6 +91,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new MobEspHack(0, "MobESP", "MobESP", Category.Render));
 		addModule(new NameTags(0, "Nametags", "Nametags", Category.Render));
 		addModule(new PlayerEspHack(0, "PlayerESP", "PlayerESP", Category.Render));
+		addModule(new WaypointModule(0, "Waypoint", "Waypoint", Category.Render));
 
 		addModule(new AntiFog(0, "AntiFog", "AntiFog", Category.World));
 		addModule(new AntiWeather(0, "AntiWeather", "AntiWeather", Category.World));

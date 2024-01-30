@@ -21,6 +21,8 @@ public class FriendManager implements ClientSupport {
 
     public FriendManager() {
         Logger.log(LogState.Normal, "Initiating Gson for FriendManager");
+
+        addFriend("PaulBigBalls", "Paul");
     }
 
     public ArrayList<Friend> getFriendsList() {

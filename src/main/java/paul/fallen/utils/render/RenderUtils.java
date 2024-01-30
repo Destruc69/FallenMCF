@@ -66,4 +66,45 @@ public class RenderUtils implements ClientSupport {
 
         renderTypeBuffer.finish(RenderType.LINES);
     }
+
+
+
+
+
+    public static void drawLine(BlockPos a, BlockPos b, int red, int green, int blue, RenderWorldLastEvent event) {
+        final GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
+        gameRenderer.resetProjectionMatrix(event.getProjectionMatrix());
+
+        final AxisAlignedBB lineAABB = new AxisAlignedBB(0, 0, 0, 1, 1, 1);
+
+        drawLineBoundingBox(event.getMatrixStack(), lineAABB, red, green, blue, 1.0F, a, b);
+    }
+
+    private static void drawLineBoundingBox(MatrixStack matrixStackIn, AxisAlignedBB aabbIn, float red, float green, float blue, float alpha, BlockPos posA, BlockPos posB) {
+        Vector3d cam = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
+
+        double camX = cam.getX(), camY = cam.getY(), camZ = cam.getZ();
+
+        matrixStackIn.push();
+
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+
+        drawLineShapeOutline(matrixStackIn, VoxelShapes.create(aabbIn), posA, posB, camX, camY, camZ, red, green, blue, alpha);
+
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+
+        matrixStackIn.pop();
+    }
+
+    private static void drawLineShapeOutline(MatrixStack matrixStack, VoxelShape voxelShape, BlockPos posA, BlockPos posB, double camX, double camY, double camZ, float red, float green, float blue, float alpha) {
+        Matrix4f matrix4f = matrixStack.getLast().getMatrix();
+
+        IRenderTypeBuffer.Impl renderTypeBuffer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
+        IVertexBuilder bufferIn = renderTypeBuffer.getBuffer(RenderType.LINES);
+
+        bufferIn.pos(matrix4f, (float) (posA.getX() - camX), (float) (posA.getY() - camY), (float) (posA.getZ() - camZ)).color(red, green, blue, alpha).endVertex();
+        bufferIn.pos(matrix4f, (float) (posB.getX() - camX), (float) (posB.getY() - camY), (float) (posB.getZ() - camZ)).color(red, green, blue, alpha).endVertex();
+
+        renderTypeBuffer.finish(RenderType.LINES);
+    }
 }

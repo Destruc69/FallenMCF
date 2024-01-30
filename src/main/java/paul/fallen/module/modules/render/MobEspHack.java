@@ -32,7 +32,7 @@ public final class MobEspHack extends Module {
 
     @SubscribeEvent
     public void onRenderWorldLast(RenderWorldLastEvent event) {
-
+        try {
             Stream<Entity> entityStream = StreamSupport.stream(mc.world.getAllEntities().spliterator(), false)
                     .filter(e -> e instanceof MobEntity);
 
@@ -41,5 +41,7 @@ public final class MobEspHack extends Module {
 
                 entity.setGlowing(glow.bval);
             }
+        } catch (Exception ignored) {
+        }
     }
 }

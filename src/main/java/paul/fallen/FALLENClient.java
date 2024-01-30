@@ -12,6 +12,7 @@ import paul.fallen.packetevent.ChannelHandlerInput;
 import paul.fallen.setting.SettingManager;
 import paul.fallen.utils.client.Logger;
 import paul.fallen.utils.client.Logger.LogState;
+import paul.fallen.waypoint.WaypointManager;
 
 @Mod("fallen")
 public class FALLENClient implements ClientSupport {
@@ -24,6 +25,7 @@ public class FALLENClient implements ClientSupport {
     private final SettingManager settingManager;
     private final FriendManager friendManager;
     private final CommandManager commandManager;
+    private final WaypointManager waypointManager;
     private final Clickgui clickgui;
     private final Gson gson;
 
@@ -53,6 +55,10 @@ public class FALLENClient implements ClientSupport {
         this.moduleManager = new ModuleManager();
         MinecraftForge.EVENT_BUS.register(moduleManager);
 
+        Logger.log(LogState.Normal, "Initializing WaypointManager");
+        this.waypointManager = new WaypointManager();
+        MinecraftForge.EVENT_BUS.register(waypointManager);
+
         Logger.log(LogState.Normal, "Initializing CommandManager");
         this.commandManager = new CommandManager();
         MinecraftForge.EVENT_BUS.register(commandManager);
@@ -66,6 +72,11 @@ public class FALLENClient implements ClientSupport {
         Logger.log(LogState.Normal, "Loading ModuleManager config");
         this.moduleManager.loadConfig(gson);
         Logger.log(LogState.Normal, "Saving ModuleManager config");
+        this.moduleManager.saveConfig(gson);
+
+        Logger.log(LogState.Normal, "Loading WaypointManager config");
+        this.waypointManager.loadConfig(gson);
+        Logger.log(LogState.Normal, "Saving WaypointManager config");
         this.moduleManager.saveConfig(gson);
 
         Logger.log(LogState.Normal, "Loading SettingManager config");
@@ -86,6 +97,9 @@ public class FALLENClient implements ClientSupport {
 
                 Logger.log(LogState.Normal, "Saving SettingManager config");
                 INSTANCE.settingManager.saveConfig(gson);
+
+                Logger.log(LogState.Normal, "Saving WaypointManager config");
+                INSTANCE.waypointManager.saveConfig(gson);
             }
         });
     }
@@ -116,6 +130,10 @@ public class FALLENClient implements ClientSupport {
 
     public CommandManager getCommandManager() {
         return this.commandManager;
+    }
+
+    public WaypointManager getWaypointManager() {
+        return this.waypointManager;
     }
 
     public Clickgui getClickgui() {

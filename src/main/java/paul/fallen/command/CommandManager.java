@@ -16,6 +16,8 @@ public class CommandManager implements ClientSupport {
     private final SettingCommand settingCommand = new SettingCommand();
     private final UnknownCommand unknownCommand = new UnknownCommand();
 
+    public String prefix = null;
+
     public CommandManager() {
         MinecraftForge.EVENT_BUS.register(this);
 
@@ -23,6 +25,7 @@ public class CommandManager implements ClientSupport {
         commandList.add(new FriendCommand());
         commandList.add(new ToggleCommand());
         commandList.add(new BindCommand());
+        commandList.add(new WaypointCommand());
 
         ArrayList<String> nameList = new ArrayList<String>();
         for (Module m : FALLENClient.INSTANCE.getModuleManager().getModules()) {
@@ -38,12 +41,23 @@ public class CommandManager implements ClientSupport {
 
     @SubscribeEvent
     public void onChatMessage(ClientChatEvent event) {
-        if (event.getMessage().startsWith("$")) {
-            event.setCanceled(true);
-            String message = event.getMessage().substring(1);
-            String[] cmd = message.split(" ");
-            Command command = getCommandFromMessage(message);
-            command.runCommand(cmd);
+        if (prefix != null) {
+            if (event.getMessage().startsWith(prefix)) {
+                event.setCanceled(true);
+                String message = event.getMessage().substring(1);
+                String[] cmd = message.split(" ");
+                Command command = getCommandFromMessage(message);
+                command.runCommand(cmd);
+            }
+        } else {
+            // Revert to default prefix
+            if (event.getMessage().startsWith("$")) {
+                event.setCanceled(true);
+                String message = event.getMessage().substring(1);
+                String[] cmd = message.split(" ");
+                Command command = getCommandFromMessage(message);
+                command.runCommand(cmd);
+            }
         }
     }
 

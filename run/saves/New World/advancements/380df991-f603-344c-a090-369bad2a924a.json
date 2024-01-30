@@ -5,6 +5,12 @@
     },
     "done": true
   },
+  "minecraft:recipes/misc/charcoal": {
+    "criteria": {
+      "has_log": "2024-01-29 20:22:50 +1100"
+    },
+    "done": true
+  },
   "minecraft:recipes/transportation/oak_boat": {
     "criteria": {
       "in_water": "2024-01-20 00:07:25 +1100"
@@ -14,6 +20,12 @@
   "minecraft:recipes/transportation/dark_oak_boat": {
     "criteria": {
       "in_water": "2024-01-20 00:07:25 +1100"
+    },
+    "done": true
+  },
+  "minecraft:recipes/building_blocks/stripped_dark_oak_wood": {
+    "criteria": {
+      "has_log": "2024-01-29 20:22:50 +1100"
     },
     "done": true
   },
@@ -29,6 +41,12 @@
     },
     "done": true
   },
+  "minecraft:recipes/building_blocks/dark_oak_planks": {
+    "criteria": {
+      "has_log": "2024-01-29 20:22:50 +1100"
+    },
+    "done": true
+  },
   "minecraft:recipes/transportation/spruce_boat": {
     "criteria": {
       "in_water": "2024-01-20 00:07:25 +1100"
@@ -38,7 +56,10 @@
   "minecraft:adventure/adventuring_time": {
     "criteria": {
       "minecraft:forest": "2024-01-20 14:31:43 +1100",
-      "minecraft:birch_forest": "2024-01-19 23:27:03 +1100"
+      "minecraft:mountains": "2024-01-30 21:27:24 +1100",
+      "minecraft:birch_forest": "2024-01-19 23:27:03 +1100",
+      "minecraft:wooded_mountains": "2024-01-30 21:27:29 +1100",
+      "minecraft:swamp": "2024-01-29 20:23:14 +1100"
     },
     "done": false
   },
