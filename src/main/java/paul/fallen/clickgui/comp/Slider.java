@@ -1,9 +1,5 @@
 package paul.fallen.clickgui.comp;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.util.text.StringTextComponent;
 import paul.fallen.clickgui.Clickgui;
 import paul.fallen.module.Module;
 import paul.fallen.setting.Setting;

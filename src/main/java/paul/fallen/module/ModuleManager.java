@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import net.minecraft.client.gui.screen.ChatScreen;
+import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -140,7 +140,7 @@ public class ModuleManager implements ClientSupport {
 
 	public void loadConfig(Gson gson) {
 		for (Module m : this.modules) {
-			File file = new File(mc.gameDir + File.separator + "Fallen" + File.separator + "modules" + File.separator + m.getName() + ".json");
+			File file = new File(mc.gameDirectory + File.separator + "Fallen" + File.separator + "modules" + File.separator + m.getName() + ".json");
 			try (FileReader reader = new FileReader(file)) {
 				Map<String, Object> map = gson.fromJson(reader, new TypeToken<Map<String, Object>>() {
 				}.getType());
@@ -165,9 +165,9 @@ public class ModuleManager implements ClientSupport {
 
 	public void saveConfig(Gson gson) {
 		for (Module m : this.modules) {
-			File file = new File(mc.gameDir + File.separator + "Fallen" + File.separator + "modules" + File.separator + m.getName() + ".json");
+			File file = new File(mc.gameDirectory + File.separator + "Fallen" + File.separator + "modules" + File.separator + m.getName() + ".json");
 			if (!file.exists()) {
-				new File(mc.gameDir + File.separator + "Fallen" + File.separator + "modules").mkdirs();
+				new File(mc.gameDirectory + File.separator + "Fallen" + File.separator + "modules").mkdirs();
 				try {
 					file.createNewFile();
 					Logger.log(LogState.Normal, "Created new Json file: " + file.getName());
@@ -189,10 +189,10 @@ public class ModuleManager implements ClientSupport {
 	}
 
 	@SubscribeEvent
-	public void onKeyPress(InputEvent.KeyInputEvent event) {
+	public void onKeyPress(InputEvent.Key event) {
 		if (event.getAction() == GLFW.GLFW_PRESS) { // Check if the key is pressed, not released
 			for (Module m : this.modules) {
-				if (event.getKey() == m.getBind() && !(mc.currentScreen instanceof ChatScreen)) {
+				if (event.getKey() == m.getBind() && !(mc.screen instanceof ChatScreen)) {
 					m.setState(!m.getState());
 				}
 			}

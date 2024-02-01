@@ -1,10 +1,11 @@
 package paul.fallen.clickgui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3d;
 import paul.fallen.FALLENClient;
 import paul.fallen.clickgui.comp.CheckBox;
 import paul.fallen.clickgui.comp.Combo;
@@ -37,10 +38,10 @@ public class Clickgui extends Screen {
     public ArrayList<Comp> comps = new ArrayList<>();
 
     public Clickgui() {
-        super(new StringTextComponent("clickgui"));
+        super(Component.empty());
         dragging = false;
-        int scaledWidth = Minecraft.getInstance().getMainWindow().getScaledWidth();
-        int scaledHeight = Minecraft.getInstance().getMainWindow().getScaledHeight();
+        int scaledWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();;
+        int scaledHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
         posX = scaledWidth / 2 - 150;
         posY = scaledHeight / 2 - 100;
         width = posX + 150 * 2 * 2;
@@ -49,8 +50,8 @@ public class Clickgui extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
+    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        super.render(guiGraphics, mouseX, mouseY, partialTicks);
         if (dragging) {
             posX = mouseX - dragX;
             posY = mouseY - dragY;
