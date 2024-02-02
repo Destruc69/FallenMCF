@@ -7,7 +7,6 @@ import net.minecraft.world.level.block.Blocks;
 import paul.fallen.ClientSupport;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 public class BlockUtils implements ClientSupport {
@@ -34,11 +33,11 @@ public class BlockUtils implements ClientSupport {
     }
 
     public static Block getBlockAtPosC(Player inPlayer, double x, double y, double z) {
-        return getBlockAtPos(new BlockPos(inPlayer.getX() - x, inPlayer.getY() - y, inPlayer.getZ() - z));
+        return getBlockAtPos(new BlockPos((int) (inPlayer.getX() - x), (int) (inPlayer.getY() - y), (int) (inPlayer.getZ() - z)));
     }
 
     public static float getBlockDistance(float xDiff, float yDiff, float zDiff) {
-        return MathHelper.sqrt(((xDiff - 0.5F) * (xDiff - 0.5F)) + ((yDiff - 0.5F) * (yDiff - 0.5F))
+        return (float) Math.sqrt(((xDiff - 0.5F) * (xDiff - 0.5F)) + ((yDiff - 0.5F) * (yDiff - 0.5F))
                 + ((zDiff - 0.5F) * (zDiff - 0.5F)));
     }
 
@@ -47,109 +46,21 @@ public class BlockUtils implements ClientSupport {
     }
 
     public static BlockPos getBlockPos(double x, double y, double z) {
-        return getBlockPos(new BlockPos(x, y, z));
+        return getBlockPos(new BlockPos((int) x, (int) y, (int) z));
     }
 
-    public static BlockPos getBlockPosUnderPlayer(PlayerEntity inPlayer) {
-        return new BlockPos(inPlayer.getPosX(), (inPlayer.getPosY() + (mc.player.getMotion().getY() + 0.1D)) - 1D, inPlayer.getPosZ());
+    public static BlockPos getBlockPosUnderPlayer(Player inPlayer) {
+        return new BlockPos((int) inPlayer.getX(), (int) ((inPlayer.getY() + (mc.player.getDeltaMovement().y + 0.1D)) - 1D), (int) inPlayer.getZ());
     }
 
-    public static Block getBlockUnderPlayer(PlayerEntity inPlayer) {
+    public static Block getBlockUnderPlayer(Player inPlayer) {
         return getBlockAtPos(
-                new BlockPos(inPlayer.getPosX(), (inPlayer.getPosY() + (mc.player.getMotion().getY() + 0.1D)) - 1D, inPlayer.getPosZ()));
+                new BlockPos((int) inPlayer.getX(), (int) ((inPlayer.getY() + (mc.player.getDeltaMovement().y + 0.1D)) - 1D), (int) inPlayer.getZ()));
     }
 
     public static float getHorizontalPlayerBlockDistance(BlockPos blockPos) {
-        float xDiff = (float) (mc.player.getPosX() - blockPos.getX());
-        float zDiff = (float) (mc.player.getPosZ() - blockPos.getZ());
-        return MathHelper.sqrt(((xDiff - 0.5F) * (xDiff - 0.5F)) + ((zDiff - 0.5F) * (zDiff - 0.5F)));
-    }
-
-    public static boolean canSeeBlock(BlockPos pos) {
-        return mc.player != null && mc.world.rayTraceBlocks(new Vector3d(mc.player.getPosX(), mc.player.getPosY() + mc.player.getEyeHeight(), mc.player.getPosZ()), new Vector3d(pos.getX() + 0.5, pos.getY() - 0.5, pos.getZ() + 0.5), pos, mc.world.getBlockState(pos).getShape(mc.world, pos), mc.world.getBlockState(pos)) == null;
-    }
-
-    public static void placeCrystalOnBlock(BlockPos pos, Hand hand) {
-        BlockRayTraceResult result = mc.world.rayTraceBlocks(new Vector3d(mc.player.getPosX(), mc.player.getPosY() + mc.player.getEyeHeight(), mc.player.getPosZ()), new Vector3d(pos.getX() + 0.5, pos.getY() - 0.5, pos.getZ() + 0.5), pos, mc.world.getBlockState(pos).getShape(mc.world, pos), mc.world.getBlockState(pos));
-        if (result != null) mc.player.connection.sendPacket(new CPlayerTryUseItemOnBlockPacket(hand, result));
-    }
-
-    public static boolean isBlockEmpty(BlockPos pos) {
-        try {
-            if (emptyBlocks.contains(mc.world.getBlockState(pos).getBlock())) {
-                AxisAlignedBB box = new AxisAlignedBB(pos);
-                Iterator entityIter = mc.world.getAllEntities().iterator();
-                Entity e;
-                do {
-                    if (!entityIter.hasNext()) {
-                        return true;
-                    }
-                    e = (Entity) entityIter.next();
-                } while (!(e instanceof LivingEntity) || !box.intersects(e.getBoundingBox()));
-
-            }
-        } catch (Exception ignored) {
-        }
-        return false;
-    }
-
-    public static void rotatePacket(double x, double y, double z) {
-        double diffX = x - mc.player.getPosX();
-        double diffY = y - (mc.player.getPosY() + (double) mc.player.getEyeHeight());
-        double diffZ = z - mc.player.getPosZ();
-        double diffXZ = Math.sqrt(diffX * diffX + diffZ * diffZ);
-
-        float yaw = (float) Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0F;
-        float pitch = (float) (-Math.toDegrees(Math.atan2(diffY, diffXZ)));
-
-        mc.player.connection.sendPacket(new RotationPacket(yaw, pitch, mc.player.isOnGround()));
-    }
-
-    public static boolean placeBlock(BlockPos pos, int slot, boolean rotate, boolean rotateBack) {
-        int old_slot = -1;
-        if (slot != mc.player.inventory.currentItem) {
-            old_slot = mc.player.inventory.currentItem;
-            mc.player.inventory.currentItem = slot;
-        }
-        Direction[] facings = Direction.values();
-        for (Direction f : facings) {
-            Block neighborBlock = mc.world.getBlockState(pos.offset(f)).getBlock();
-            Vector3d vec = new Vector3d(pos.getX() + 0.5D + (double) f.getXOffset() * 0.5D, pos.getY() + 0.5D + (double) f.getYOffset() * 0.5D, pos.getZ() + 0.5D + (double) f.getZOffset() * 0.5D);
-            float[] rot = new float[]{mc.player.rotationYaw, mc.player.rotationPitch};
-            if (rotate) {
-                rotatePacket(vec.x, vec.y, vec.z);
-            }
-            if (rightclickableBlocks.contains(neighborBlock)) {
-                mc.getConnection().sendPacket(new CEntityActionPacket(mc.player, Action.PRESS_SHIFT_KEY));
-            }
-            mc.playerController.func_217292_a(mc.player, mc.world, Hand.MAIN_HAND, mc.world.rayTraceBlocks(new Vector3d(mc.player.getPosX(), mc.player.getPosY() + mc.player.getEyeHeight(), mc.player.getPosZ()), new Vector3d(pos.getX() + 0.5, pos.getY() - 0.5, pos.getZ() + 0.5), pos, mc.world.getBlockState(pos).getShape(mc.world, pos), mc.world.getBlockState(pos)));
-            if (rightclickableBlocks.contains(neighborBlock)) {
-                mc.getConnection().sendPacket(new CEntityActionPacket(mc.player, Action.RELEASE_SHIFT_KEY));
-            }
-            if (rotateBack) {
-                mc.player.connection.sendPacket(new RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
-            }
-            mc.player.swingArm(Hand.MAIN_HAND);
-            if (old_slot != -1) {
-                mc.player.inventory.currentItem = old_slot;
-            }
-            return true;
-        }
-
-        return false;
-    }
-
-    public static AxisAlignedBB getBoundingBox(BlockPos pos) {
-        assert mc.world != null;
-        return mc.world.getBlockState(pos).getCollisionShape(mc.world, pos)
-                .getBoundingBox();
-    }
-
-    public static boolean canBeClicked(BlockPos pos) {
-        return getOutlineShape(pos) != VoxelShapes.empty();
-    }
-
-    private static VoxelShape getOutlineShape(BlockPos pos) {
-        return mc.world.getBlockState(pos).getShape(mc.world, pos);
+        float xDiff = (float) (mc.player.getX() - blockPos.getX());
+        float zDiff = (float) (mc.player.getZ() - blockPos.getZ());
+        return (float) Math.sqrt(((xDiff - 0.5F) * (xDiff - 0.5F)) + ((zDiff - 0.5F) * (zDiff - 0.5F)));
     }
 }

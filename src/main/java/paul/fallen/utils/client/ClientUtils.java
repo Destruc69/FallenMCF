@@ -1,6 +1,5 @@
 package paul.fallen.utils.client;
 
-import com.sun.java.accessibility.util.java.awt.TextComponentTranslator;
 import paul.fallen.ClientSupport;
 
 public class ClientUtils implements ClientSupport {

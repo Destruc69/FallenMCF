@@ -1,10 +1,9 @@
 package paul.fallen.module.modules.combat;
 
-import net.minecraft.network.play.server.SEntityVelocityPacket;
-import net.minecraft.network.play.server.SExplosionPacket;
+import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.events.packetevent.PacketEvent;
 import paul.fallen.module.Module;
-import paul.fallen.packetevent.PacketEvent;
 
 public class NoKnockBack extends Module {
 
@@ -14,7 +13,7 @@ public class NoKnockBack extends Module {
 
     @SubscribeEvent
     public void onPacketIn(PacketEvent event) {
-        if (event.getPacket() instanceof SEntityVelocityPacket || event.getPacket() instanceof SExplosionPacket) {
+        if (event.getPacket() instanceof ServerboundMovePlayerPacket) {
             event.setCanceled(true);
         }
     }

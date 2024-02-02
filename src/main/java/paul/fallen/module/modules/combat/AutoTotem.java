@@ -7,16 +7,16 @@
  */
 package paul.fallen.module.modules.combat;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.ClickType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
 import paul.fallen.setting.Setting;
+import paul.fallen.utils.entity.PlayerControllerUtils;
 
 public final class AutoTotem extends Module {
 
@@ -40,12 +40,12 @@ public final class AutoTotem extends Module {
         try {
             finishMovingTotem();
 
-            PlayerEntity player = mc.player;
+            Player player = mc.player;
             assert player != null;
-            PlayerInventory inventory = player.inventory;
+            Inventory inventory = player.getInventory();
             int nextTotemSlot = searchForTotems(inventory);
 
-            ItemStack offhandStack = inventory.getStackInSlot(40);
+            ItemStack offhandStack = inventory.getItem(40);
             if (isTotem(offhandStack.getItem())) {
                 wasTotemInOffhand = true;
                 return;
@@ -76,11 +76,10 @@ public final class AutoTotem extends Module {
     private void moveTotem(int nextTotemSlot, ItemStack offhandStack) {
         boolean offhandEmpty = offhandStack.isEmpty();
 
-        PlayerEntity player = mc.player;
-        assert mc.playerController != null;
+        Player player = mc.player;
         assert player != null;
-        mc.playerController.windowClick(player.container.windowId, nextTotemSlot, 0, ClickType.PICKUP, player);
-        mc.playerController.windowClick(player.container.windowId, 45, 0, ClickType.PICKUP, player);
+        PlayerControllerUtils.windowClick_QUICK_MOVE(nextTotemSlot);
+        PlayerControllerUtils.windowClick_QUICK_MOVE(45);
 
         if (!offhandEmpty)
             nextTickSlot = nextTotemSlot;
@@ -90,18 +89,17 @@ public final class AutoTotem extends Module {
         if (nextTickSlot == -1)
             return;
 
-        PlayerEntity player = mc.player;
-        assert mc.playerController != null;
+        Player player = mc.player;
         assert player != null;
-        mc.playerController.windowClick(player.container.windowId, nextTickSlot, 0, ClickType.PICKUP, player);
+        PlayerControllerUtils.windowClick_QUICK_MOVE(nextTickSlot);
         nextTickSlot = -1;
     }
 
-    private int searchForTotems(PlayerInventory inventory) {
+    private int searchForTotems(Inventory inventory) {
         int nextTotemSlot = -1;
 
         for (int slot = 0; slot <= 36; slot++) {
-            if (!isTotem(inventory.getStackInSlot(slot).getItem()))
+            if (!isTotem(inventory.getItem(slot).getItem()))
                 continue;
 
             if (nextTotemSlot == -1)

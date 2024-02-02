@@ -40,7 +40,7 @@ public class Clickgui extends Screen {
     public Clickgui() {
         super(Component.empty());
         dragging = false;
-        int scaledWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();;
+        int scaledWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
         int scaledHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
         posX = scaledWidth / 2 - 150;
         posY = scaledHeight / 2 - 100;
@@ -64,9 +64,9 @@ public class Clickgui extends Screen {
         // 1701 170 170 = Text RGB
 
         //Gui.drawRect(posX, posY - 10, width, posY, new Color(100,10,100).getRGB());
-        UIUtils.drawRect(posX, posY - 10, width, 10, new Color((int) fragmentA.x, (int) fragmentA.y, (int) fragmentA.z).getRGB());
+        UIUtils.drawRect((int) posX, (int) (posY - 10), (int) width, 10, new Color((int) fragmentA.x, (int) fragmentA.y, (int) fragmentA.z).getRGB());
         //Gui.drawRect(posX, posY, width, height, new Color(45,45,45).getRGB());
-        UIUtils.drawRect(posX, posY, width, height, new Color((int) fragmentB.x, (int) fragmentB.y, (int) fragmentB.z).getRGB());
+        UIUtils.drawRect((int) posX, (int) posY, (int) width, (int) height, new Color((int) fragmentB.x, (int) fragmentB.y, (int) fragmentB.z).getRGB());
 
         UIUtils.drawTextOnScreen("Fallen", (int) posX + 2, (int) (posY - 8), Color.CYAN.getRGB());
 
@@ -76,7 +76,7 @@ public class Clickgui extends Screen {
         int offset = 0;
         for (Module.Category category : Module.Category.values()) {
             //Gui.drawRect(posX,posY + 1 + offset,posX + 60,posY + 15 + offset,category.equals(selectedCategory) ? new Color(230,10,230).getRGB() : new Color(28,28,28).getRGB());
-            UIUtils.drawRect(posX, posY + 1 + offset, 60, 15, category.equals(selectedCategory) ? new Color((int) fragmentC.x, (int) fragmentC.y, (int) fragmentC.z).getRGB() : new Color((int) fragmentD.x, (int) fragmentD.y, (int) fragmentD.z).getRGB());
+            UIUtils.drawRect((int) posX, (int) (posY + 1 + offset), 60, 15, category.equals(selectedCategory) ? new Color((int) fragmentC.x, (int) fragmentC.y, (int) fragmentC.z).getRGB() : new Color((int) fragmentD.x, (int) fragmentD.y, (int) fragmentD.z).getRGB());
             //fontRendererObj.drawString(category.name(),(int)posX + 2, (int)(posY + 5) + offset, new Color(170,170,170).getRGB());
             UIUtils.drawTextOnScreen(category.name(), (int) posX + 2, (int) (posY + 5) + offset, new Color((int) textRGB.x, (int) textRGB.y, (int) textRGB.z).getRGB());
             offset += 15;
@@ -84,7 +84,7 @@ public class Clickgui extends Screen {
         offset = 0;
         for (Module m : FALLENClient.INSTANCE.getModuleManager().getModulesInCategory(selectedCategory)) {
             //Gui.drawRect(posX + 65,posY + 1 + offset,posX + 125,posY + 15 + offset,m.isToggled() ? new Color(230,10,230).getRGB() : new Color(28,28,28).getRGB());
-            UIUtils.drawRect(posX + 65, posY + 1 + offset, 125, 15, m.toggled ? new Color((int) fragmentC.x, (int) fragmentC.y, (int) fragmentC.z).getRGB() : new Color((int) fragmentD.x, (int) fragmentD.y, (int) fragmentD.z).getRGB());
+            UIUtils.drawRect((int) (posX + 65), (int) (posY + 1 + offset), 125, 15, m.toggled ? new Color((int) fragmentC.x, (int) fragmentC.y, (int) fragmentC.z).getRGB() : new Color((int) fragmentD.x, (int) fragmentD.y, (int) fragmentD.z).getRGB());
             //fontRendererObj.drawString(m.getName(),(int)posX + 67, (int)(posY + 5) + offset, new Color(170,170,170).getRGB());
             UIUtils.drawTextOnScreen(m.getName(), (int) posX + 67, (int) (posY + 5) + offset, new Color((int) textRGB.x, (int) textRGB.y, (int) textRGB.z).getRGB());
             offset += 15;

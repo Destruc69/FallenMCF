@@ -59,9 +59,9 @@ public class Slider extends Comp {
             }
         }
         //Gui.drawRect(parent.posX + x - 70, parent.posY + y + 10,parent.posX + x - 70 + renderWidth2, parent.posY + y + 20, new Color(230,10,230).darker().getRGB());
-        UIUtils.drawRect(parent.posX + x - 70, parent.posY + y + 10, renderWidth2, 10, new Color(230,10,230).darker().getRGB());
+        UIUtils.drawRect((int) (parent.posX + x - 70), (int) (parent.posY + y + 10), (int) renderWidth2, 10, new Color(230, 10, 230).darker().getRGB());
         //Gui.drawRect(parent.posX + x - 70, parent.posY + y + 10, parent.posX + x - 70 + renderWidth, parent.posY + y + 20, new Color(230,10,230).getRGB());
-        UIUtils.drawRect(parent.posX + x - 70, parent.posY + y + 10, renderWidth, 10, new Color(230,10,230).getRGB());
+        UIUtils.drawRect((int) (parent.posX + x - 70), (int) (parent.posY + y + 10), (int) renderWidth, 10, new Color(230, 10, 230).getRGB());
         //Minecraft.getMinecraft().fontRendererObj.drawString(setting.getName() + ": " + setting.getValDouble(),(int)(parent.posX + x - 70),(int)(parent.posY + y), -1);
         UIUtils.drawTextOnScreen(setting.getName() + ": " + setting.getValDouble(),(int)(parent.posX + x - 70),(int)(parent.posY + y), -1);
     }

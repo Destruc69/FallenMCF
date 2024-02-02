@@ -1,6 +1,6 @@
 package paul.fallen.module.modules.render;
 
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderGuiEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 import paul.fallen.FALLENClient;
@@ -39,7 +39,7 @@ public class HUD extends Module {
 	}
 
 	@SubscribeEvent
-	public void onRenderHUD(RenderGameOverlayEvent.Post event) {
+	public void onRenderHUD(RenderGuiEvent.Post event) {
 		try {
 			if (watermark.bval) {
 				drawText("Fallen", 2, 2, new Color((int) FALLENClient.INSTANCE.getClickgui().textRGB.x, (int) FALLENClient.INSTANCE.getClickgui().textRGB.y, (int) FALLENClient.INSTANCE.getClickgui().textRGB.z), 2);
@@ -66,16 +66,16 @@ public class HUD extends Module {
 			}
 
 			if (coords.bval) {
-				String coordString = Math.round(mc.player.lastTickPosX) + " " + Math.round(mc.player.lastTickPosY) + " " + Math.round(mc.player.lastTickPosZ);
-				drawText(coordString, 25 + mc.fontRenderer.getStringWidth(coordString), 10, Color.WHITE);
+				String coordString = Math.round(mc.player.getX()) + " " + Math.round(mc.player.getY()) + " " + Math.round(mc.player.getZ());
+				drawText(coordString, 25 + mc.font.width(coordString), 10, Color.WHITE);
 
 				StringBuilder stringBuilder = new StringBuilder();
 				for (int i = 0; i < coordString.length(); i++) {
 					stringBuilder.append("_");
 				}
-				drawText(stringBuilder.toString(), 25 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
-				drawText(stringBuilder.toString(), 26 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
-				drawText(stringBuilder.toString(), 24 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
+				drawText(stringBuilder.toString(), 25 + mc.font.width(coordString), 11, Color.WHITE);
+				drawText(stringBuilder.toString(), 26 + mc.font.width(coordString), 11, Color.WHITE);
+				drawText(stringBuilder.toString(), 24 + mc.font.width(coordString), 11, Color.WHITE);
 			}
 
 		} catch (Exception ignored) {

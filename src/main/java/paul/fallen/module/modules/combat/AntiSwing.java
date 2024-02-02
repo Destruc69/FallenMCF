@@ -21,8 +21,7 @@ public final class AntiSwing extends Module {
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
             assert mc.player != null;
-            mc.player.swingProgress = 0;
-            mc.player.swingProgressInt = 0;
+            mc.player.swingTime = 0;
         } catch (Exception ignored) {
         }
     }
