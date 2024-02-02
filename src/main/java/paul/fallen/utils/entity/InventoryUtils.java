@@ -1,14 +1,14 @@
 package paul.fallen.utils.entity;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.item.Item;
+import net.minecraft.item.Item;
 
 public class InventoryUtils {
 
     private static final Minecraft mc = Minecraft.getInstance();
 
     public static void setSlot(int slot) {
-        mc.player.getInventory().selected = slot;
+        mc.player.inventory.currentItem = slot;
     }
 
     public static void click(int slot) {
@@ -17,7 +17,7 @@ public class InventoryUtils {
 
     public static int getSlot(Item item) {
         for (int i = 0; i < 36; i++) {
-            if (mc.player.getInventory().getItem(i).getItem().equals(item)) {
+            if (mc.player.inventory.getStackInSlot(i).getItem().equals(item)) {
                 return i;
             }
         }

@@ -23,7 +23,7 @@ public final class AutoSprintHack extends Module {
             // Didint work on 2b2t
             //mc.player.setSprinting(true);
 
-            mc.options.keySprint.setDown(true);
+            mc.gameSettings.keyBindSprint.setPressed(true);
         } catch (Exception ignored) {
         }
     }

@@ -7,11 +7,11 @@
  */
 package paul.fallen.utils.client;
 
+import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.Blocks;
-import org.joml.Vector3d;
-import paul.fallen.utils.entity.PlayerUtils;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Vector3d;
 
 public final class MathUtils {
     private static float forward;
@@ -62,21 +62,22 @@ public final class MathUtils {
     public static double[] directionSpeed(double speed) {
         try {
             final Minecraft mc = Minecraft.getInstance();
-            if (Minecraft.getInstance().options.keyUp.isDown()) {
+            if (mc.gameSettings.keyBindForward.isKeyDown()) {
                 forward = 1;
-            } else if (Minecraft.getInstance().options.keyDown.isDown()) {
+            } else if (mc.gameSettings.keyBindBack.isKeyDown()) {
                 forward = -1;
             } else {
                 forward = 0;
             }
-            if (Minecraft.getInstance().options.keyLeft.isDown()) {
+            if (mc.gameSettings.keyBindLeft.isKeyDown()) {
                 side = 1;
-            } else if (Minecraft.getInstance().options.keyRight.isDown()) {
+            } else if (mc.gameSettings.keyBindRight.isKeyDown()) {
                 side = -1;
             } else {
                 side = 0;
             }
-            float yaw = mc.player.rotA;
+            float yaw = mc.player.prevRotationYaw
+                    + (mc.player.rotationYaw - mc.player.prevRotationYaw) * mc.getRenderPartialTicks();
 
             if (forward != 0) {
                 if (side > 0) {
@@ -106,20 +107,20 @@ public final class MathUtils {
     }
 
     public static void setSpeed(final double speed) {
-        if (Minecraft.getInstance().options.keyUp.isDown() ||
-                Minecraft.getInstance().options.keyRight.isDown() ||
-                Minecraft.getInstance().options.keyDown.isDown() ||
-                Minecraft.getInstance().options.keyLeft.isDown()) {
+        if (Minecraft.getInstance().gameSettings.keyBindForward.isKeyDown() ||
+                Minecraft.getInstance().gameSettings.keyBindRight.isKeyDown() ||
+                Minecraft.getInstance().gameSettings.keyBindBack.isKeyDown() ||
+                Minecraft.getInstance().gameSettings.keyBindLeft.isKeyDown()) {
             assert Minecraft.getInstance().player != null;
-            Minecraft.getInstance().player.setDeltaMovement(-Math.sin(getDirection()) * speed, Minecraft.getInstance().player.getDeltaMovement().y, Math.cos(getDirection()) * speed);
+            Minecraft.getInstance().player.setMotion(-MathHelper.sin(getDirection()) * speed, Minecraft.getInstance().player.getMotion().y, MathHelper.cos(getDirection()) * speed);
         }
     }
 
     public static float getDirection() {
         assert Minecraft.getInstance().player != null;
-        float yaw = Minecraft.getInstance().player.rotA;
-        final float forward = PlayerUtils.getForward();
-        final float strafe = PlayerUtils.getStrafe();
+        float yaw = Minecraft.getInstance().player.rotationYaw;
+        final float forward = Minecraft.getInstance().player.moveForward;
+        final float strafe = Minecraft.getInstance().player.moveStrafing;
         yaw += ((forward < 0.0f) ? 180 : 0);
         int i = (forward < 0.0f) ? -45 : ((forward == 0.0f) ? 90 : 45);
         if (strafe < 0.0f) {
@@ -131,12 +132,12 @@ public final class MathUtils {
         return yaw * 0.017453292f;
     }
 
-    public static double calculateFallDistance(int x, int y, int z) {
-        int dist = 0;
+    public static double calculateFallDistance(double x, double y, double z) {
+        double dist = 0;
 
         while (true) {
-            assert Minecraft.getInstance().level != null;
-            if (!Minecraft.getInstance().level.getBlockState(new BlockPos(x, y - dist, z)).getBlock().equals(Blocks.AIR))
+            assert Minecraft.getInstance().world != null;
+            if (!Minecraft.getInstance().world.getBlockState(new BlockPos(x, y - dist, z)).getBlock().equals(Blocks.AIR))
                 break;
             dist += 0.01;
         }
@@ -150,15 +151,5 @@ public final class MathUtils {
         double dz = vec2.z - vec1.z;
 
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
-    }
-
-    public static double lerp(double start, double end, double t) {
-        if (t < 0) {
-            return start;
-        }
-        if (t > 1) {
-            return end;
-        }
-        return start + t * (end - start);
     }
 }

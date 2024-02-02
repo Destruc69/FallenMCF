@@ -6,12 +6,10 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import paul.fallen.ClientSupport;
 import paul.fallen.FALLENClient;
+import paul.fallen.friend.Friend;
 import paul.fallen.utils.client.Logger;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +27,7 @@ public class WaypointManager implements ClientSupport {
     }
 
     public void loadConfig(Gson gson) {
-        File dir = new File(mc.gameDirectory + File.separator + "Fallen" + File.separator + "waypoints");
+        File dir = new File(mc.gameDir + File.separator + "Fallen" + File.separator + "waypoints");
         if (dir.exists()) {
             File[] directoryListing = dir.listFiles();
             if (directoryListing != null) {
@@ -51,9 +49,9 @@ public class WaypointManager implements ClientSupport {
 
     public void saveConfig(Gson gson) {
         for (Waypoint waypoint : getWaypoints()) {
-            File file = new File(mc.gameDirectory + File.separator + "Fallen" + File.separator + "waypoints" + File.separator + "wp_" + waypoint.getX() + "-" + waypoint.getZ() + ".json");
+            File file = new File(mc.gameDir + File.separator + "Fallen" + File.separator + "waypoints" + File.separator + "wp_" + waypoint.getX() + "-" + waypoint.getZ() + ".json");
             if (!file.exists()) {
-                new File(mc.gameDirectory + File.separator + "Fallen" + File.separator + "waypoints").mkdirs();
+                new File(mc.gameDir + File.separator + "Fallen" + File.separator + "waypoints").mkdirs();
                 try {
                     file.createNewFile();
                     Logger.log(Logger.LogState.Normal, "Created new Json file: " + file.getName());

@@ -30,7 +30,7 @@ public class FriendManager implements ClientSupport {
     }
 
     public void loadConfig(Gson gson) {
-        File dir = new File(mc.gameDirectory + File.separator + "Fallen" + File.separator + "friends");
+        File dir = new File(mc.gameDir + File.separator + "Fallen" + File.separator + "friends");
         if (dir.exists()) {
             File[] directoryListing = dir.listFiles();
             for (File f : directoryListing) {
@@ -59,9 +59,9 @@ public class FriendManager implements ClientSupport {
 
     public void saveConfig(Gson gson) {
         for (Friend f : this.friends) {
-            File file = new File(mc.gameDirectory + File.separator + "Fallen" + File.separator + "friends" + File.separator + f.getName() + ".json");
+            File file = new File(mc.gameDir + File.separator + "Fallen" + File.separator + "friends" + File.separator + f.getName() + ".json");
             if (!file.exists()) {
-                new File(mc.gameDirectory + File.separator + "Fallen" + File.separator + "friends").mkdirs();
+                new File(mc.gameDir + File.separator + "Fallen" + File.separator + "friends").mkdirs();
                 try {
                     file.createNewFile();
                     Logger.log(LogState.Normal, "Created new Json file: " + file.getName());
@@ -90,7 +90,7 @@ public class FriendManager implements ClientSupport {
         for (Friend friend : getFriendsList()) {
             if (friend.name.equalsIgnoreCase(name)) {
                 getFriendsList().remove(friend);
-                File file = new File(mc.gameDirectory + File.separator + "Fallen" + File.separator + "friends" + File.separator + friend.getName() + ".json");
+                File file = new File(mc.gameDir + File.separator + "Fallen" + File.separator + "friends" + File.separator + friend.getName() + ".json");
                 if (file.exists()) {
                     file.delete();
                 }

@@ -2,12 +2,22 @@ package paul.fallen;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.minecraft.client.network.login.ClientLoginNetHandler;
+import net.minecraft.network.login.ServerLoginNetHandler;
+import net.minecraft.network.login.client.CCustomPayloadLoginPacket;
+import net.minecraft.network.login.client.CLoginStartPacket;
+import net.minecraft.network.login.server.SCustomPayloadLoginPacket;
+import net.minecraft.network.login.server.SLoginSuccessPacket;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.network.NetworkEvent;
 import paul.fallen.clickgui.Clickgui;
 import paul.fallen.command.CommandManager;
 import paul.fallen.friend.FriendManager;
 import paul.fallen.module.ModuleManager;
+import paul.fallen.packetevent.ChannelHandlerInput;
+import paul.fallen.packetevent.PacketEvent;
 import paul.fallen.setting.SettingManager;
 import paul.fallen.utils.client.Logger;
 import paul.fallen.utils.client.Logger.LogState;
@@ -36,6 +46,8 @@ public class FALLENClient implements ClientSupport {
         Logger.log(LogState.Normal, "Initializing EventManager");
 
         MinecraftForge.EVENT_BUS.register(this);
+
+        MinecraftForge.EVENT_BUS.register(new ChannelHandlerInput());
 
         Logger.log(LogState.Normal, "Initializing Gson with pretty printing");
         this.gson = new GsonBuilder().setPrettyPrinting().create();

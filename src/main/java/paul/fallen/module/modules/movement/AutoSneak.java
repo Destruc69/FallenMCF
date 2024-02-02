@@ -19,7 +19,7 @@ public final class AutoSneak extends Module {
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
-            mc.options.keyShift.setDown(true);
+            mc.gameSettings.keyBindSneak.setPressed(true);
         } catch (Exception ignored) {
         }
     }

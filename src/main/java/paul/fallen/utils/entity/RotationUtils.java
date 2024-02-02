@@ -1,32 +1,25 @@
 package paul.fallen.utils.entity;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
-import net.minecraft.world.entity.RelativeMovement;
-import org.joml.Vector3d;
-
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import net.minecraft.network.play.client.CPlayerPacket;
+import net.minecraft.util.math.vector.Vector3d;
 
 public class RotationUtils {
 
     public static void rotateTo(Vector3d posVec) {
-        Set<RelativeMovement> set = EnumSet.noneOf(RelativeMovement.class);
         int[] look = getYawAndPitch(posVec);
-        Minecraft.getInstance().player.connection.send(new ClientboundPlayerPositionPacket(Minecraft.getInstance().player.getX(), Minecraft.getInstance().player.getY(), Minecraft.getInstance().player.getZ(), look[0], look[1], set, 1));
+        Minecraft.getInstance().player.connection.sendPacket(new CPlayerPacket.RotationPacket(look[0], look[1], Minecraft.getInstance().player.isOnGround()));
     }
 
     public static void rotateTo(Vector3d posVec, boolean shouldCenter) {
-        Set<RelativeMovement> set = EnumSet.noneOf(RelativeMovement.class);
         int[] look = getYawAndPitch(posVec.add(0.5, 0.5, 0.5));
-        Minecraft.getInstance().player.connection.send(new ClientboundPlayerPositionPacket(Minecraft.getInstance().player.getX(), Minecraft.getInstance().player.getY(), Minecraft.getInstance().player.getZ(), look[0], look[1], set, 1));
+        Minecraft.getInstance().player.connection.sendPacket(new CPlayerPacket.RotationPacket(look[0], look[1], Minecraft.getInstance().player.isOnGround()));
     }
 
     public static int[] getYawAndPitch(Vector3d target) {
-        double xDiff = target.x - Minecraft.getInstance().player.getX();
-        double yDiff = target.y - (Minecraft.getInstance().player.getY() + Minecraft.getInstance().player.getEyeHeight());
-        double zDiff = target.z - Minecraft.getInstance().player.getZ();
+        double xDiff = target.x - Minecraft.getInstance().player.getPosX();
+        double yDiff = target.y - (Minecraft.getInstance().player.getPosY() + Minecraft.getInstance().player.getEyeHeight());
+        double zDiff = target.z - Minecraft.getInstance().player.getPosZ();
 
         double horizontalDistance = Math.sqrt(xDiff * xDiff + zDiff * zDiff);
 

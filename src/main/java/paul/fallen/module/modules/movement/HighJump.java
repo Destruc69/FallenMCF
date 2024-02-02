@@ -29,7 +29,7 @@ public final class HighJump extends Module {
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
             assert mc.player != null;
-            if (mc.player.getDeltaMovement().y > 0) {
+            if (mc.player.getMotion().y > 0) {
                 if (!a) {
                     EntityUtils.setMotionY(speed.dval);
                     a = true;
