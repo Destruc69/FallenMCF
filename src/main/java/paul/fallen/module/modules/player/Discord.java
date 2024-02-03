@@ -33,6 +33,12 @@ public final class Discord extends Module {
         rpc.Discord_UpdatePresence(presence);
     }
 
+    @Override
+    public void onDisable() {
+        rpc.Discord_Shutdown();
+        rpc.Discord_ClearPresence();
+    }
+
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
