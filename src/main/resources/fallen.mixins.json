@@ -1,0 +1,16 @@
+{
+  "package": "paul.fallen.mixin",
+  "minVersion": "0.8",
+  "required": true,
+  "compatibilityLevel": "JAVA_8",
+  "plugin": "paul.fallen.mixin.MixinMainClass",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "conformVisibility": true
+  },
+  "client": [
+  ],
+  "refmap": "fallen.refmap.json"
+}
