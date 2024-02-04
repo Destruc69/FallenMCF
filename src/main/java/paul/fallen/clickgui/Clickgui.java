@@ -184,6 +184,10 @@ public class Clickgui extends Screen {
     public void init() {
         super.init();
         dragging = false;
+
+        for (Comp comp : comps) {
+            comp.init();
+        }
     }
 
     public boolean isInside(int mouseX, int mouseY, double x, double y, double x2, double y2) {

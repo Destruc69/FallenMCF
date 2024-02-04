@@ -31,4 +31,7 @@ public class Comp {
 
     }
 
+    public void init() {
+
+    }
 }
