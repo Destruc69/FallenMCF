@@ -141,7 +141,7 @@ public class Module implements ClientSupport {
     }
 
     public enum Category {
-        Combat, Player, Movement, World, Render, Client
+        Combat, Player, Movement, World, Render, Client, Pathing
     }
 
 }

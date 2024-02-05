@@ -28,14 +28,14 @@ public class RenderUtils implements ClientSupport {
         drawBoundingBoxAtBlockPos(event.getMatrixStack(), aab, red, green, blue, 1.0F, pos);
     }
 
-    public static void drawPath(ArrayList<BlockPos> blockPosArrayList, int red, int green, int blue, RenderWorldLastEvent event) {
+    public static void drawPath(ArrayList<Vector3d> vecPosArrayList, int red, int green, int blue, RenderWorldLastEvent event) {
         final GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
         gameRenderer.resetProjectionMatrix(event.getProjectionMatrix());
 
         final AxisAlignedBB aab = new AxisAlignedBB(0, 1, 0, 1, 1.1, 1);
 
-        for (BlockPos blockPos : blockPosArrayList) {
-            drawBoundingBoxAtBlockPos(event.getMatrixStack(), aab, red, green, blue, 1.0F, blockPos);
+        for (Vector3d v : vecPosArrayList) {
+            drawBoundingBoxAtBlockPos(event.getMatrixStack(), aab, red, green, blue, 1.0F, new BlockPos(v.x, v.y, v.z));
         }
     }
 

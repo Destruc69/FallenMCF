@@ -14,6 +14,7 @@ import paul.fallen.module.Module.Category;
 import paul.fallen.module.modules.ClickGuiHack;
 import paul.fallen.module.modules.combat.*;
 import paul.fallen.module.modules.movement.*;
+import paul.fallen.module.modules.pathing.AutoPilot;
 import paul.fallen.module.modules.player.*;
 import paul.fallen.module.modules.render.*;
 import paul.fallen.module.modules.world.*;
@@ -47,6 +48,8 @@ public class ModuleManager implements ClientSupport {
 		addModule(new CrystalAuraHack(0, "CrystalAura", "CrystalAura", Category.Combat));
 		addModule(new FastBow(0, "FastBow", "FastBow", Category.Combat));
 		addModule(new NoKnockBack(0, "NoKnockback", "NoKnockback", Category.Combat));
+
+		addModule(new AutoPilot(0, "AutoPilot", "AutoPilot", Category.Pathing));
 
 		clickGuiHack = new ClickGuiHack(KeyEvent.VK_P, "ClickGUI", "ClickGUI", Category.Client);
 		addModule(clickGuiHack);
@@ -84,8 +87,10 @@ public class ModuleManager implements ClientSupport {
 		addModule(new HideMyAss(0, "HideMyAss", "HideMyAss", Category.Player));
 		addModule(new MoreInv(0, "MoreInv", "MoreInv", Category.Player));
 		addModule(new NoFall(0, "NoFall", "NoFall", Category.Player));
+		addModule(new AntiForge(0, "AntiForge", "AntiForge", Category.Player));
 
 		addModule(new ChestEspHack(0, "ChestESP", "ChestESP", Category.Render));
+		addModule(new AntiRender(0, "AntiRender", "AntiRender", Category.Render));
 		addModule(new FreeCam(0, "Freecam", "Freecam", Category.Render));
 		addModule(new Breadcrumbs(0, "Breadcrumbs", "Breadcrumbs", Category.Render));
 		addModule(new FullbrightHack(0, "Fullbright", "Fullbright", Category.Render));

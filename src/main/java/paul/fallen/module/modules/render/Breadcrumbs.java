@@ -1,6 +1,7 @@
 package paul.fallen.module.modules.render;
 
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 
 public class Breadcrumbs extends Module {
 
-    private final ArrayList<BlockPos> blockPosArrayList = new ArrayList<>();
+    private final ArrayList<Vector3d> vecArrayList = new ArrayList<>();
 
     public Breadcrumbs(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
@@ -19,17 +20,17 @@ public class Breadcrumbs extends Module {
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
-        BlockPos blockPos = mc.player.getPosition().down();
+        Vector3d vector3d = new Vector3d(mc.player.getPosition().down().getX(), mc.player.getPosition().down().getY(), mc.player.getPosition().down().getZ());
 
-        if (!blockPosArrayList.contains(blockPos)) {
-            blockPosArrayList.add(blockPos);
+        if (!vecArrayList.contains(vector3d)) {
+            vecArrayList.add(vector3d);
         }
     }
 
     @SubscribeEvent
     public void onRender(RenderWorldLastEvent event) {
-        if (blockPosArrayList.size() > 0) {
-            RenderUtils.drawPath(blockPosArrayList, 0, 1, 0, event);
+        if (vecArrayList.size() > 0) {
+            RenderUtils.drawPath(vecArrayList, 0, 1, 0, event);
         }
     }
 

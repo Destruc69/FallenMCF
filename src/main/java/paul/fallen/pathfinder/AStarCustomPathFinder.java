@@ -4,6 +4,7 @@ import net.minecraft.block.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3i;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,8 +15,19 @@ public class AStarCustomPathFinder {
             new Vector3d(1, 0, 0),
             new Vector3d(-1, 0, 0),
             new Vector3d(0, 0, 1),
-            new Vector3d(0, 0, -1)
+            new Vector3d(0, 0, -1),
+
+            new Vector3d(1, -1, 0),
+            new Vector3d(-1, -1, 0),
+            new Vector3d(0, -1, 1),
+            new Vector3d(0, -1, -1),
+
+            new Vector3d(1, 1, 0),
+            new Vector3d(-1, 1, 0),
+            new Vector3d(0, 1, 1),
+            new Vector3d(0, 1, -1),
     };
+
     private final Vector3d startVec3;
     private final Vector3d endVec3;
     private final ArrayList<Hub> hubs = new ArrayList<Hub>();
@@ -34,10 +46,11 @@ public class AStarCustomPathFinder {
     }
 
     public static boolean checkPositionValidity(int x, int y, int z, boolean checkGround) {
+        Minecraft mc = Minecraft.getInstance();
         BlockPos block1 = new BlockPos(x, y, z);
         BlockPos block2 = new BlockPos(x, y + 1, z);
         BlockPos block3 = new BlockPos(x, y - 1, z);
-        return !isBlockSolid(block1) && !isBlockSolid(block2) && (isBlockSolid(block3) || !checkGround) && isSafeToWalkOn(block3);
+        return !mc.world.getBlockState(block3).getBlock().equals(Blocks.AIR) && mc.world.getBlockState(block2).getBlock().equals(Blocks.AIR) && mc.world.getBlockState(block1).getBlock().equals(Blocks.AIR);
     }
 
     private static boolean isBlockSolid(BlockPos block) {
@@ -239,5 +252,28 @@ public class AStarCustomPathFinder {
                     (o1.getSquareDistanceToFromTarget() + o1.getTotalCost()) - (o2.getSquareDistanceToFromTarget() + o2.getTotalCost())
             );
         }
+    }
+
+    public Vector3d getTargetPositionInPathArray(ArrayList<Vector3d> path) {
+        Minecraft mc = Minecraft.getInstance();
+        int closestBlockIndex = 0;
+        double closestBlockDistance = Double.POSITIVE_INFINITY;
+        for (int i = 0; i < path.size(); i++) {
+            double distance = mc.player.getDistanceSq(path.get(i));
+            if (distance < closestBlockDistance) {
+                closestBlockDistance = distance;
+                closestBlockIndex = i;
+            }
+        }
+
+        BlockPos closestBlock = new BlockPos(path.get(closestBlockIndex).x, path.get(closestBlockIndex).y, path.get(closestBlockIndex).z);
+        BlockPos nextBlock;
+        if (closestBlockIndex == path.size() - 1) {
+            nextBlock = closestBlock;
+        } else {
+            nextBlock = new BlockPos(path.get(closestBlockIndex + 1).x, path.get(closestBlockIndex + 1).y, path.get(closestBlockIndex + 1).z);
+        }
+
+        return new Vector3d(nextBlock.getX(), nextBlock.getY(), nextBlock.getZ());
     }
 }
