@@ -4,9 +4,11 @@ import net.minecraft.command.arguments.EntityAnchorArgument;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.lwjgl.glfw.GLFW;
 import paul.fallen.module.Module;
 import paul.fallen.pathfinder.AStarCustomPathFinder;
 import paul.fallen.setting.Setting;
@@ -14,8 +16,6 @@ import paul.fallen.utils.entity.RotationUtils;
 import paul.fallen.utils.render.RenderUtils;
 
 public class AutoPilot extends Module {
-
-    private int yaw = 0;
 
     private AStarCustomPathFinder aStarCustomPathFinder;
 
@@ -57,16 +57,8 @@ public class AutoPilot extends Module {
                     aStarCustomPathFinder = new AStarCustomPathFinder(mc.player.getPositionVec(), new Vector3d(x.dval, y.dval, z.dval));
                     aStarCustomPathFinder.compute();
                 } else {
-                    Vector3d toLook = aStarCustomPathFinder.getTargetPositionInPathArray(aStarCustomPathFinder.getPath());
-                    int[] l = RotationUtils.getYawAndPitch(toLook);
-
-                    mc.player.rotationYaw = l[0];
-
-                    if (aStarCustomPathFinder.getTargetPositionInPathArray(aStarCustomPathFinder.getPath()).y > mc.player.getPosY()) {
-                        if (mc.player.isOnGround()) {
-                            mc.player.jump();
-                        }
-                    }
+                    double[] m = aStarCustomPathFinder.calculateMotion(aStarCustomPathFinder.getPath(), Math.toRadians(mc.player.rotationYaw), mc.player.isSprinting() ? 0.26 : 0.16);
+                    mc.player.setMotion(m[0], mc.player.getMotion().y, m[1]);
                 }
             }
         } catch (Exception ignored) {
