@@ -67,9 +67,15 @@ public class RenderUtils implements ClientSupport {
         renderTypeBuffer.finish(RenderType.LINES);
     }
 
-
-
-
+    public static void renderPath(ArrayList<Vector3d> path, RenderWorldLastEvent event) {
+        if (path.size() > 0) {
+            for (int i = 0; i < path.size() - 1; i++) {
+                if (path.get(i + 1) != null) {
+                    RenderUtils.drawLine(new BlockPos(path.get(i).x + 0.5, path.get(i).y, path.get(i).z + 0.5), new BlockPos(path.get(i + 1).x + 0.5, path.get(i + 1).y, path.get(i + 1).z + 0.5), 0, 1, 0, event);
+                }
+            }
+        }
+    }
 
     public static void drawLine(BlockPos a, BlockPos b, int red, int green, int blue, RenderWorldLastEvent event) {
         final GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;

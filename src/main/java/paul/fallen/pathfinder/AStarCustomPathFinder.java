@@ -1,25 +1,18 @@
 package paul.fallen.pathfinder;
 
-import net.minecraft.block.*;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3i;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
+import paul.fallen.utils.render.RenderUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
 public class AStarCustomPathFinder {
-    private Vector3d startVector3d;
-    private Vector3d endVector3d;
-    private ArrayList<Vector3d> path = new ArrayList<Vector3d>();
-    private ArrayList<Hub> hubs = new ArrayList<Hub>();
-    private ArrayList<Hub> hubsToWork = new ArrayList<Hub>();
-    private double minDistanceSquared = 9;
-    private boolean nearest = true;
-
-    private static Vector3d[] flatCardinalDirections = {
+    private static final Vector3d[] flatCardinalDirections = {
             new Vector3d(1, 0, 0),
             new Vector3d(-1, 0, 0),
             new Vector3d(0, 0, 1),
@@ -35,6 +28,13 @@ public class AStarCustomPathFinder {
             new Vector3d(0, -1, 1),
             new Vector3d(0, -1, -1)
     };
+    private final Vector3d startVector3d;
+    private ArrayList<Vector3d> path = new ArrayList<Vector3d>();
+    private final Vector3d endVector3d;
+    private final ArrayList<Hub> hubs = new ArrayList<Hub>();
+    private final ArrayList<Hub> hubsToWork = new ArrayList<Hub>();
+    private final double minDistanceSquared = 9;
+    private final boolean nearest = true;
 
     public AStarCustomPathFinder(Vector3d startVector3d, Vector3d endVector3d) {
         this.startVector3d = new Vector3d((int) startVector3d.x, (int) startVector3d.y, (int) startVector3d.z);
@@ -266,8 +266,8 @@ public class AStarCustomPathFinder {
         BlockPos nextBlock = (closestBlockIndex == path.size() - 1) ? closestBlock : new BlockPos(path.get(closestBlockIndex + 1));
 
         // Adjust delta values based on player's velocity
-        double deltaX = nextBlock.getX() - playerX + velocityX;
-        double deltaZ = nextBlock.getZ() - playerZ + velocityZ;
+        double deltaX = nextBlock.getX() + 0.5 - playerX + velocityX;
+        double deltaZ = nextBlock.getZ() + 0.5 - playerZ + velocityZ;
 
         double targetAngle = Math.atan2(deltaZ, deltaX);
         double playerAngle = rotationYaw; // Use radians directly
@@ -293,5 +293,50 @@ public class AStarCustomPathFinder {
         }
 
         return new double[]{motionX, motionZ};
+    }
+
+    public Vector3d getTargetPosition(ArrayList<Vector3d> path) {
+        int closestBlockIndex = 0;
+        double closestBlockDistance = Double.POSITIVE_INFINITY;
+
+        for (int i = 0; i < path.size(); i++) {
+            double distance = Minecraft.getInstance().player.getDistanceSq(new Vector3d(path.get(i).getX(), path.get(i).getY(), path.get(i).getZ()));
+            if (distance < closestBlockDistance) {
+                closestBlockDistance = distance;
+                closestBlockIndex = i;
+            }
+        }
+
+        BlockPos closestBlock = new BlockPos(path.get(closestBlockIndex));
+
+        // Ensure we don't exceed the array size when accessing nextBlock
+        BlockPos nextBlock = (closestBlockIndex == path.size() - 1) ? closestBlock : new BlockPos(path.get(closestBlockIndex + 1));
+        return new Vector3d(nextBlock.getX(), nextBlock.getY(), nextBlock.getZ());
+    }
+
+    public void renderPath(RenderWorldLastEvent event) {
+        if (path.size() > 0) {
+            for (int i = 0; i < path.size() - 1; i++) {
+                if (path.get(i + 1) != null) {
+                    RenderUtils.drawLine(new BlockPos(path.get(i).x + 0.5, path.get(i).y, path.get(i).z + 0.5), new BlockPos(path.get(i + 1).x + 0.5, path.get(i + 1).y, path.get(i + 1).z + 0.5), 0, 1, 0, event);
+                }
+            }
+        }
+    }
+
+    public boolean hasReachedEndOfPath() {
+        return Minecraft.getInstance().player.getDistanceSq(this.getPath().get(this.getPath().size() - 1)) < 1;
+    }
+
+    public void move() {
+        Minecraft mc = Minecraft.getInstance();
+        double[] m = calculateMotion(this.getPath(), Math.toRadians(mc.player.rotationYaw), mc.player.isSprinting() ? 0.26 : 0.2);
+        mc.player.setMotion(m[0], mc.player.getMotion().y, m[1]);
+
+        if (getTargetPosition(this.getPath()).y > mc.player.getPosY()) {
+            if (mc.player.isOnGround()) {
+                mc.player.jump();
+            }
+        }
     }
 }

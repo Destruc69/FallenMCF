@@ -60,6 +60,8 @@ public class HUD extends Module {
 						drawText(module.getDisplayName(), 2, y, Color.ORANGE);
 					} else if (module.getCategory() == Category.World) {
 						drawText(module.getDisplayName(), 2, y, Color.YELLOW);
+					} else if (module.getCategory() == Category.Pathing) {
+						drawText(module.getDisplayName(), 2, y, Color.PINK);
 					}
 					y += 12;
 				}

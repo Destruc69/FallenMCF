@@ -14,6 +14,7 @@ import paul.fallen.module.Module.Category;
 import paul.fallen.module.modules.ClickGuiHack;
 import paul.fallen.module.modules.combat.*;
 import paul.fallen.module.modules.movement.*;
+import paul.fallen.module.modules.pathing.AutoMine;
 import paul.fallen.module.modules.pathing.AutoPilot;
 import paul.fallen.module.modules.player.*;
 import paul.fallen.module.modules.render.*;
@@ -50,6 +51,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new NoKnockBack(0, "NoKnockback", "NoKnockback", Category.Combat));
 
 		addModule(new AutoPilot(0, "AutoPilot", "AutoPilot", Category.Pathing));
+		addModule(new AutoMine(0, "AutoMine", "AutoMine", Category.Pathing));
 
 		clickGuiHack = new ClickGuiHack(KeyEvent.VK_P, "ClickGUI", "ClickGUI", Category.Client);
 		addModule(clickGuiHack);
@@ -77,6 +79,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new Step(0, "Step", "Step", Category.Movement));
 		addModule(new TridentFlight(0, "TridentFlight", "TridentFlight", Category.Movement));
 
+		addModule(new HandPosition(0, "HandPosition", "HandPosition", Category.Player));
 		addModule(new Animations(0, "Animations", "Animations", Category.Player));
 		addModule(new AntiCollide(0, "AntiCollide", "AntiCollide", Category.Player));
 		addModule(new AntiCooldown(0, "AntiCooldown", "AntiCooldown", Category.Player));
@@ -99,6 +102,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new NameTags(0, "Nametags", "Nametags", Category.Render));
 		addModule(new PlayerEspHack(0, "PlayerESP", "PlayerESP", Category.Render));
 		addModule(new WaypointModule(0, "Waypoint", "Waypoint", Category.Render));
+		addModule(new HeadRoll(0, "HeadRoll", "HeadRoll", Category.Render));
 
 		addModule(new AntiFog(0, "AntiFog", "AntiFog", Category.World));
 		addModule(new AntiWeather(0, "AntiWeather", "AntiWeather", Category.World));

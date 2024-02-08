@@ -1,6 +1,5 @@
 package paul.fallen.module.modules.render;
 
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
@@ -30,9 +29,8 @@ public class Breadcrumbs extends Module {
     @SubscribeEvent
     public void onRender(RenderWorldLastEvent event) {
         if (vecArrayList.size() > 0) {
-            RenderUtils.drawPath(vecArrayList, 0, 1, 0, event);
+            RenderUtils.renderPath(vecArrayList, event);
         }
     }
-
 }
 

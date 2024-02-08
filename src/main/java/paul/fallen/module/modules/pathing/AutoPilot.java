@@ -1,19 +1,12 @@
 package paul.fallen.module.modules.pathing;
 
-import net.minecraft.command.arguments.EntityAnchorArgument;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.client.event.EntityViewRenderEvent;
-import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import org.lwjgl.glfw.GLFW;
 import paul.fallen.module.Module;
 import paul.fallen.pathfinder.AStarCustomPathFinder;
 import paul.fallen.setting.Setting;
-import paul.fallen.utils.entity.RotationUtils;
-import paul.fallen.utils.render.RenderUtils;
 
 public class AutoPilot extends Module {
 
@@ -40,7 +33,6 @@ public class AutoPilot extends Module {
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
-
             if (initStart) {
                 aStarCustomPathFinder = new AStarCustomPathFinder(mc.player.getPositionVec(), new Vector3d(x.dval, y.dval, z.dval));
                 aStarCustomPathFinder.compute();
@@ -53,12 +45,11 @@ public class AutoPilot extends Module {
             }
 
             if (aStarCustomPathFinder.getPath().size() > 0) {
-                if (mc.player.getDistanceSq(aStarCustomPathFinder.getPath().get(aStarCustomPathFinder.getPath().size() - 1)) < 1) {
+                if (aStarCustomPathFinder.hasReachedEndOfPath()) {
                     aStarCustomPathFinder = new AStarCustomPathFinder(mc.player.getPositionVec(), new Vector3d(x.dval, y.dval, z.dval));
                     aStarCustomPathFinder.compute();
                 } else {
-                    double[] m = aStarCustomPathFinder.calculateMotion(aStarCustomPathFinder.getPath(), Math.toRadians(mc.player.rotationYaw), mc.player.isSprinting() ? 0.26 : 0.16);
-                    mc.player.setMotion(m[0], mc.player.getMotion().y, m[1]);
+                    aStarCustomPathFinder.move();
                 }
             }
         } catch (Exception ignored) {
@@ -68,13 +59,7 @@ public class AutoPilot extends Module {
     @SubscribeEvent
     public void onRender(RenderWorldLastEvent event) {
         try {
-            if (aStarCustomPathFinder.getPath().size() > 0) {
-                for (int i = 0; i < aStarCustomPathFinder.getPath().size() - 1; i++) {
-                    if (aStarCustomPathFinder.getPath().get(i + 1) != null) {
-                        RenderUtils.drawLine(new BlockPos(aStarCustomPathFinder.getPath().get(i).x, aStarCustomPathFinder.getPath().get(i).y, aStarCustomPathFinder.getPath().get(i).z), new BlockPos(aStarCustomPathFinder.getPath().get(i + 1).x, aStarCustomPathFinder.getPath().get(i + 1).y, aStarCustomPathFinder.getPath().get(i + 1).z), 0, 1, 0, event);
-                    }
-                }
-            }
+            aStarCustomPathFinder.renderPath(event);
         } catch (Exception ignored) {
         }
     }
