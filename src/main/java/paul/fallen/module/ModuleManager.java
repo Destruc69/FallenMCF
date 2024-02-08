@@ -108,6 +108,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new AutoMount(0, "AutoMount", "AutoMount", Category.World));
 		addModule(new AutoTool(0, "AutoTool", "AutoTool", Category.World));
 		addModule(new Scaffold(0, "Scaffold", "Scaffold", Category.World));
+		addModule(new Nuker(0, "Nuker", "Nuker", Category.World));
 	}
 
 	public ArrayList<Module> getModules() {
