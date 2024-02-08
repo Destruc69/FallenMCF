@@ -80,7 +80,6 @@ public class ModuleManager implements ClientSupport {
 		addModule(new TridentFlight(0, "TridentFlight", "TridentFlight", Category.Movement));
 
 		addModule(new HandPosition(0, "HandPosition", "HandPosition", Category.Player));
-		addModule(new Animations(0, "Animations", "Animations", Category.Player));
 		addModule(new AntiCollide(0, "AntiCollide", "AntiCollide", Category.Player));
 		addModule(new AntiCooldown(0, "AntiCooldown", "AntiCooldown", Category.Player));
 		addModule(new Cheststealer(0, "ChestStealer", "ChestStealer", Category.Player));

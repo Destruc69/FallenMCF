@@ -42,11 +42,11 @@ public final class HandPosition extends Module {
     @SubscribeEvent
     public void onRenderHand(RenderHandEvent event) {
         if (event.getHand() == Hand.MAIN_HAND) {
-            GL11.glTranslated(rightHandX.dval, rightHandY.dval, rightHandZ.dval);
+            event.getMatrixStack().translate(rightHandX.dval, rightHandY.dval, rightHandZ.dval);
         }
 
         if (event.getHand() == Hand.OFF_HAND) {
-            GL11.glTranslated(leftHandX.dval, leftHandY.dval, leftHandZ.dval);
+            event.getMatrixStack().translate(leftHandX.dval, leftHandY.dval, leftHandZ.dval);
         }
     }
 }
