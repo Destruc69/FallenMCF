@@ -1,4 +1,4 @@
-package paul.fallen.module.modules;
+package paul.fallen.module.modules.client;
 
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.InputEvent;

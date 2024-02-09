@@ -11,7 +11,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.glfw.GLFW;
 import paul.fallen.ClientSupport;
 import paul.fallen.module.Module.Category;
-import paul.fallen.module.modules.ClickGuiHack;
+import paul.fallen.module.modules.client.ClickGuiHack;
+import paul.fallen.module.modules.client.FallenLanguage;
 import paul.fallen.module.modules.combat.*;
 import paul.fallen.module.modules.movement.*;
 import paul.fallen.module.modules.pathing.AutoMine;
@@ -53,6 +54,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new AutoPilot(0, "AutoPilot", "AutoPilot", Category.Pathing));
 		addModule(new AutoMine(0, "AutoMine", "AutoMine", Category.Pathing));
 
+		addModule(new FallenLanguage(0, "FallenLanguage", "FallenLanguage", Category.Client));
 		clickGuiHack = new ClickGuiHack(KeyEvent.VK_P, "ClickGUI", "ClickGUI", Category.Client);
 		addModule(clickGuiHack);
 
@@ -109,6 +111,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new AutoTool(0, "AutoTool", "AutoTool", Category.World));
 		addModule(new Scaffold(0, "Scaffold", "Scaffold", Category.World));
 		addModule(new Nuker(0, "Nuker", "Nuker", Category.World));
+		addModule(new AutoHighway(0, "AutoHighway", "AutoHighway", Category.World));
 	}
 
 	public ArrayList<Module> getModules() {

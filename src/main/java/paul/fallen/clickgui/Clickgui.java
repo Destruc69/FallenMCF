@@ -24,6 +24,11 @@ public class Clickgui extends Screen {
     public boolean dragging;
     public Module.Category selectedCategory;
 
+    private boolean resizingWidth = false;
+    private boolean resizingHeight = false;
+    private double lastMouseX;
+    private double lastMouseY;
+
     public Vector3d fragmentA;
     public Vector3d fragmentB;
     public Vector3d fragmentC;
@@ -66,6 +71,9 @@ public class Clickgui extends Screen {
         UIUtils.drawRect(posX, posY - 10, width, 10, new Color((int) fragmentA.x, (int) fragmentA.y, (int) fragmentA.z).getRGB());
         //Gui.drawRect(posX, posY, width, height, new Color(45,45,45).getRGB());
         UIUtils.drawRect(posX, posY, width, height, new Color((int) fragmentB.x, (int) fragmentB.y, (int) fragmentB.z).getRGB());
+
+        UIUtils.drawRect(posX + width - 2, posY, 2, height, new Color((int) fragmentA.x, (int) fragmentA.y, (int) fragmentA.z).getRGB());
+        UIUtils.drawRect(posX, posY + height - 2, width, 2, new Color((int) fragmentA.x, (int) fragmentA.y, (int) fragmentA.z).getRGB());
 
         UIUtils.drawTextOnScreen("Fallen", (int) posX + 2, (int) (posY - 8), Color.CYAN.getRGB());
 
@@ -111,9 +119,29 @@ public class Clickgui extends Screen {
             dragX = mouseX - posX;
             dragY = mouseY - posY;
         }
+
+        if (isInside(mouseX, mouseY, posX + width - 2, posY, posX + width, posY + height) && button == 0) {
+            resizingWidth = true;
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+        } else if (isInside(mouseX, mouseY, posX, posY + height - 2, posX + width, posY + height) && button == 0) {
+            resizingHeight = true;
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+        }
+
+        // Check if the mouse click is on the right border of the ClickGUI
+        else if (isInside(mouseX, mouseY, posX + width - 2, posY, posX + width, posY + height) && button == 0) {
+            scaleWidth(mouseX);
+        }
+        // Check if the mouse click is on the bottom border of the ClickGUI
+        else if (isInside(mouseX, mouseY, posX, posY + height - 2, posX + width, posY + height) && button == 0) {
+            scaleHeight(mouseY);
+        }
+
         int offset = 0;
         for (Module.Category category : Module.Category.values()) {
-            if (isInside(mouseX, mouseY,posX,posY + 1 + offset,posX + 60,posY + 15 + offset) && button == 0) {
+            if (isInside(mouseX, mouseY, posX, posY + 1 + offset, posX + 60, posY + 15 + offset) && button == 0) {
                 selectedCategory = category;
             }
             offset += 15;
@@ -177,6 +205,27 @@ public class Clickgui extends Screen {
         for (Comp comp : comps) {
             comp.mouseReleased((int) mouseX, (int) mouseY, button);
         }
+
+        if (resizingWidth || resizingHeight) {
+            resizingWidth = false;
+            resizingHeight = false;
+            return true;
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+        if (resizingWidth) {
+            scaleWidth(mouseX - lastMouseX);
+        } else if (resizingHeight) {
+            scaleHeight(mouseY - lastMouseY);
+        } else {
+            super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+        }
+        lastMouseX = mouseX;
+        lastMouseY = mouseY;
         return true;
     }
 
@@ -187,6 +236,20 @@ public class Clickgui extends Screen {
 
         for (Comp comp : comps) {
             comp.init();
+        }
+    }
+
+    public void scaleWidth(double diffX) {
+        double newWidth = width + diffX;
+        if (newWidth > 50) { // Ensure the width doesn't become too narrow
+            width = newWidth;
+        }
+    }
+
+    public void scaleHeight(double diffY) {
+        double newHeight = height + diffY;
+        if (newHeight > 50) { // Ensure the height doesn't become too short
+            height = newHeight;
         }
     }
 
