@@ -20,6 +20,7 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import paul.fallen.ClientSupport;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -165,5 +166,26 @@ public class BlockUtils implements ClientSupport {
 
     private static VoxelShape getOutlineShape(BlockPos pos) {
         return mc.world.getBlockState(pos).getShape(mc.world, pos);
+    }
+
+    public static ArrayList<BlockPos> getAllBlocksBetween(BlockPos posA, BlockPos posB) {
+        ArrayList<BlockPos> blockPosList = new ArrayList<>();
+
+        int minX = Math.min(posA.getX(), posB.getX());
+        int minY = Math.min(posA.getY(), posB.getY());
+        int minZ = Math.min(posA.getZ(), posB.getZ());
+        int maxX = Math.max(posA.getX(), posB.getX());
+        int maxY = Math.max(posA.getY(), posB.getY());
+        int maxZ = Math.max(posA.getZ(), posB.getZ());
+
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    blockPosList.add(new BlockPos(x, y, z));
+                }
+            }
+        }
+
+        return blockPosList;
     }
 }

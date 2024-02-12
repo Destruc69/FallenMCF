@@ -7,69 +7,40 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.lwjgl.glfw.GLFW;
 import paul.fallen.module.Module;
 import paul.fallen.pathfinder.AStarCustomPathFinder;
-import paul.fallen.utils.client.ClientUtils;
 import paul.fallen.utils.entity.RotationUtils;
+import paul.fallen.utils.world.BlockUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 
 public class AutoMine extends Module {
 
-    private boolean isStarted;
+    private boolean started;
+
+    private AStarCustomPathFinder pathFinder;
 
     private BlockPos posA;
     private BlockPos posB;
 
-    private ArrayList<BlockPos> blockPosArrayList;
-
-    private int save;
-    private boolean a = true;
+    private boolean hasShifted = false;
 
     public AutoMine(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
     }
 
-    public static ArrayList<BlockPos> getAllBlocksBetween(BlockPos posA, BlockPos posB) {
-        ArrayList<BlockPos> blockPosList = new ArrayList<>();
-
-        int minX = Math.min(posA.getX(), posB.getX());
-        int minY = Math.min(posA.getY(), posB.getY());
-        int minZ = Math.min(posA.getZ(), posB.getZ());
-        int maxX = Math.max(posA.getX(), posB.getX());
-        int maxY = Math.max(posA.getY(), posB.getY());
-        int maxZ = Math.max(posA.getZ(), posB.getZ());
-
-        for (int x = minX; x <= maxX; x++) {
-            for (int y = minY; y <= maxY; y++) {
-                for (int z = minZ; z <= maxZ; z++) {
-                    blockPosList.add(new BlockPos(x, y, z));
-                }
-            }
-        }
-
-        return blockPosList;
-    }
-
     @Override
     public void onEnable() {
-        isStarted = false;
-        blockPosArrayList = new ArrayList<>();
+        started = false;
+
         posA = new BlockPos(0, 0, 0);
         posB = new BlockPos(0, 0, 0);
-        save = 0;
-
-        a = false;
-
-        try {
-            ClientUtils.addChatMessage("[AutoMine] Right click Pos A and B.");
-        } catch (Exception ignored) {
-        }
     }
 
     @Override
@@ -80,93 +51,51 @@ public class AutoMine extends Module {
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         try {
-            assert mc.objectMouseOver != null;
-            BlockPos blockPos = new BlockPos(mc.objectMouseOver.getHitVec().x, mc.objectMouseOver.getHitVec().y, mc.objectMouseOver.getHitVec().z);
-
-            if (!isStarted) {
-                a = false;
-                if (mc.gameSettings.keyBindSneak.isKeyDown()) {
-                    if (posA.getY() == 0 || posB.getY() == 0) {
-                        if (posA.getY() == 0) {
-                            posA = new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ());
-                            ClientUtils.addChatMessage("Pos A:" + posA);
-                        } else {
-                            posB = new BlockPos(blockPos.getX(), blockPos.getY(), blockPos.getZ());
-                            ClientUtils.addChatMessage("Pos B: " + posB);
-                        }
+            if (!started) {
+                BlockPos blockPos = mc.player.getPosition().down();
+                if (posA.getX() == 0 && posB.getX() == 0 && posA.getZ() == 0 && posB.getZ() == 0) {
+                    if (hasShifted) {
+                        posA = blockPos;
+                        hasShifted = false;
                     }
-                }
-
-                if (posA.getY() != 0 && posB.getY() != 0) {
-                    if (!posA.equals(posB)) {
-                        blockPosArrayList = getAllBlocksBetween(posA, posB);
-                        ClientUtils.addChatMessage("Okay, Engaging!");
-                        isStarted = true;
-                    } else {
-                        ClientUtils.addChatMessage("Pos A and Pos B cannot be the same pos!");
-                        posA = new BlockPos(0, 0, 0);
-                        posB = new BlockPos(0, 0, 0);
-                        blockPosArrayList.clear();
+                } else if (posA.getX() != 0 && posB.getX() == 0 && posA.getZ() != 0 && posB.getZ() == 0) {
+                    if (hasShifted) {
+                        posB = blockPos;
+                        hasShifted = false;
                     }
+                } else if (posA.getX() != 0 && posB.getX() != 0 && posA.getZ() != 0 && posB.getZ() != 0) {
+                    started = true;
                 }
             } else {
-                try {
-                    ArrayList<BlockPos> blockPosArraySorted = sortBlockPosByY(blockPosArrayList);
+                ArrayList<BlockPos> blockPosArrayList = sortBlockPosByY(BlockUtils.getAllBlocksBetween(posA, posB));
 
-                    blockPosArrayList.removeIf(blockPos1 -> {
-                        assert mc.world != null;
-                        return mc.world.getBlockState(blockPos1).getBlock().equals(Blocks.AIR);
-                    });
+                blockPosArrayList.removeIf(blockPos -> mc.world.isAirBlock(blockPos));
+                blockPosArrayList.removeIf(blockPos -> !BlockUtils.canSeeBlock(blockPos));
 
-                    BlockPos targPos = blockPosArraySorted.get(0);
+                BlockPos targetPosition = blockPosArrayList.get(0);
 
-                    int percentage = (blockPosArrayList.size() * 100) / getAllBlocksBetween(posA, posB).size();
-                    if (mc.isSingleplayer()) {
-                        mc.ingameGUI.setOverlayMessage(new StringTextComponent(blockPosArraySorted.size() + "/" + getAllBlocksBetween(posA, posB).size() + " | " + percentage + "%"), false);
+                if (targetPosition != null) {
+                    if (mc.player.getDistanceSq(targetPosition.getX(), targetPosition.getY(), targetPosition.getZ()) > 3) {
+                        if (pathFinder.hasReachedEndOfPath() || pathFinder.getPath().size() <= 0 || pathFinder == null) {
+                            pathFinder = new AStarCustomPathFinder(mc.player.getPositionVec(), new Vector3d(targetPosition.getX(), targetPosition.getY(), targetPosition.getZ()));
+                            pathFinder.compute();
+                        } else {
+                            pathFinder.move();
+                        }
                     } else {
-                        if (save != percentage) {
-                            save = percentage;
-                            ClientUtils.addChatMessage(blockPosArraySorted.size() + "/" + getAllBlocksBetween(posA, posB).size() + " | " + percentage + "%");
-                        }
+                        mc.playerController.onPlayerDamageBlock(targetPosition, Direction.fromAngle(mc.player.rotationYaw));
+                        mc.player.swingArm(Hand.MAIN_HAND);
+                        RotationUtils.rotateTo(new Vector3d(targetPosition.getX(), targetPosition.getY(), targetPosition.getZ()), true);
                     }
-                    if (percentage <= 0) {
-                        ClientUtils.addChatMessage("[AutoMine] Completed");
-                        setState(false);
-                    }
-
-                    AStarCustomPathFinder pathfinderAStar = null;
-
-                    if (targPos != null) {
-                        // Start
-                        if (!a) {
-                            pathfinderAStar = new AStarCustomPathFinder(mc.player.getPositionVec(), new Vector3d(targPos.getX(), targPos.getY(), targPos.getZ()));
-                            pathfinderAStar.compute();
-                            a = true; // Set 'a' to true to initiate pathfinding
-                        }
-
-                        if (pathfinderAStar != null) {
-                            if (pathfinderAStar.hasReachedEndOfPath()) {
-                                pathfinderAStar = new AStarCustomPathFinder(mc.player.getPositionVec(), new Vector3d(targPos.getX(), targPos.getY(), targPos.getZ()));
-                                pathfinderAStar.compute();
-                            }
-                        }
-
-                        if (pathfinderAStar.getPath().size() > 0) {
-                            pathfinderAStar.move();
-                        }
-
-                        if (mc.player.getDistanceSq(targPos.getX(), targPos.getY(), targPos.getZ()) < 3) {
-                            mc.playerController.onPlayerDamageBlock(targPos, Direction.DOWN);
-                            mc.player.swingArm(Hand.MAIN_HAND);
-
-                            RotationUtils.rotateTo(new Vector3d(targPos.getX(), targPos.getY(), targPos.getZ()), true);
-                        }
-                    }
-                } catch (Exception ignored) {
                 }
             }
         } catch (Exception ignored) {
         }
+    }
+
+    @SubscribeEvent
+    public void onInput(InputEvent.KeyInputEvent event) {
+        hasShifted = event.getKey() == GLFW.GLFW_KEY_LEFT_SHIFT;
     }
 
     private ArrayList<BlockPos> sortBlockPosByY(ArrayList<BlockPos> blockPosList) {

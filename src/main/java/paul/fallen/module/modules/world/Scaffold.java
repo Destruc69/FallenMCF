@@ -9,6 +9,7 @@ import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.TickEvent;
@@ -120,7 +121,7 @@ public final class Scaffold extends Module {
                     mc.player.connection.sendPacket(new CHeldItemChangePacket(i));
                     mc.player.inventory.currentItem = i;
                     //mc.playerController.processRightClickBlock(mc.player, mc.world, pos, face, new Vec3d(0.5D, 0.5D, 0.5D), EnumHand.MAIN_HAND);
-                    PlayerControllerUtils.rightClickBlock(new Vector3d(0.5, 0.5, 0.5), face, pos);
+                    mc.playerController.func_217292_a(mc.player, mc.world, Hand.MAIN_HAND, new BlockRayTraceResult(new Vector3d(0.5, 0.5, 0.5), face, pos, false));
                     if (swing.bval) {
                         mc.player.swingArm(Hand.MAIN_HAND);
                     } else {
@@ -147,6 +148,7 @@ public final class Scaffold extends Module {
         if (mc.player.getHeldItem(Hand.MAIN_HAND).getItem() instanceof BlockItem) {
             //mc.playerController.processRightClickBlock(mc.player, mc.world, pos, face, new Vec3d(0.5D, 0.5D, 0.5D), EnumHand.MAIN_HAND);
             PlayerControllerUtils.rightClickBlock(new Vector3d(0.5, 0.5, 0.5), face, pos);
+            mc.playerController.func_217292_a(mc.player, mc.world, Hand.MAIN_HAND, new BlockRayTraceResult(new Vector3d(0.5, 0.5, 0.5), face, pos, false));
             if (swing.bval) {
                 mc.player.swingArm(Hand.MAIN_HAND);
             } else {

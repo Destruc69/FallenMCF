@@ -1,6 +1,5 @@
 package paul.fallen.module.modules.client;
 
-import net.minecraft.util.SoundEvents;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.event.ServerChatEvent;
@@ -49,10 +48,6 @@ public class FallenLanguage extends Module {
     public void onServerChat(ServerChatEvent event) {
         String decodedMessage = decode(event.getMessage());
         event.setComponent(new StringTextComponent(decodedMessage));
-
-        if (decodedMessage.contains(mc.player.getDisplayName().getString())) {
-            mc.player.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
-        }
     }
 
     private String obfuscate(String str) {
