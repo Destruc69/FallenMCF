@@ -12,7 +12,6 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
-import paul.fallen.utils.entity.EntityUtils;
 import paul.fallen.utils.entity.RotationUtils;
 import paul.fallen.utils.render.RenderUtils;
 
@@ -23,6 +22,8 @@ public class AutoHighway extends Module {
 
     private int currentIndex = 0;
     private ArrayList<BlockPos> blockPosArrayList;
+    private final long delay = 100; // Set your desired delay in milliseconds
+    private long lastActionTime = 0;
 
     public AutoHighway(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
@@ -37,10 +38,10 @@ public class AutoHighway extends Module {
                 currentIndex = 0;
             }
 
+            mc.gameSettings.keyBindForward.setPressed(getBlocksPositions().stream().allMatch(pos -> !mc.world.getBlockState(pos).isAir()));
             mc.gameSettings.keyBindSneak.setPressed(mc.world.getBlockState(mc.player.getPosition().down()).isAir() && mc.player.isOnGround());
 
             if (currentIndex >= blockPosArrayList.size()) {
-
                 // All blocks processed, reset and return
                 currentIndex = 0;
                 blockPosArrayList = null;
@@ -49,36 +50,36 @@ public class AutoHighway extends Module {
 
             BlockPos blockPos = blockPosArrayList.get(currentIndex);
 
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastActionTime < delay) {
+                return; // If the delay hasn't passed yet, return
+            }
+
+            lastActionTime = currentTime;
+
             if (mc.world.getBlockState(blockPos).isAir()) {
                 place(blockPos);
             } else if (mc.world.getBlockState(blockPos).getBlock() != Block.getBlockFromItem(mc.player.getHeldItem(Hand.MAIN_HAND).getItem())) {
                 breakPos(blockPos);
             } else {
                 // Move to the next block if the current one matches
-                if (mc.player.ticksExisted % 5 == 0) {
-                    currentIndex++;
-                }
+                currentIndex++;
             }
         } catch (Exception ignored) {
         }
     }
 
     private void place(BlockPos blockPos) {
+        float[] angle = getRotationsBlock(blockPos, mc.player.getHorizontalFacing().getOpposite());
 
-        mc.gameSettings.keyBindSneak.setPressed(true);
-
-        float[] rot = getRotationsBlock(blockPos, Direction.fromAngle(mc.player.rotationYaw).getOpposite());
-
-        mc.playerController.func_217292_a(mc.player, mc.world, Hand.MAIN_HAND, (BlockRayTraceResult) EntityUtils.rayTraceBlocks(mc.player.getPositionVec().add(0, mc.player.getEyeHeight(), 0), new Vector3d(blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5)));
+        mc.playerController.func_217292_a(mc.player, mc.world, Hand.MAIN_HAND, new BlockRayTraceResult(new Vector3d(0, 0, 0), mc.player.getHorizontalFacing(), blockPos, false));
 
         mc.player.swingArm(Hand.MAIN_HAND);
 
-        mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
+        mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(angle[0], angle[1], mc.player.isOnGround()));
 
-        if (mc.player.ticksExisted % 5 == 0) {
-            // Move to the next block after placing
-            currentIndex++;
-        }
+        // Move to the next block after placing
+        currentIndex++;
     }
 
     private void breakPos(BlockPos blockPos) {
@@ -88,10 +89,8 @@ public class AutoHighway extends Module {
 
         RotationUtils.rotateTo(new Vector3d(blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5));
 
-        if (mc.player.ticksExisted % 5 == 0) {
-            // Move to the next block after breaking
-            currentIndex++;
-        }
+        // Move to the next block after breaking
+        currentIndex++;
     }
 
     @SubscribeEvent
@@ -107,6 +106,7 @@ public class AutoHighway extends Module {
         switch (mc.player.getHorizontalFacing()) {
             case EAST: {
                 bpa.add(orignPos.down());
+                bpa.add(orignPos.down());
                 bpa.add(orignPos.down().north());
                 bpa.add(orignPos.down().south());
                 bpa.add(orignPos.down().north().north());
@@ -116,6 +116,7 @@ public class AutoHighway extends Module {
                 break;
             }
             case NORTH: {
+                bpa.add(orignPos.down());
                 bpa.add(orignPos.down());
                 bpa.add(orignPos.down().east());
                 bpa.add(orignPos.down().west());
@@ -127,6 +128,7 @@ public class AutoHighway extends Module {
             }
             case SOUTH: {
                 bpa.add(orignPos.down());
+                bpa.add(orignPos.down());
                 bpa.add(orignPos.down().east());
                 bpa.add(orignPos.down().west());
                 bpa.add(orignPos.down().east().east());
@@ -136,6 +138,7 @@ public class AutoHighway extends Module {
                 break;
             }
             case WEST: {
+                bpa.add(orignPos.down());
                 bpa.add(orignPos.down());
                 bpa.add(orignPos.down().north());
                 bpa.add(orignPos.down().south());
@@ -149,7 +152,8 @@ public class AutoHighway extends Module {
         return bpa;
     }
 
-    public float[] getRotationsBlock(BlockPos block, Direction face) {
+
+    private float[] getRotationsBlock(BlockPos block, Direction face) {
         assert mc.player != null;
         double x = (double) block.getX() + 0.5 - mc.player.getPosX() + (double) face.getXOffset() / 2.0;
         double z = (double) block.getZ() + 0.5 - mc.player.getPosZ() + (double) face.getZOffset() / 2.0;
@@ -164,3 +168,4 @@ public class AutoHighway extends Module {
         return new float[]{yaw, pitch};
     }
 }
+

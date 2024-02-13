@@ -28,4 +28,17 @@ public class RotationUtils {
 
         return new int[]{(int) yaw, (int) pitch};
     }
+
+    public static int[] getYawAndPitch(Vector3d base, Vector3d target) {
+        double xDiff = target.x - base.x;
+        double yDiff = target.y - base.y;
+        double zDiff = target.z - base.z;
+
+        double horizontalDistance = Math.sqrt(xDiff * xDiff + zDiff * zDiff);
+
+        float yaw = (float) Math.toDegrees(Math.atan2(-xDiff, zDiff));
+        float pitch = (float) Math.toDegrees(Math.atan2(-yDiff, horizontalDistance));
+
+        return new int[]{(int) yaw, (int) pitch};
+    }
 }

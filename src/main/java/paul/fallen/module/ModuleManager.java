@@ -50,6 +50,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new CrystalAuraHack(0, "CrystalAura", "CrystalAura", Category.Combat));
 		addModule(new FastBow(0, "FastBow", "FastBow", Category.Combat));
 		addModule(new NoKnockBack(0, "NoKnockback", "NoKnockback", Category.Combat));
+		addModule(new InfiniteAura(0, "InfiniteAura", "InfiniteAura", Category.Combat));
 
 		addModule(new AutoPilot(0, "AutoPilot", "AutoPilot", Category.Pathing));
 		addModule(new AutoMine(0, "AutoMine", "AutoMine", Category.Pathing));

@@ -8,6 +8,7 @@
 package paul.fallen.module.modules.combat;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.vector.Vector3d;
@@ -52,20 +53,20 @@ public final class Killaura extends Module {
 
         assert mc.world != null;
         for (Entity entity : mc.world.getAllEntities()) {
-            if (entity != null && entity != mc.player) {
+            if (entity != null && entity != mc.player && entity instanceof LivingEntity) {
                 assert mc.player != null;
                 double distance = mc.player.getDistanceSq(entity.getPosX(), entity.getPosY(), entity.getPosZ());
-                if (distance < distancee.dval) {
+                if (distance < closestDistance) { // Fixed variable name
                     closestDistance = distance;
                     closestEntity = entity;
                 }
             }
         }
-        assert closestEntity != null;
-        if (mc.player.getDistance(closestEntity) <= 3) {
-            return closestEntity;
-        } else {
-            return null;
+        if (closestEntity != null && mc.player != null) { // Removed assertion for closestEntity not being null
+            if (mc.player.getDistance(closestEntity) <= distancee.dval) {
+                return closestEntity;
+            }
         }
+        return null; // Moved return statement out of the if condition
     }
 }
