@@ -10,24 +10,18 @@ public final class FullbrightHack extends Module {
         super(bind, name, displayName, category);
     }
 
+    @Override
+    public void onEnable() {
+        mc.gameSettings.gamma = 500;
+    }
+
+    @Override
+    public void onDisable() {
+        mc.gameSettings.gamma = 1;
+    }
+
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
 
-        if (getState()) {
-            if (mc.gameSettings.gamma < 16)
-                mc.gameSettings.gamma =
-                        Math.min(mc.gameSettings.gamma + 0.5F, 16);
-
-            return;
-        }
-
-        if (mc.gameSettings.gamma > 0.5F)
-            mc.gameSettings.gamma =
-                    Math.max(mc.gameSettings.gamma - 0.5F, 0.5F);
-        else
-            setState(false);
-
-
     }
-
 }

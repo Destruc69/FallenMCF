@@ -24,14 +24,9 @@ public class InfiniteAura extends Module {
 
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        Entity entity = findClosestEntity();
-        if (entity != null) {
-            if (mc.player.ticksExisted % 10 == 0) {
-
-                //Attack entity
-                mc.playerController.attackEntity(mc.player, entity);
-                mc.player.swingArm(Hand.MAIN_HAND);
-
+        try {
+            Entity entity = findClosestEntity();
+            if (entity != null && mc.player.ticksExisted % 10 == 0) {
                 // Move to entity
                 aStarCustomPathFinder = new AStarCustomPathFinder(mc.player.getPositionVec(), entity.getPositionVec());
                 aStarCustomPathFinder.compute();
@@ -39,25 +34,32 @@ public class InfiniteAura extends Module {
                 this.entity = entity;
 
                 // Move forward
-                for (int a = 0; a < aStarCustomPathFinder.getPath().size() - 1; a++) {
+                int pathSize = aStarCustomPathFinder.getPath().size(); // Store the size of the path
+                for (int a = 0; a < pathSize; a++) {
                     Vector3d v = aStarCustomPathFinder.getPath().get(a);
                     mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(v.x, v.y, v.z, true));
                 }
 
                 // Look at entity
-                int[] rot = RotationUtils.getYawAndPitch(aStarCustomPathFinder.getPath().get(aStarCustomPathFinder.getPath().size()), entity.getPositionVec().add(0.5, 0.5, 0.5));
+                int[] rot = RotationUtils.getYawAndPitch(aStarCustomPathFinder.getPath().get(pathSize - 1), entity.getPositionVec().add(0.5, 0.5, 0.5));
                 mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], true));
+
+                // Attack entity
+                mc.playerController.attackEntity(mc.player, entity);
+                mc.player.swingArm(Hand.MAIN_HAND);
 
                 // Move back from entity
                 aStarCustomPathFinder = new AStarCustomPathFinder(entity.getPositionVec(), mc.player.getPositionVec());
                 aStarCustomPathFinder.compute();
 
-                //Move back
-                for (int b = 0; b < aStarCustomPathFinder.getPath().size() - 1; b++) {
+                // Move back
+                pathSize = aStarCustomPathFinder.getPath().size(); // Update the size of the path
+                for (int b = 0; b < pathSize; b++) {
                     Vector3d v = aStarCustomPathFinder.getPath().get(b);
                     mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(v.x, v.y, v.z, true));
                 }
             }
+        } catch (Exception ignored) {
         }
     }
 
