@@ -6,10 +6,12 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import paul.fallen.ClientSupport;
 import paul.fallen.FALLENClient;
-import paul.fallen.friend.Friend;
 import paul.fallen.utils.client.Logger;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,23 +29,16 @@ public class WaypointManager implements ClientSupport {
     }
 
     public void loadConfig(Gson gson) {
-        File dir = new File(mc.gameDir + File.separator + "Fallen" + File.separator + "waypoints");
-        if (dir.exists()) {
-            File[] directoryListing = dir.listFiles();
-            if (directoryListing != null) {
-                for (File f : directoryListing) {
-                    try (FileReader reader = new FileReader(f)) {
-                        Map<String, Integer> map = gson.fromJson(reader, new TypeToken<Map<String, Integer>>() {
-                        }.getType());
-                        Waypoint waypoint = new Waypoint(map.get("x"), map.get("z"));
-                        this.waypoints.add(waypoint);
-                        Logger.log(Logger.LogState.Normal, "Loaded waypoint " + "[" + waypoint.getX() + "," + " " + waypoint.getZ() + "]" + " from Json!");
-                    } catch (JsonSyntaxException | JsonIOException | IOException e) {
-                        Logger.log(Logger.LogState.Error, "Error loading waypoints from Json: " + e.getMessage());
-                        e.printStackTrace();
-                    }
-                }
-            }
+        File f = new File(mc.gameDir + File.separator + "Fallen" + File.separator + "waypoints");
+        try (FileReader reader = new FileReader(f)) {
+            Map<String, Integer> map = gson.fromJson(reader, new TypeToken<Map<String, Integer>>() {
+            }.getType());
+            Waypoint waypoint = new Waypoint(map.get("x"), map.get("z"));
+            this.waypoints.add(waypoint);
+            Logger.log(Logger.LogState.Normal, "Loaded waypoint " + "[" + waypoint.getX() + "," + " " + waypoint.getZ() + "]" + " from Json!");
+        } catch (JsonSyntaxException | JsonIOException | IOException e) {
+            Logger.log(Logger.LogState.Error, "Error loading waypoints from Json: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

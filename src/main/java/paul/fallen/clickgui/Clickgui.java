@@ -15,6 +15,8 @@ import paul.fallen.setting.Setting;
 import paul.fallen.utils.render.UIUtils;
 
 import java.awt.*;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -53,53 +55,64 @@ public class Clickgui extends Screen {
         selectedCategory = Module.Category.Combat;
     }
 
-    @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
-        if (dragging) {
-            posX = mouseX - dragX;
-            posY = mouseY - dragY;
+    public static String getNearestEvent(int currentMonth, int currentDay) {
+        LocalDate currentDate = LocalDate.of(LocalDate.now().getYear(), currentMonth, currentDay);
+
+        LocalDate terryDavisBirth = LocalDate.of(LocalDate.now().getYear(), Month.DECEMBER, 15);
+        LocalDate terryDavisDeath = LocalDate.of(LocalDate.now().getYear(), Month.AUGUST, 11);
+        LocalDate fallenEstablished = LocalDate.of(LocalDate.now().getYear(), Month.OCTOBER, 8);
+        LocalDate paulBirthday = LocalDate.of(LocalDate.now().getYear(), Month.DECEMBER, 5);
+        LocalDate rickMondyBirthday = LocalDate.of(LocalDate.now().getYear(), Month.OCTOBER, 12);
+        LocalDate funnyBirthday = LocalDate.of(LocalDate.now().getYear(), Month.MAY, 16);
+        LocalDate zamplexBirthday = LocalDate.of(LocalDate.now().getYear(), Month.JULY, 11);
+        LocalDate newYearsDay = LocalDate.of(LocalDate.now().getYear(), Month.JANUARY, 1);
+        LocalDate christmasDay = LocalDate.of(LocalDate.now().getYear(), Month.DECEMBER, 25);
+        LocalDate internationalMensDay = LocalDate.of(LocalDate.now().getYear(), Month.NOVEMBER, 19);
+        LocalDate australiaDay = LocalDate.of(LocalDate.now().getYear(), Month.JANUARY, 26);
+        LocalDate alexandersBirthday = LocalDate.of(LocalDate.now().getYear(), Month.FEBRUARY, 9);
+
+        LocalDate[] eventDates = {terryDavisBirth, terryDavisDeath, fallenEstablished, paulBirthday, rickMondyBirthday,
+                funnyBirthday, zamplexBirthday, newYearsDay, christmasDay, internationalMensDay, australiaDay, alexandersBirthday};
+
+        LocalDate nearestEventDate = null;
+        long nearestEventDays = Long.MAX_VALUE;
+
+        for (LocalDate eventDate : eventDates) {
+            if (eventDate.isAfter(currentDate) && eventDate.toEpochDay() - currentDate.toEpochDay() < nearestEventDays) {
+                nearestEventDate = eventDate;
+                nearestEventDays = eventDate.toEpochDay() - currentDate.toEpochDay();
+            }
         }
 
-        // 100 10 100 = A
-        // 45 45 45 = B
-        // 230 10 230 = C
-        // 28 28 28 = D
-        // 1701 170 170 = Text RGB
-
-        //Gui.drawRect(posX, posY - 10, width, posY, new Color(100,10,100).getRGB());
-        UIUtils.drawRect(posX, posY - 10, width, 10, new Color((int) fragmentA.x, (int) fragmentA.y, (int) fragmentA.z).getRGB());
-        //Gui.drawRect(posX, posY, width, height, new Color(45,45,45).getRGB());
-        UIUtils.drawRect(posX, posY, width, height, new Color((int) fragmentB.x, (int) fragmentB.y, (int) fragmentB.z).getRGB());
-
-        UIUtils.drawRect(posX + width - 2, posY, 2, height, new Color((int) fragmentA.x, (int) fragmentA.y, (int) fragmentA.z).getRGB());
-        UIUtils.drawRect(posX, posY + height - 2, width, 2, new Color((int) fragmentA.x, (int) fragmentA.y, (int) fragmentA.z).getRGB());
-
-        UIUtils.drawTextOnScreen("Fallen", (int) posX + 2, (int) (posY - 8), Color.CYAN.getRGB());
-
-        Calendar calendar = Calendar.getInstance();
-        UIUtils.drawTextOnScreen(calendar.getTime().toString(), (int) ((int) posX + width - 160), (int) (posY - 8), Color.CYAN.getRGB());
-
-        int offset = 0;
-        for (Module.Category category : Module.Category.values()) {
-            //Gui.drawRect(posX,posY + 1 + offset,posX + 60,posY + 15 + offset,category.equals(selectedCategory) ? new Color(230,10,230).getRGB() : new Color(28,28,28).getRGB());
-            UIUtils.drawRect(posX, posY + 1 + offset, 60, 15, category.equals(selectedCategory) ? new Color((int) fragmentC.x, (int) fragmentC.y, (int) fragmentC.z).getRGB() : new Color((int) fragmentD.x, (int) fragmentD.y, (int) fragmentD.z).getRGB());
-            //fontRendererObj.drawString(category.name(),(int)posX + 2, (int)(posY + 5) + offset, new Color(170,170,170).getRGB());
-            UIUtils.drawTextOnScreen(category.name(), (int) posX + 2, (int) (posY + 5) + offset, new Color((int) textRGB.x, (int) textRGB.y, (int) textRGB.z).getRGB());
-            offset += 15;
-        }
-        offset = 0;
-        for (Module m : FALLENClient.INSTANCE.getModuleManager().getModulesInCategory(selectedCategory)) {
-            //Gui.drawRect(posX + 65,posY + 1 + offset,posX + 125,posY + 15 + offset,m.isToggled() ? new Color(230,10,230).getRGB() : new Color(28,28,28).getRGB());
-            UIUtils.drawRect(posX + 65, posY + 1 + offset, 125, 15, m.toggled ? new Color((int) fragmentC.x, (int) fragmentC.y, (int) fragmentC.z).getRGB() : new Color((int) fragmentD.x, (int) fragmentD.y, (int) fragmentD.z).getRGB());
-            //fontRendererObj.drawString(m.getName(),(int)posX + 67, (int)(posY + 5) + offset, new Color(170,170,170).getRGB());
-            UIUtils.drawTextOnScreen(m.getName(), (int) posX + 67, (int) (posY + 5) + offset, new Color((int) textRGB.x, (int) textRGB.y, (int) textRGB.z).getRGB());
-            offset += 15;
+        if (nearestEventDate != null) {
+            if (nearestEventDate.equals(terryDavisBirth)) {
+                return "Terry Davis's birth" + " | " + terryDavisBirth;
+            } else if (nearestEventDate.equals(terryDavisDeath)) {
+                return "Terry Davis's death." + " | " + terryDavisDeath;
+            } else if (nearestEventDate.equals(fallenEstablished)) {
+                return "Fallen established" + " | " + fallenEstablished;
+            } else if (nearestEventDate.equals(paulBirthday)) {
+                return "Paul's birth." + " | " + paulBirthday;
+            } else if (nearestEventDate.equals(rickMondyBirthday)) {
+                return "RickMondy's birth." + " | " + rickMondyBirthday;
+            } else if (nearestEventDate.equals(funnyBirthday)) {
+                return "Funny's birth." + " | " + funnyBirthday;
+            } else if (nearestEventDate.equals(zamplexBirthday)) {
+                return "Zamplex's birth." + " | " + zamplexBirthday;
+            } else if (nearestEventDate.equals(newYearsDay)) {
+                return "New years" + " | " + newYearsDay;
+            } else if (nearestEventDate.equals(christmasDay)) {
+                return "Christmas" + " | " + christmasDay;
+            } else if (nearestEventDate.equals(internationalMensDay)) {
+                return "International Men's Day" + " | " + internationalMensDay;
+            } else if (nearestEventDate.equals(australiaDay)) {
+                return "Australia Day" + " | " + australiaDay;
+            } else if (nearestEventDate.equals(alexandersBirthday)) {
+                return "Alexanders Birthday" + " | " + alexandersBirthday;
+            }
         }
 
-        for (Comp comp : comps) {
-            comp.drawScreen(mouseX, mouseY);
-        }
+        return "Upcoming events: ";
     }
 
     @Override
@@ -259,5 +272,96 @@ public class Clickgui extends Screen {
 
     public boolean isInside(double mouseX, double mouseY, double x, double y, double x2, double y2) {
         return (mouseX > x && mouseX < x2) && (mouseY > y && mouseY < y2);
+    }
+
+    @Override
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
+        if (dragging) {
+            posX = mouseX - dragX;
+            posY = mouseY - dragY;
+        }
+
+        // 100 10 100 = A
+        // 45 45 45 = B
+        // 230 10 230 = C
+        // 28 28 28 = D
+        // 1701 170 170 = Text RGB
+
+        //Gui.drawRect(posX, posY - 10, width, posY, new Color(100,10,100).getRGB());
+        UIUtils.drawRect(posX, posY - 10, width, 10, new Color((int) fragmentA.x, (int) fragmentA.y, (int) fragmentA.z).getRGB());
+        //Gui.drawRect(posX, posY, width, height, new Color(45,45,45).getRGB());
+        UIUtils.drawRect(posX, posY, width, height, new Color((int) fragmentB.x, (int) fragmentB.y, (int) fragmentB.z).getRGB());
+
+        UIUtils.drawRect(posX + width - 2, posY, 2, height, new Color((int) fragmentA.x, (int) fragmentA.y, (int) fragmentA.z).getRGB());
+        UIUtils.drawRect(posX, posY + height - 2, width, 2, new Color((int) fragmentA.x, (int) fragmentA.y, (int) fragmentA.z).getRGB());
+
+        UIUtils.drawTextOnScreen("Fallen", (int) posX + 2, (int) (posY - 8), Color.CYAN.getRGB());
+
+        Calendar calendar = Calendar.getInstance();
+        UIUtils.drawTextOnScreen(calendar.getTime().toString(), (int) ((int) posX + width - 160), (int) (posY - 8), new Color((int) textRGB.x, (int) textRGB.y, (int) textRGB.z).getRGB());
+
+        int offset = 0;
+        for (Module.Category category : Module.Category.values()) {
+            //Gui.drawRect(posX,posY + 1 + offset,posX + 60,posY + 15 + offset,category.equals(selectedCategory) ? new Color(230,10,230).getRGB() : new Color(28,28,28).getRGB());
+            UIUtils.drawRect(posX, posY + 1 + offset, 60, 15, category.equals(selectedCategory) ? new Color((int) fragmentC.x, (int) fragmentC.y, (int) fragmentC.z).getRGB() : new Color((int) fragmentD.x, (int) fragmentD.y, (int) fragmentD.z).getRGB());
+            //fontRendererObj.drawString(category.name(),(int)posX + 2, (int)(posY + 5) + offset, new Color(170,170,170).getRGB());
+            UIUtils.drawTextOnScreen(category.name(), (int) posX + 2, (int) (posY + 5) + offset, new Color((int) textRGB.x, (int) textRGB.y, (int) textRGB.z).getRGB());
+            offset += 15;
+        }
+        offset = 0;
+        for (Module m : FALLENClient.INSTANCE.getModuleManager().getModulesInCategory(selectedCategory)) {
+            //Gui.drawRect(posX + 65,posY + 1 + offset,posX + 125,posY + 15 + offset,m.isToggled() ? new Color(230,10,230).getRGB() : new Color(28,28,28).getRGB());
+            UIUtils.drawRect(posX + 65, posY + 1 + offset, 125, 15, m.toggled ? new Color((int) fragmentC.x, (int) fragmentC.y, (int) fragmentC.z).getRGB() : new Color((int) fragmentD.x, (int) fragmentD.y, (int) fragmentD.z).getRGB());
+            //fontRendererObj.drawString(m.getName(),(int)posX + 67, (int)(posY + 5) + offset, new Color(170,170,170).getRGB());
+            UIUtils.drawTextOnScreen(m.getName(), (int) posX + 67, (int) (posY + 5) + offset, new Color((int) textRGB.x, (int) textRGB.y, (int) textRGB.z).getRGB());
+            offset += 15;
+        }
+
+        for (Comp comp : comps) {
+            comp.drawScreen(mouseX, mouseY);
+        }
+    }
+
+    private String whatsTheBuzzTellMeWhatsAHappening() {
+        // Max: 80 chars
+        Calendar calendar = Calendar.getInstance();
+        int month = calendar.get(Calendar.MONTH) + 1; // Month is zero-based, so adding 1
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        int screenWidth = Minecraft.getInstance().getMainWindow().getScaledWidth();
+        int screenHeight = Minecraft.getInstance().getMainWindow().getScaledHeight();
+        int bottomHalfY = screenHeight / 2 + screenHeight / 4;
+
+        int x = screenWidth / 2 - (500 / 2);
+        int y = bottomHalfY - (25 / 2);
+
+        if (month == 12 && day == 15) {
+            return "Today, we celebrate Terry Davis's birth!.";
+        } else if (month == 8 && day == 11) {
+            return "Today, we honor Terry Davis. May his soul rest in peace.";
+        } else if (month == 10 && day == 8) {
+            return "On this day in 2021, Fallen was established!.";
+        } else if (month == 12 && day == 5) {
+            return "[Paul - Founder] I was born today!";
+        } else if (month == 10 && day == 12) {
+            return "[RickMondy - Trusted Confidant] I was born today!";
+        } else if (month == 5 && day == 16) {
+            return "[Funny - Resilient Patron] I was born today!";
+        } else if (month == 7 && day == 11) {
+            return "[Zamplex - Early Adopter] I was born today!";
+        } else if (month == 1 && day == 1) {
+            return "Happy new years!";
+        } else if (month == 12 && day == 25) {
+            return "Merry Christmas!";
+        } else if (month == 11 && day == 19) {
+            return "Its International Men's Day!";
+        } else if (month == 1 && day == 26) {
+            return "Happy Australia Day! Fallen is Australian Made.";
+        } else if (month == 2 && day == 9) {
+            return "Happy Birthday Alexander! Thank you for wurst.";
+        } else {
+            return "Upcoming events: " + getNearestEvent(month, day);
+        }
     }
 }

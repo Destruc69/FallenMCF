@@ -81,6 +81,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new YawLock(0, "YawLock", "YawLock", Category.Movement));
 		addModule(new Step(0, "Step", "Step", Category.Movement));
 		addModule(new TridentFlight(0, "TridentFlight", "TridentFlight", Category.Movement));
+		addModule(new LongJump(0, "LongJump", "LongJump", Category.Movement));
 
 		addModule(new HandPosition(0, "HandPosition", "HandPosition", Category.Player));
 		addModule(new AntiCollide(0, "AntiCollide", "AntiCollide", Category.Player));
