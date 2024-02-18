@@ -1,6 +1,7 @@
 package paul.fallen.utils.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -47,8 +48,10 @@ public class RenderUtils implements ClientSupport {
         matrixStackIn.push();
 
         GL11.glDisable(GL11.GL_DEPTH_TEST);
+        RenderSystem.disableDepthTest();
         drawShapeOutline(matrixStackIn, VoxelShapes.create(aabbIn), pos.getX() - camX, pos.getY() - camY, pos.getZ() - camZ, red, green, blue, alpha);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
+        RenderSystem.enableDepthTest();
 
         matrixStackIn.pop();
     }

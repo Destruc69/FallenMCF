@@ -82,6 +82,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new Step(0, "Step", "Step", Category.Movement));
 		addModule(new TridentFlight(0, "TridentFlight", "TridentFlight", Category.Movement));
 		addModule(new LongJump(0, "LongJump", "LongJump", Category.Movement));
+		addModule(new Jesus(0, "Jesus", "Jesus", Category.Movement));
 
 		addModule(new HandPosition(0, "HandPosition", "HandPosition", Category.Player));
 		addModule(new AntiCollide(0, "AntiCollide", "AntiCollide", Category.Player));
@@ -114,6 +115,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new Scaffold(0, "Scaffold", "Scaffold", Category.World));
 		addModule(new Nuker(0, "Nuker", "Nuker", Category.World));
 		addModule(new AutoHighway(0, "AutoHighway", "AutoHighway", Category.World));
+		addModule(new OverKill(0, "OverKill", "OverKill", Category.World));
 	}
 
 	public ArrayList<Module> getModules() {
