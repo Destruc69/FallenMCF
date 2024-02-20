@@ -1,6 +1,5 @@
 package paul.fallen.module.modules.combat;
 
-import net.minecraft.client.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -14,7 +13,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
 import paul.fallen.packetevent.PacketEvent;
 import paul.fallen.pathfinder.AStarCustomPathFinder;
-import paul.fallen.setting.Setting;
 import paul.fallen.utils.entity.RotationUtils;
 import paul.fallen.utils.render.RenderUtils;
 

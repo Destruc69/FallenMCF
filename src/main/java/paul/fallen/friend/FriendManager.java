@@ -50,7 +50,7 @@ public class FriendManager implements ClientSupport {
                     Logger.log(LogState.Error, "Json file not found exception in SettingManager.loadConfig()!");
                     e.printStackTrace();
                 } catch (IOException e1) {
-                    Logger.log(LogState.Error, "Json I/O exception in SettingManager.loadConfog()!");
+                    Logger.log(LogState.Error, "Json I/O exception in SettingManager.loadConfig()!");
                     e1.printStackTrace();
                 }
             }

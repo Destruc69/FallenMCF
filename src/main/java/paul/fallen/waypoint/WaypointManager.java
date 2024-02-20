@@ -29,21 +29,26 @@ public class WaypointManager implements ClientSupport {
     }
 
     public void loadConfig(Gson gson) {
-        File f = new File(mc.gameDir + File.separator + "Fallen" + File.separator + "waypoints");
-        try (FileReader reader = new FileReader(f)) {
-            Map<String, Integer> map = gson.fromJson(reader, new TypeToken<Map<String, Integer>>() {
-            }.getType());
-            Waypoint waypoint = new Waypoint(map.get("x"), map.get("z"));
-            this.waypoints.add(waypoint);
-            Logger.log(Logger.LogState.Normal, "Loaded waypoint " + "[" + waypoint.getX() + "," + " " + waypoint.getZ() + "]" + " from Json!");
-        } catch (JsonSyntaxException | JsonIOException | IOException e) {
-            Logger.log(Logger.LogState.Error, "Error loading waypoints from Json: " + e.getMessage());
-            e.printStackTrace();
+        File dir = new File(mc.gameDir + File.separator + "Fallen" + File.separator + "waypoints");
+        if (dir.exists()) {
+            File[] directoryListing = dir.listFiles();
+            for (File f : directoryListing) {
+                try (FileReader reader = new FileReader(f)) {
+                    Map<String, Object> map = gson.fromJson(reader, new TypeToken<Map<String, Object>>() {
+                    }.getType());
+                    Waypoint waypoint = new Waypoint((Integer) map.get("x"), (Integer) map.get("z"));
+                    this.waypoints.add(waypoint);
+                    Logger.log(Logger.LogState.Normal, "Loaded waypoint " + "[" + waypoint.getX() + "," + " " + waypoint.getZ() + "]" + " from Json!");
+                } catch (JsonSyntaxException | JsonIOException | IOException e) {
+                    Logger.log(Logger.LogState.Error, "Error loading waypoints from Json: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
     public void saveConfig(Gson gson) {
-        for (Waypoint waypoint : getWaypoints()) {
+        for (Waypoint waypoint : this.waypoints) {
             File file = new File(mc.gameDir + File.separator + "Fallen" + File.separator + "waypoints" + File.separator + "wp_" + waypoint.getX() + "-" + waypoint.getZ() + ".json");
             if (!file.exists()) {
                 new File(mc.gameDir + File.separator + "Fallen" + File.separator + "waypoints").mkdirs();
@@ -55,7 +60,7 @@ public class WaypointManager implements ClientSupport {
                 }
             }
             try (FileWriter writer = new FileWriter(file)) {
-                Map<String, Integer> map = new HashMap<>();
+                Map<String, Object> map = new HashMap<>();
                 map.put("x", waypoint.getX());
                 map.put("z", waypoint.getZ());
                 gson.toJson(map, writer);
@@ -67,12 +72,12 @@ public class WaypointManager implements ClientSupport {
     }
 
     public void addWaypoint(int x, int z) {
-        getWaypoints().add(new Waypoint(x, z));
+        this.waypoints.add(new Waypoint(x, z));
         saveConfig(FALLENClient.INSTANCE.getGson());
     }
 
     public void removeWaypoint(int x, int z) {
-        waypoints.removeIf(waypoint -> waypoint.getX() == x && waypoint.getZ() == z);
+        this.waypoints.removeIf(waypoint -> waypoint.getX() == x && waypoint.getZ() == z);
         saveConfig(FALLENClient.INSTANCE.getGson());
     }
 }
