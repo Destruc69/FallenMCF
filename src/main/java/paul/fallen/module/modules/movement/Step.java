@@ -7,61 +7,31 @@
  */
 package paul.fallen.module.modules.movement;
 
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.play.client.CPlayerPacket;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
+import paul.fallen.setting.Setting;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 public final class Step extends Module {
-    private boolean a;
+
+    private Setting high;
 
     public Step(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
+
+        high = new Setting("High", this, false);
+        addSetting(high);
     }
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
-            PlayerEntity player = mc.player;
-
-            assert player != null;
-            if (!player.isOnGround() || player.isInWater() || player.isInLava()) {
-                return;
-            }
-
-            if (player.moveForward == 0 && player.moveStrafing == 0) {
-                return;
-            }
-
-            if (mc.gameSettings.keyBindJump.isKeyDown()) {
-                return;
-            }
-
-            AxisAlignedBB box = player.getBoundingBox().offset(0, 0.05, 0).grow(0.05);
-
-            double stepHeight = Double.NEGATIVE_INFINITY;
-
-            ArrayList<AxisAlignedBB> blockCollisions = new ArrayList<AxisAlignedBB>((Collection<? extends AxisAlignedBB>) mc.world.getBlockCollisionShapes(player, box));
-
-            for (AxisAlignedBB bb : blockCollisions) {
-                if (bb.maxY > stepHeight) {
-                    stepHeight = bb.maxY;
-                }
-            }
-
-            stepHeight = stepHeight - player.getPosY();
-
-            if (mc.player.collidedHorizontally && mc.player.isOnGround() && mc.player.fallDistance == 0.0f && !mc.player.isOnLadder() && !mc.player.movementInput.jump) {
-                if (!a) {
-                    ncpStep(stepHeight);
-                    a = true;
-                }
-            } else {
-                a = false;
+            if (mc.player.collidedHorizontally) {
+                ncpStep(high.bval ? 2 : 1);
             }
         } catch (Exception ignored) {
         }
@@ -69,7 +39,6 @@ public final class Step extends Module {
 
     private void ncpStep(double height) {
         List<Double> offset = Arrays.asList(0.42, 0.333, 0.248, 0.083, -0.078);
-        assert mc.player != null;
         double posX = mc.player.getPosX();
         double posZ = mc.player.getPosZ();
         double y = mc.player.getPosY();
