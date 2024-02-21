@@ -13,6 +13,7 @@ import paul.fallen.ClientSupport;
 import paul.fallen.module.Module.Category;
 import paul.fallen.module.modules.client.ClickGuiHack;
 import paul.fallen.module.modules.client.FallenLanguage;
+import paul.fallen.module.modules.client.Tones;
 import paul.fallen.module.modules.combat.*;
 import paul.fallen.module.modules.movement.*;
 import paul.fallen.module.modules.pathing.AutoMine;
@@ -58,6 +59,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new FallenLanguage(0, "FallenLanguage", "FallenLanguage", Category.Client));
 		clickGuiHack = new ClickGuiHack(KeyEvent.VK_P, "ClickGUI", "ClickGUI", Category.Client);
 		addModule(clickGuiHack);
+		addModule(new Tones(0, "Tones", "Tones", Category.Client));
 
 		addModule(new AntiAFK(0, "AntiAFK", "AntiAFK", Category.Movement));
 		addModule(new ElytraFlight(0, "ElytraFlight", "ElytraFlight", Category.Movement));

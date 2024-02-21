@@ -8,6 +8,7 @@ import paul.fallen.clickgui.Clickgui;
 import paul.fallen.command.CommandManager;
 import paul.fallen.friend.FriendManager;
 import paul.fallen.module.ModuleManager;
+import paul.fallen.music.MusicManager;
 import paul.fallen.packetevent.ChannelHandlerInput;
 import paul.fallen.setting.SettingManager;
 import paul.fallen.utils.client.Logger;
@@ -25,6 +26,7 @@ public class FALLENClient implements ClientSupport {
     private final SettingManager settingManager;
     private final FriendManager friendManager;
     private final CommandManager commandManager;
+    private final MusicManager musicManager;
     private final WaypointManager waypointManager;
     private final Clickgui clickgui;
     private final Gson gson;
@@ -42,6 +44,9 @@ public class FALLENClient implements ClientSupport {
 
         Logger.log(LogState.Normal, "Initializing Gson with pretty printing");
         this.gson = new GsonBuilder().setPrettyPrinting().create();
+
+        Logger.log(LogState.Normal, "Initializing MusicManager");
+        musicManager = new MusicManager();
 
         Logger.log(LogState.Normal, "Initializing FriendManager");
         this.friendManager = new FriendManager();
@@ -142,5 +147,9 @@ public class FALLENClient implements ClientSupport {
 
     public Gson getGson() {
         return this.gson;
+    }
+
+    public MusicManager getMusicManager() {
+        return this.musicManager;
     }
 }

@@ -22,6 +22,8 @@ public class WaypointManager implements ClientSupport {
 
     public WaypointManager() {
         Logger.log(Logger.LogState.Normal, "Initiating Gson for WaypointManager");
+
+        addWaypoint(0, 0);
     }
 
     public ArrayList<Waypoint> getWaypoints() {
@@ -34,9 +36,9 @@ public class WaypointManager implements ClientSupport {
             File[] directoryListing = dir.listFiles();
             for (File f : directoryListing) {
                 try (FileReader reader = new FileReader(f)) {
-                    Map<String, Object> map = gson.fromJson(reader, new TypeToken<Map<String, Object>>() {
+                    Map<String, Integer> map = gson.fromJson(reader, new TypeToken<Map<String, Integer>>() {
                     }.getType());
-                    Waypoint waypoint = new Waypoint((Integer) map.get("x"), (Integer) map.get("z"));
+                    Waypoint waypoint = new Waypoint(Integer.parseInt(map.get("x").toString()), Integer.parseInt(map.get("z").toString()));
                     this.waypoints.add(waypoint);
                     Logger.log(Logger.LogState.Normal, "Loaded waypoint " + "[" + waypoint.getX() + "," + " " + waypoint.getZ() + "]" + " from Json!");
                 } catch (JsonSyntaxException | JsonIOException | IOException e) {
@@ -49,18 +51,18 @@ public class WaypointManager implements ClientSupport {
 
     public void saveConfig(Gson gson) {
         for (Waypoint waypoint : this.waypoints) {
-            File file = new File(mc.gameDir + File.separator + "Fallen" + File.separator + "waypoints" + File.separator + "wp_" + waypoint.getX() + "-" + waypoint.getZ() + ".json");
+            File file = new File(mc.gameDir + File.separator + "Fallen" + File.separator + "waypoints" + File.separator + "wp_" + waypoint.getX() + waypoint.getZ() + ".json");
             if (!file.exists()) {
                 new File(mc.gameDir + File.separator + "Fallen" + File.separator + "waypoints").mkdirs();
                 try {
                     file.createNewFile();
                     Logger.log(Logger.LogState.Normal, "Created new Json file: " + file.getName());
                 } catch (IOException e) {
-                    Logger.log(Logger.LogState.Error, "File.createNewFile() I/O exception in WaypointManager.saveConfig()!");
+                    Logger.log(Logger.LogState.Error, "File.createNewFile() I/O exception in WaypointsManager.saveConfig()!");
                 }
             }
             try (FileWriter writer = new FileWriter(file)) {
-                Map<String, Object> map = new HashMap<>();
+                Map<String, Integer> map = new HashMap<>();
                 map.put("x", waypoint.getX());
                 map.put("z", waypoint.getZ());
                 gson.toJson(map, writer);
