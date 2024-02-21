@@ -34,6 +34,7 @@ public class Tones extends Module {
         try {
             if (FALLENClient.INSTANCE.getMusicManager().getMp3Files().size() > 0) {
                 if (track != null) {
+                    // Inside onPlayerTick method, when a track starts playing
                     if (!a) {
                         track.play();
                         a = true;
@@ -44,10 +45,11 @@ public class Tones extends Module {
                 } else {
                     a = false;
                     if (!shuffle.bval) {
-                        if (currentTrackIndex + 1 <= FALLENClient.INSTANCE.getMusicManager().getMp3Files().size()) {
-                            currentTrackIndex = currentTrackIndex + 1;
-                        } else {
+                        // When currentTrackIndex is at the last song, this condition will now correctly reset it to 0
+                        if (currentTrackIndex + 1 >= FALLENClient.INSTANCE.getMusicManager().getMp3Files().size()) {
                             currentTrackIndex = 0;
+                        } else {
+                            currentTrackIndex++;
                         }
                     } else {
                         Random random = new Random();
@@ -55,6 +57,7 @@ public class Tones extends Module {
                     }
                     track = new Track(FALLENClient.INSTANCE.getMusicManager().getMp3Files().get(currentTrackIndex));
                 }
+
             } else {
                 ClientUtils.addChatMessage("You need to navigate to the music folder in the Fallen directory and place your MP3 files there.");
                 setState(false);
@@ -68,7 +71,18 @@ public class Tones extends Module {
         try {
             if (FALLENClient.INSTANCE.getMusicManager().getMp3Files().size() > 0) {
                 if (track != null) {
-                    drawText("Now playing " + track.musicFile.getName().replace(".mp3", "") + " | " + track.clip.getMicrosecondPosition() % 60, mc.getMainWindow().getScaledWidth() / 2 - 100, 3, new Color((int) FALLENClient.INSTANCE.getClickgui().textRGB.x, (int) FALLENClient.INSTANCE.getClickgui().textRGB.y, (int) FALLENClient.INSTANCE.getClickgui().textRGB.z));
+                    // Calculate the width of the window and the position for the text
+                    int windowWidth = mc.getMainWindow().getScaledWidth();
+                    int textPositionX = windowWidth / 2 - 100;
+
+                    // Draw the "Now playing" text
+                    drawText("Now playing " + track.musicFile.getName(), textPositionX, 3, new Color((int) FALLENClient.INSTANCE.getClickgui().textRGB.x, (int) FALLENClient.INSTANCE.getClickgui().textRGB.y, (int) FALLENClient.INSTANCE.getClickgui().textRGB.z));
+
+                    double progress = (double) track.clip.getMicrosecondPosition() / (double) track.clip.getMicrosecondLength();
+                    int progressBarWidth = (int) (mc.fontRenderer.getStringWidth("Now playing " + track.musicFile.getName()) * progress); // Assuming the total width of the bar is 200 pixels
+
+                    // Draw the progress bar
+                    UIUtils.drawRect(textPositionX, 18, progressBarWidth, 5, new Color((int) FALLENClient.INSTANCE.getClickgui().textRGB.x, (int) FALLENClient.INSTANCE.getClickgui().textRGB.y, (int) FALLENClient.INSTANCE.getClickgui().textRGB.z).getRGB());
                 }
             }
         } catch (Exception ignored) {
