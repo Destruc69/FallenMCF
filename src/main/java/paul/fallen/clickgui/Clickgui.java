@@ -16,13 +16,7 @@ import paul.fallen.module.Module;
 import paul.fallen.setting.Setting;
 import paul.fallen.utils.render.UIUtils;
 
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.Mixer;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.stream.Collectors;
