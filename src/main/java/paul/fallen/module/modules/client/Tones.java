@@ -59,7 +59,7 @@ public class Tones extends Module {
                 }
 
             } else {
-                ClientUtils.addChatMessage("You need to navigate to the music folder in the Fallen directory and place your MP3 files there.");
+                ClientUtils.addChatMessage("You need to navigate to the music folder in the Fallen directory and place your sound files there.");
                 setState(false);
             }
         } catch (Exception ignored) {
@@ -95,4 +95,5 @@ public class Tones extends Module {
         UIUtils.drawTextOnScreen(text, x, y, color.getRGB());
         GL11.glPopMatrix();
     }
+
 }

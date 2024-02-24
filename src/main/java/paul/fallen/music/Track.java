@@ -28,20 +28,6 @@ public class Track {
         }
     }
 
-    public void pause() {
-        if (clip != null && isPlaying) {
-            clip.stop();
-            isPlaying = false;
-        }
-    }
-
-    public void resume() {
-        if (clip != null && !isPlaying) {
-            clip.start();
-            isPlaying = true;
-        }
-    }
-
     public void stop() {
         if (clip != null) {
             clip.stop();

@@ -9,7 +9,7 @@ import java.util.Collections;
 
 public class MusicManager implements ClientSupport {
 
-    private final ArrayList<File> mp3Files = new ArrayList<>();
+    private final ArrayList<File> soundFiles = new ArrayList<>();
 
     public MusicManager() {
         Logger.log(Logger.LogState.Normal, "Initializing MusicManager");
@@ -17,7 +17,7 @@ public class MusicManager implements ClientSupport {
     }
 
     public ArrayList<File> getMp3Files() {
-        return mp3Files;
+        return soundFiles;
     }
 
     public void loadMp3Files() {
@@ -25,7 +25,7 @@ public class MusicManager implements ClientSupport {
         if (dir.exists() && dir.isDirectory()) {
             File[] files = dir.listFiles();
             if (files != null) {
-                Collections.addAll(mp3Files, files);
+                Collections.addAll(soundFiles, files);
             }
         } else {
             if (dir.mkdirs()) {
@@ -35,7 +35,7 @@ public class MusicManager implements ClientSupport {
     }
 
     public void refreshMp3Files() {
-        mp3Files.clear();
+        soundFiles.clear();
         loadMp3Files();
     }
 }
