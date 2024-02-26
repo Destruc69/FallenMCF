@@ -17,11 +17,12 @@ public final class Discord extends Module {
 
     public Discord(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        onEnable();
     }
 
     @Override
     public void onEnable() {
+        super.onEnable();
+
         DiscordEventHandlers handlers = new DiscordEventHandlers();
         rpc.Discord_Initialize("891902442999017482", handlers, true, "");
 
@@ -35,6 +36,8 @@ public final class Discord extends Module {
 
     @Override
     public void onDisable() {
+        super.onDisable();
+
         rpc.Discord_Shutdown();
         rpc.Discord_ClearPresence();
     }

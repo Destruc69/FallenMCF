@@ -12,6 +12,7 @@ import paul.fallen.clickgui.comp.CheckBox;
 import paul.fallen.clickgui.comp.Combo;
 import paul.fallen.clickgui.comp.Comp;
 import paul.fallen.clickgui.comp.Slider;
+import paul.fallen.command.Command;
 import paul.fallen.module.Module;
 import paul.fallen.setting.Setting;
 import paul.fallen.utils.render.UIUtils;
@@ -70,6 +71,18 @@ public class Clickgui extends Screen {
         } else if (keyCode == GLFW.GLFW_KEY_BACKSPACE) {
             if (searchInquiry.length() - 1 >= 0) {
                 searchInquiry.deleteCharAt(searchInquiry.length() - 1);
+            }
+        }
+
+        if (searchInquiry.length() > 0) {
+            if (searchInquiry.toString().startsWith(FALLENClient.INSTANCE.getCommandManager().prefix)) {
+                if (keyCode == GLFW.GLFW_KEY_ENTER) {
+                    String message = searchInquiry.substring(1);
+                    String[] cmd = message.split(" ");
+                    Command command = FALLENClient.INSTANCE.getCommandManager().getCommandFromMessage(message);
+                    command.runCommand(cmd);
+                    searchInquiry = new StringBuilder();
+                }
             }
         }
 
@@ -245,8 +258,8 @@ public class Clickgui extends Screen {
         //Gui.drawRect(posX, posY, width, height, new Color(45,45,45).getRGB());
         UIUtils.drawRect(posX, posY, width, height, new Color((int) secondary.x, (int) secondary.y, (int) secondary.z).getRGB());
 
-        UIUtils.drawRect(posX + width - 2, posY, 2, height, new Color((int) secondary.x, (int) secondary.y, (int) secondary.z).getRGB());
-        UIUtils.drawRect(posX, posY + height - 2, width, 2, new Color((int) secondary.x, (int) secondary.y, (int) secondary.z).getRGB());
+        UIUtils.drawRect(posX + width - 2, posY, 2, height, new Color((int) primary.x, (int) primary.y, (int) primary.z).getRGB());
+        UIUtils.drawRect(posX, posY + height - 2, width, 2, new Color((int) primary.x, (int) primary.y, (int) primary.z).getRGB());
 
         UIUtils.drawTextOnScreen("Fallen", (int) posX + 2, (int) (posY - 8), Color.CYAN.getRGB());
 
