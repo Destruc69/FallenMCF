@@ -15,21 +15,13 @@ import java.util.Arrays;
 
 public class ClickGuiHack extends Module {
 
-    private static Setting fragmentARed;
-    private static Setting fragmentAGreen;
-    private static Setting fragmentABlue;
+    private static Setting primaryRed;
+    private static Setting primaryGreen;
+    private static Setting primaryBlue;
 
-    private static Setting fragmentBRed;
-    private static Setting fragmentBGreen;
-    private static Setting fragmentBBlue;
-
-    private static Setting fragmentCRed;
-    private static Setting fragmentCGreen;
-    private static Setting fragmentCBlue;
-
-    private static Setting fragmentDRed;
-    private static Setting fragmentDGreen;
-    private static Setting fragmentDBlue;
+    private static Setting secondaryRed;
+    private static Setting secondaryGreen;
+    private static Setting secondaryBlue;
 
     private static Setting textRed;
     private static Setting textGreen;
@@ -40,21 +32,13 @@ public class ClickGuiHack extends Module {
     public ClickGuiHack(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        fragmentARed = new Setting("FragmentARed", this, 100, 0, 255);
-        fragmentAGreen = new Setting("FragmentAGreen", this, 10, 0, 255);
-        fragmentABlue = new Setting("FragmentABlue", this, 100, 0, 255);
+        primaryRed = new Setting("PrimaryRed", this, 100, 0, 255);
+        primaryGreen = new Setting("PrimaryGreen", this, 10, 0, 255);
+        primaryBlue = new Setting("PrimaryBlue", this, 100, 0, 255);
 
-        fragmentBRed = new Setting("FragmentBRed", this, 45, 0, 255);
-        fragmentBGreen = new Setting("FragmentBGreen", this, 45, 0, 255);
-        fragmentBBlue = new Setting("FragmentBBlue", this, 45, 0, 255);
-
-        fragmentCRed = new Setting("FragmentCRed", this, 230, 0, 255);
-        fragmentCGreen = new Setting("FragmentCGreen", this, 10, 0, 255);
-        fragmentCBlue = new Setting("FragmentCBlue", this, 230, 0, 255);
-
-        fragmentDRed = new Setting("FragmentDRed", this, 28, 0, 255);
-        fragmentDGreen = new Setting("FragmentDGreen", this, 28, 0, 255);
-        fragmentDBlue = new Setting("FragmentDBlue", this, 28, 0, 255);
+        secondaryRed = new Setting("SecondaryRed", this, 45, 0, 255);
+        secondaryGreen = new Setting("SecondaryGreen", this, 45, 0, 255);
+        secondaryBlue = new Setting("SecondaryBlue", this, 45, 0, 255);
 
         textRed = new Setting("TextRed", this, 170, 0, 255);
         textGreen = new Setting("TextGreen", this, 170, 0, 255);
@@ -62,21 +46,13 @@ public class ClickGuiHack extends Module {
 
         prefix = new Setting("Prefix", "Prefix", this, "dot", new ArrayList<>(Arrays.asList("dot", "minus")));
 
-        addSetting(fragmentARed);
-        addSetting(fragmentAGreen);
-        addSetting(fragmentABlue);
+        addSetting(primaryRed);
+        addSetting(primaryGreen);
+        addSetting(primaryBlue);
 
-        addSetting(fragmentBRed);
-        addSetting(fragmentBGreen);
-        addSetting(fragmentBBlue);
-
-        addSetting(fragmentCRed);
-        addSetting(fragmentCGreen);
-        addSetting(fragmentCBlue);
-
-        addSetting(fragmentDRed);
-        addSetting(fragmentDGreen);
-        addSetting(fragmentDBlue);
+        addSetting(secondaryRed);
+        addSetting(secondaryGreen);
+        addSetting(secondaryBlue);
 
         addSetting(textRed);
         addSetting(textGreen);
@@ -105,10 +81,8 @@ public class ClickGuiHack extends Module {
     @SubscribeEvent
     public void onTick(TickEvent event) {
         try {
-            FALLENClient.INSTANCE.getClickgui().fragmentA = new Vector3d(fragmentARed.dval, fragmentAGreen.dval, fragmentABlue.dval);
-            FALLENClient.INSTANCE.getClickgui().fragmentB = new Vector3d(fragmentBRed.dval, fragmentBGreen.dval, fragmentBBlue.dval);
-            FALLENClient.INSTANCE.getClickgui().fragmentC = new Vector3d(fragmentCRed.dval, fragmentCGreen.dval, fragmentCBlue.dval);
-            FALLENClient.INSTANCE.getClickgui().fragmentD = new Vector3d(fragmentDRed.dval, fragmentDGreen.dval, fragmentDBlue.dval);
+            FALLENClient.INSTANCE.getClickgui().primary = new Vector3d(primaryRed.dval, primaryGreen.dval, primaryBlue.dval);
+            FALLENClient.INSTANCE.getClickgui().secondary = new Vector3d(secondaryRed.dval, secondaryGreen.dval, secondaryBlue.dval);
             FALLENClient.INSTANCE.getClickgui().textRGB = new Vector3d(textRed.dval, textGreen.dval, textBlue.dval);
 
             FALLENClient.INSTANCE.getCommandManager().prefix = prefix.sval == "minus" ? "-" : ".";

@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldVertexBufferUploader;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.util.ResourceLocation;
 import paul.fallen.ClientSupport;
 
 public class UIUtils implements ClientSupport {
@@ -59,5 +59,10 @@ public class UIUtils implements ClientSupport {
         WorldVertexBufferUploader.draw(bufferbuilder);
         RenderSystem.enableTexture();
         RenderSystem.disableBlend();
+    }
+
+    public static void drawCustomSizedTexture(ResourceLocation resourceLocation, int x, int y, int textureX, int textureY, int width, int height, int textureWidth, int textureHeight) {
+        Minecraft.getInstance().getTextureManager().bindTexture(resourceLocation);
+        AbstractGui.blit(new MatrixStack(), x, y, textureX, textureY, width, height, textureWidth, textureHeight);
     }
 }

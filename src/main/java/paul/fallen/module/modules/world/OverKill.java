@@ -10,13 +10,6 @@ public class OverKill extends Module {
         super(bind, name, displayName, category);
     }
 
-    @Override
-    public void onDisable() {
-        if (Thread.currentThread().getPriority() != Thread.NORM_PRIORITY) {
-            Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
-        }
-    }
-
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (Thread.currentThread().getPriority() != Thread.MAX_PRIORITY) {
