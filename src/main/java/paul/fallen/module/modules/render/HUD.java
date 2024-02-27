@@ -23,7 +23,6 @@ public class HUD extends Module {
 		this.setState(true);
 		this.setHidden(true);
 		watermark = new Setting("Watermark", this, true);
-
 		arrayList = new Setting("ArrayList", this, true);
 		coords = new Setting("Coords", this, true);
 		FALLENClient.INSTANCE.getSettingManager().addSetting(watermark);
@@ -79,9 +78,20 @@ public class HUD extends Module {
 				drawText(stringBuilder.toString(), 26 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
 				drawText(stringBuilder.toString(), 24 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
 			}
-
 		} catch (Exception ignored) {
 		}
+	}
+
+	public static void glColor(final int red, final int green, final int blue, final int alpha) {
+		GL11.glColor4f(red / 255F, green / 255F, blue / 255F, alpha / 255F);
+	}
+
+	public static void glColor(final Color color) {
+		glColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+	}
+
+	private static void glColor(final int hex) {
+		glColor(hex >> 16 & 0xFF, hex >> 8 & 0xFF, hex & 0xFF, hex >> 24 & 0xFF);
 	}
 
 	private void drawText(String text, int x, int y, Color color) {

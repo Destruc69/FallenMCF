@@ -1,5 +1,6 @@
 package paul.fallen.clickgui.comp;
 
+import paul.fallen.FALLENClient;
 import paul.fallen.clickgui.Clickgui;
 import paul.fallen.module.Module;
 import paul.fallen.setting.Setting;
@@ -59,9 +60,9 @@ public class Slider extends Comp {
             }
         }
         //Gui.drawRect(parent.posX + x - 70, parent.posY + y + 10,parent.posX + x - 70 + renderWidth2, parent.posY + y + 20, new Color(230,10,230).darker().getRGB());
-        UIUtils.drawRect(parent.posX + x - 70, parent.posY + y + 10, renderWidth2, 10, new Color(230,10,230).darker().getRGB());
+        UIUtils.drawRect(parent.posX + x - 70, parent.posY + y + 10, renderWidth2, 10, new Color((int) FALLENClient.INSTANCE.getClickgui().primary.x, (int) FALLENClient.INSTANCE.getClickgui().primary.y, (int) FALLENClient.INSTANCE.getClickgui().primary.z).darker().getRGB());
         //Gui.drawRect(parent.posX + x - 70, parent.posY + y + 10, parent.posX + x - 70 + renderWidth, parent.posY + y + 20, new Color(230,10,230).getRGB());
-        UIUtils.drawRect(parent.posX + x - 70, parent.posY + y + 10, renderWidth, 10, new Color(230,10,230).getRGB());
+        UIUtils.drawRect(parent.posX + x - 70, parent.posY + y + 10, renderWidth, 10, new Color((int) FALLENClient.INSTANCE.getClickgui().primary.x, (int) FALLENClient.INSTANCE.getClickgui().primary.y, (int) FALLENClient.INSTANCE.getClickgui().primary.z).getRGB());
         //Minecraft.getMinecraft().fontRendererObj.drawString(setting.getName() + ": " + setting.getValDouble(),(int)(parent.posX + x - 70),(int)(parent.posY + y), -1);
         UIUtils.drawTextOnScreen(setting.getName() + ": " + setting.getValDouble(),(int)(parent.posX + x - 70),(int)(parent.posY + y), -1);
     }

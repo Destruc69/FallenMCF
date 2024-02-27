@@ -3,6 +3,7 @@ package paul.fallen.module.modules.combat;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.network.IPacket;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.network.play.server.SPlayerPositionLookPacket;
 import net.minecraft.util.Hand;
@@ -102,14 +103,18 @@ public class InfiniteAura extends Module {
         }
     }
 
+    private boolean canReach = false;
     @SubscribeEvent
     public void onPacket(PacketEvent event) {
-        // Anti Flag
-        if (!mc.isSingleplayer()) {
-            if (event.getPacket() instanceof SPlayerPositionLookPacket) {
-                SPlayerPositionLookPacket sPacketPlayerPosLook = (SPlayerPositionLookPacket) event.getPacket();
-                event.setPacket(new SPlayerPositionLookPacket(sPacketPlayerPosLook.getX(), sPacketPlayerPosLook.getY() - Integer.MAX_VALUE, sPacketPlayerPosLook.getZ(), sPacketPlayerPosLook.getYaw(), sPacketPlayerPosLook.getPitch(), sPacketPlayerPosLook.getFlags(), sPacketPlayerPosLook.getTeleportId()));
-            }
+        IPacket<?> p = event.getPacket();
+        if (p instanceof SPlayerPositionLookPacket && !canReach) {
+            canReach = true;
+            SPlayerPositionLookPacket pac = (SPlayerPositionLookPacket) event.getPacket();
+            SPlayerPositionLookPacket newPacket = new SPlayerPositionLookPacket(pac.getX(), pac.getY(), pac.getZ(), mc.player.rotationYaw, mc.player.rotationPitch, pac.getFlags(), pac.getTeleportId());
+            event.setPacket(newPacket);
+        }
+        if (p instanceof CPlayerPacket && !canReach) {
+            event.setCanceled(true);
         }
     }
 

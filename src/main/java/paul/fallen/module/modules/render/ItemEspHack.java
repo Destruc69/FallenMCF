@@ -15,19 +15,21 @@ import paul.fallen.module.Module;
 import paul.fallen.setting.Setting;
 import paul.fallen.utils.render.RenderUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public final class ItemEspHack extends Module {
 
-    Setting glow;
+    Setting mode;
 
     public ItemEspHack(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        glow = new Setting("Glow", this, false);
-        addSetting(glow);
+        mode = new Setting("Mode", "Mode", this, "glow", new ArrayList<>(Arrays.asList("glow", "box")));
+        addSetting(mode);
     }
 
     @SubscribeEvent
@@ -38,9 +40,12 @@ public final class ItemEspHack extends Module {
                     .filter(e -> e instanceof ItemEntity);
 
             for (Entity entity : entityStream.collect(Collectors.toList())) {
-                RenderUtils.drawOutlinedBox(entity.getPosition(), 0, 1, 0, event);
-
-                entity.setGlowing(glow.bval);
+                if (mode.sval == "box") {
+                    RenderUtils.drawOutlinedBox(entity.getPosition(), 0, 1, 0, event);
+                    entity.setGlowing(false);
+                } else {
+                    entity.setGlowing(true);
+                }
             }
         } catch (Exception ignored) {
         }
