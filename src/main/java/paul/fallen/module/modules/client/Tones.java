@@ -76,13 +76,13 @@ public class Tones extends Module {
                     int textPositionX = windowWidth / 2 - 100;
 
                     // Draw the "Now playing" text
-                    drawText("Now playing " + track.musicFile.getName(), textPositionX, 3, new Color((int) FALLENClient.INSTANCE.getClickgui().textRGB.x, (int) FALLENClient.INSTANCE.getClickgui().textRGB.y, (int) FALLENClient.INSTANCE.getClickgui().textRGB.z));
+                    drawText("Now playing " + track.musicFile.getName(), textPositionX, 3, new Color(FALLENClient.INSTANCE.getClickgui().textRGB));
 
                     double progress = (double) track.clip.getMicrosecondPosition() / (double) track.clip.getMicrosecondLength();
                     int progressBarWidth = (int) (mc.fontRenderer.getStringWidth("Now playing " + track.musicFile.getName()) * progress); // Assuming the total width of the bar is 200 pixels
 
                     // Draw the progress bar
-                    UIUtils.drawRect(textPositionX, 18, progressBarWidth, 5, new Color((int) FALLENClient.INSTANCE.getClickgui().textRGB.x, (int) FALLENClient.INSTANCE.getClickgui().textRGB.y, (int) FALLENClient.INSTANCE.getClickgui().textRGB.z).getRGB());
+                    UIUtils.drawRect(textPositionX, 18, progressBarWidth, 5, new Color(FALLENClient.INSTANCE.getClickgui().textRGB).getRGB());
                 }
             }
         } catch (Exception ignored) {

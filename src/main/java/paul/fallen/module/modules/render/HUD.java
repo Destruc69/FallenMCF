@@ -41,7 +41,7 @@ public class HUD extends Module {
 	public void onRenderHUD(RenderGameOverlayEvent.Post event) {
 		try {
 			if (watermark.bval) {
-				drawText("Fallen", 2, 2, new Color((int) FALLENClient.INSTANCE.getClickgui().textRGB.x, (int) FALLENClient.INSTANCE.getClickgui().textRGB.y, (int) FALLENClient.INSTANCE.getClickgui().textRGB.z), 2);
+				drawText("Fallen", 2, 2, new Color(FALLENClient.INSTANCE.getClickgui().textRGB), 2);
 			}
 			if (arrayList.bval) {
 				ArrayList<Module> moduleArrayList = FALLENClient.INSTANCE.getModuleManager().getModulesForArrayList();

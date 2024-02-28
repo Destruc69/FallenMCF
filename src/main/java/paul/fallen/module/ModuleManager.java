@@ -109,6 +109,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new PlayerEspHack(0, "PlayerESP", "PlayerESP", Category.Render));
 		addModule(new WaypointModule(0, "Waypoint", "Waypoint", Category.Render));
 		addModule(new HeadRoll(0, "HeadRoll", "HeadRoll", Category.Render));
+		addModule(new Chams(0, "Chams", "Chams", Category.Render));
 
 		addModule(new AntiFog(0, "AntiFog", "AntiFog", Category.World));
 		addModule(new AntiWeather(0, "AntiWeather", "AntiWeather", Category.World));

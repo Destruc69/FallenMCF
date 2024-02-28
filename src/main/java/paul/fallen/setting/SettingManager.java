@@ -34,6 +34,8 @@ public class SettingManager implements ClientSupport {
                     s.setValDouble(Float.parseFloat(map.get("value").toString()));
                 } else if ((boolean) map.get("isCombo")) {
                     s.setValString((String) map.get("value"));
+                } else if ((boolean) map.get("isColorPalette")) {
+                    s.setValDouble(Float.parseFloat(map.get("value").toString()));
                 }
                 Logger.log(LogState.Normal, "Loaded module settings " + s.getParentMod().getName() + ": " + s.getName() + " from Json!");
             } catch (JsonSyntaxException e) {
@@ -69,12 +71,15 @@ public class SettingManager implements ClientSupport {
                 map.put("isCheck", s.isCheck());
                 map.put("isSlider", s.isSlider());
                 map.put("isCombo", s.isCombo());
+                map.put("isColorPalette", s.isColorPalette());
                 if (s.isCombo()) {
                     map.put("value", s.getValString());
                 } else if (s.isCheck()) {
                     map.put("value", s.getValBoolean());
                 } else if (s.isSlider()) {
                     map.put("value", s.getValDouble());
+                } else if (s.isColorPalette()) {
+                    map.put("value", s.dval);
                 }
                 gson.toJson(map, writer);
                 Logger.log(LogState.Normal, "Wrote Json file!");

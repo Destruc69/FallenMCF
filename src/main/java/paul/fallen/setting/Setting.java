@@ -14,6 +14,8 @@ public class Setting {
     public String sval;
     public ArrayList<String> options;
 
+    public int colorval;
+
     public boolean bval;
 
     public float dval;
@@ -21,19 +23,31 @@ public class Setting {
     public float max;
 
 
-    public Setting(String name, Module parent, String sval, ArrayList<String> options){
+    public Setting(String name, Module parent, String sval, ArrayList<String> options) {
         this(name, name, parent, sval, options);
     }
 
-    public Setting(String name, Module parent, boolean bval){
+    public Setting(String name, Module parent, boolean bval) {
         this(name, name, parent, bval);
     }
 
-    public Setting(String name, Module parent, float dval, float min, float max){
+    public Setting(String name, Module parent, float dval, float min, float max) {
         this(name, name, parent, dval, min, max);
     }
 
-    public Setting(String name, String displayName, Module parent, String sval, ArrayList<String> options){
+    public Setting(String name, Module parent, int colorval) {
+        this(name, name, parent, colorval);
+    }
+
+    public Setting(String name, String displayName, Module parent, int colorval) {
+        this.name = name;
+        this.displayName = displayName;
+        this.parent = parent;
+        this.colorval = colorval;
+        this.mode = "ColorPalette";
+    }
+
+    public Setting(String name, String displayName, Module parent, String sval, ArrayList<String> options) {
         this.name = name;
         this.displayName = displayName;
         this.parent = parent;
@@ -112,11 +126,15 @@ public class Setting {
         return this.mode.equalsIgnoreCase("Combo");
     }
 
-    public boolean isCheck(){
+    public boolean isCheck() {
         return this.mode.equalsIgnoreCase("Check");
     }
 
-    public boolean isSlider(){
+    public boolean isSlider() {
         return this.mode.equalsIgnoreCase("Slider");
+    }
+
+    public boolean isColorPalette() {
+        return this.mode.equalsIgnoreCase("ColorPalette");
     }
 }

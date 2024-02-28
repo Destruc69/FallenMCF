@@ -4,14 +4,10 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.InputMappings;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.StringTextComponent;
 import org.lwjgl.glfw.GLFW;
 import paul.fallen.FALLENClient;
-import paul.fallen.clickgui.comp.CheckBox;
-import paul.fallen.clickgui.comp.Combo;
-import paul.fallen.clickgui.comp.Comp;
-import paul.fallen.clickgui.comp.Slider;
+import paul.fallen.clickgui.comp.*;
 import paul.fallen.command.Command;
 import paul.fallen.module.Module;
 import paul.fallen.setting.Setting;
@@ -33,10 +29,9 @@ public class Clickgui extends Screen {
     private double lastMouseX;
     private double lastMouseY;
 
-    public Vector3d primary;
-    public Vector3d secondary;
-
-    public Vector3d textRGB;
+    public int primary;
+    public int secondary;
+    public int textRGB;
 
     public StringBuilder searchInquiry;
 
@@ -164,6 +159,10 @@ public class Clickgui extends Screen {
                                 comps.add(new Slider(columnOffset, yOffset, this, selectedModule, setting));
                                 yOffset += 25;
                             }
+                            if (setting.isColorPalette()) {
+                                comps.add(new ColorPalette(columnOffset, yOffset, this, selectedModule, setting));
+                                yOffset += 80;
+                            }
                         }
                     }
                 }
@@ -254,28 +253,28 @@ public class Clickgui extends Screen {
         // 1701 170 170 = Text RGB
 
         //Gui.drawRect(posX, posY - 10, width, posY, new Color(100,10,100).getRGB());
-        UIUtils.drawRect(posX, posY - 10, width, 10, new Color((int) primary.x, (int) primary.y, (int) primary.z).getRGB());
+        UIUtils.drawRect(posX, posY - 10, width, 10, new Color(primary).getRGB());
         //Gui.drawRect(posX, posY, width, height, new Color(45,45,45).getRGB());
-        UIUtils.drawRect(posX, posY, width, height, new Color((int) secondary.x, (int) secondary.y, (int) secondary.z).getRGB());
+        UIUtils.drawRect(posX, posY, width, height, new Color(secondary).getRGB());
 
-        UIUtils.drawRect(posX + width - 2, posY, 2, height, new Color((int) primary.x, (int) primary.y, (int) primary.z).getRGB());
-        UIUtils.drawRect(posX, posY + height - 2, width, 2, new Color((int) primary.x, (int) primary.y, (int) primary.z).getRGB());
+        UIUtils.drawRect(posX + width - 2, posY, 2, height, new Color(primary).getRGB());
+        UIUtils.drawRect(posX, posY + height - 2, width, 2, new Color(secondary).getRGB());
 
         UIUtils.drawTextOnScreen("Fallen", (int) posX + 2, (int) (posY - 8), Color.CYAN.getRGB());
 
         if (searchInquiry.length() > 0) {
-            UIUtils.drawTextOnScreen(searchInquiry.toString(), mouseX, mouseY - 10, new Color((int) textRGB.x, (int) textRGB.y, (int) textRGB.z).getRGB());
+            UIUtils.drawTextOnScreen(searchInquiry.toString(), mouseX, mouseY - 10, new Color(textRGB).getRGB());
         }
 
         Calendar calendar = Calendar.getInstance();
-        UIUtils.drawTextOnScreen(calendar.getTime().toString(), (int) ((int) posX + width - 160), (int) (posY - 8), new Color((int) textRGB.x, (int) textRGB.y, (int) textRGB.z).getRGB());
+        UIUtils.drawTextOnScreen(calendar.getTime().toString(), (int) ((int) posX + width - 160), (int) (posY - 8), new Color(textRGB).getRGB());
 
         int offset = 0;
         for (Module.Category category : Module.Category.values()) {
             //Gui.drawRect(posX,posY + 1 + offset,posX + 60,posY + 15 + offset,category.equals(selectedCategory) ? new Color(230,10,230).getRGB() : new Color(28,28,28).getRGB());
-            UIUtils.drawRect(posX, posY + 1 + offset, 60, 15, category.equals(selectedCategory) ? new Color((int) primary.x, (int) primary.y, (int) primary.z).getRGB() : new Color((int) ((int) primary.x > 20 ? primary.x - 20 : primary.x + 20), (int) ((int) primary.y > 20 ? primary.y - 20 : primary.y + 20), (int) ((int) primary.z > 20 ? primary.z - 20 : primary.z + 20)).getRGB());
+            UIUtils.drawRect(posX, posY + 1 + offset, 60, 15, category.equals(selectedCategory) ? new Color(primary).getRGB() : new Color(primary).darker().getRGB());
             //fontRendererObj.drawString(category.name(),(int)posX + 2, (int)(posY + 5) + offset, new Color(170,170,170).getRGB());
-            UIUtils.drawTextOnScreen(category.name(), (int) posX + 2, (int) (posY + 5) + offset, new Color((int) textRGB.x, (int) textRGB.y, (int) textRGB.z).getRGB());
+            UIUtils.drawTextOnScreen(category.name(), (int) posX + 2, (int) (posY + 5) + offset, new Color(textRGB).getRGB());
             offset += 15;
         }
         offset = 0;
@@ -286,17 +285,17 @@ public class Clickgui extends Screen {
         if (searchInquiry.length() > 0) {
             for (Module m : searchedModules) {
                 //Gui.drawRect(posX + 65,posY + 1 + offset,posX + 125,posY + 15 + offset,m.isToggled() ? new Color(230,10,230).getRGB() : new Color(28,28,28).getRGB());
-                UIUtils.drawRect(posX + 65, posY + 1 + offset, 125, 15, m.toggled ? new Color((int) primary.x, (int) primary.y, (int) primary.z).getRGB() : new Color((int) ((int) primary.x > 20 ? primary.x - 20 : primary.x + 20), (int) ((int) primary.y > 20 ? primary.y - 20 : primary.y + 20), (int) ((int) primary.z > 20 ? primary.z - 20 : primary.z + 20)).getRGB());
+                UIUtils.drawRect(posX + 65, posY + 1 + offset, 125, 15, m.toggled ? new Color(primary).getRGB() : new Color(primary).darker().getRGB());
                 //fontRendererObj.drawString(m.getName(),(int)posX + 67, (int)(posY + 5) + offset, new Color(170,170,170).getRGB());
-                UIUtils.drawTextOnScreen(m.getName(), (int) posX + 67, (int) (posY + 5) + offset, new Color((int) textRGB.x, (int) textRGB.y, (int) textRGB.z).getRGB());
+                UIUtils.drawTextOnScreen(m.getName(), (int) posX + 67, (int) (posY + 5) + offset, new Color(textRGB).getRGB());
                 offset += 15;
             }
         } else {
             for (Module m : FALLENClient.INSTANCE.getModuleManager().getModulesInCategory(selectedCategory)) {
                 //Gui.drawRect(posX + 65,posY + 1 + offset,posX + 125,posY + 15 + offset,m.isToggled() ? new Color(230,10,230).getRGB() : new Color(28,28,28).getRGB());
-                UIUtils.drawRect(posX + 65, posY + 1 + offset, 125, 15, m.toggled ? new Color((int) primary.x, (int) primary.y, (int) primary.z).getRGB() : new Color((int) ((int) primary.x > 20 ? primary.x - 20 : primary.x + 20), (int) ((int) primary.y > 20 ? primary.y - 20 : primary.y + 20), (int) ((int) primary.z > 20 ? primary.z - 20 : primary.z + 20)).getRGB());
+                UIUtils.drawRect(posX + 65, posY + 1 + offset, 125, 15, m.toggled ? new Color(primary).getRGB() : new Color(primary).darker().getRGB());
                 //fontRendererObj.drawString(m.getName(),(int)posX + 67, (int)(posY + 5) + offset, new Color(170,170,170).getRGB());
-                UIUtils.drawTextOnScreen(m.getName(), (int) posX + 67, (int) (posY + 5) + offset, new Color((int) textRGB.x, (int) textRGB.y, (int) textRGB.z).getRGB());
+                UIUtils.drawTextOnScreen(m.getName(), (int) posX + 67, (int) (posY + 5) + offset, new Color(textRGB).getRGB());
                 offset += 15;
             }
         }
