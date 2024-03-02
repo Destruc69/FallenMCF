@@ -15,7 +15,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import paul.fallen.FALLENClient;
 import paul.fallen.module.Module;
 import paul.fallen.setting.Setting;
 import paul.fallen.utils.client.MathUtils;
@@ -58,261 +57,258 @@ public final class Speed extends Module {
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
-        if (FALLENClient.INSTANCE.getModuleManager().getModule(this.getName()).getState()) {
-            try {
-                assert mc.player != null;
-                mc.player.setSprinting(true);
-                if (mode.sval == "bhop") {
-                    if (mc.player.moveForward == 0.0f && mc.player.moveStrafing == 0.0f) {
-                        speed = 0.26;
-                    }
-                    if (stage == 1 && mc.player.collidedVertically && (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f)) {
-                        speed = 1.35 + 0.26 - 0.01;
-                    }
-                    if (stage == 2 && mc.player.collidedVertically && mc.player.isOnGround() && (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f)) {
-                        if (mc.player.isPotionActive(Effects.JUMP_BOOST))
-                            EntityUtils.setMotionY(0.41999998688698 + (Objects.requireNonNull(mc.player.getActivePotionEffect(Effects.JUMP_BOOST)).getAmplifier() + 1) * 0.1);
-                        else
-                            EntityUtils.setMotionY(0.41999998688698);
-                        mc.player.jump();
-                        speed *= 1.533D;
-                    } else if (stage == 3) {
-                        final double difference = 0.66 * (lastDist - 0.26);
-                        speed = lastDist - difference;
-                    } else {
-                        final List<AxisAlignedBB> collidingList = (List<AxisAlignedBB>) mc.world.getBlockCollisionShapes(mc.player, mc.player.getBoundingBox().offset(0.0, mc.player.getMotion().y, 0.0));
-                        if ((collidingList.size() > 0 || mc.player.collidedVertically) && stage > 0) {
-                            stage = ((mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f) ? 1 : 0);
-                        }
-                        speed = lastDist - lastDist / 159.0;
-                    }
-                    speed = Math.max(speed, 0.25);
-
-                    // Stage checks if you're greater than 0 as step sets you -6 stage to make sure the player won't flag.
-                    if (stage > 0) {
-                        // Set strafe motion.
-                        MathUtils.setSpeed(speed);
-                    }
-                    // If the player is moving, step the stage up.
-                    if (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f) {
-                        ++stage;
-                    }
-                } else if (mode.sval == "otherncp") {
-                    if (mc.player.collidedHorizontally) {
-                        collided = true;
-                    }
-                    if (collided) {
-                        //mc.timer.tickLength = 50.0F; // Adjust this value as needed.
-                        stage = -1;
-                    }
-                    if (stair > 0)
-                        stair -= 0.25;
-                    less -= less > 1 ? 0.12 : 0.11;
-                    if (less < 0)
-                        less = 0;
-                    if (mc.player.isOnGround() && (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f)) {
-                        collided = mc.player.collidedHorizontally;
-                        if (stage >= 0 || collided) {
-                            stage = 0;
-
-                            double motY = 0.407;
-                            if (stair == 0) {
-                                mc.player.jump();
-                                EntityUtils.setMotionY(motY);
-                            } else {
-                                // Handle stair logic here if needed.
-                            }
-
-                            less++;
-                            lessSlow = less > 1 && !lessSlow;
-                            if (less > 1.12)
-                                less = 1.12;
-                        }
-                    }
-                    speed = getOtherNCPSpeed(stage) + 0.0331;
-                    speed *= 0.91;
-                    if (stair > 0) {
-                        speed *= 0.7;
-                    }
-
-                    if (stage < 0)
-                        speed = 0.26;
-                    if (lessSlow) {
-                        speed *= 0.95;
-                    }
-
-                    if (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f) {
-                        MathUtils.setSpeed(speed);
-                        ++stage;
-                    }
-                } else if (mode.sval == "aac") {
-                    if (mc.player.collidedVertically && mc.player.isOnGround() && (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f)) {
-                        stage = 0;
-                        mc.player.jump();
+        try {
+            mc.player.setSprinting(true);
+            if (mode.sval == "bhop") {
+                if (mc.player.moveForward == 0.0f && mc.player.moveStrafing == 0.0f) {
+                    speed = 0.26;
+                }
+                if (stage == 1 && mc.player.collidedVertically && (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f)) {
+                    speed = 1.35 + 0.26 - 0.01;
+                }
+                if (stage == 2 && mc.player.collidedVertically && mc.player.isOnGround() && (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f)) {
+                    if (mc.player.isPotionActive(Effects.JUMP_BOOST))
+                        EntityUtils.setMotionY(0.41999998688698 + (Objects.requireNonNull(mc.player.getActivePotionEffect(Effects.JUMP_BOOST)).getAmplifier() + 1) * 0.1);
+                    else
                         EntityUtils.setMotionY(0.41999998688698);
-                        if (aacCount < 4)
-                            aacCount++;
+                    mc.player.jump();
+                    speed *= 1.533D;
+                } else if (stage == 3) {
+                    final double difference = 0.66 * (lastDist - 0.26);
+                    speed = lastDist - difference;
+                } else {
+                    final List<AxisAlignedBB> collidingList = (List<AxisAlignedBB>) mc.world.getBlockCollisionShapes(mc.player, mc.player.getBoundingBox().offset(0.0, mc.player.getMotion().y, 0.0));
+                    if ((collidingList.size() > 0 || mc.player.collidedVertically) && stage > 0) {
+                        stage = ((mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f) ? 1 : 0);
                     }
-                    speed = getAACSpeed(stage, aacCount);
-                    if (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f) {
-                        MathUtils.setSpeed(speed);
-                    }
+                    speed = lastDist - lastDist / 159.0;
+                }
+                speed = Math.max(speed, 0.25);
 
-                    if (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f) {
-                        ++stage;
-                    }
-                } else if (mode.sval == "aacwall") {
-                    if (mc.player.moveForward == 0 && mc.player.moveStrafing == 0) {
-                        if (count > 0) {
-                            EntityUtils.setMotionX(mc.player.getMotion().x * 0.2);
-                            EntityUtils.setMotionZ(mc.player.getMotion().z * 0.2);
-                            count = 0;
-                        }
-                        air = 0;
-                        return;
-                    }
-                    if (mc.player.collidedHorizontally) {
-                        if (mc.player.isOnGround()) {
-                            mc.player.setOnGround(true);
-                            EntityUtils.setMotionY(0.42);
-                            EntityUtils.setMotionX(0);
-                            EntityUtils.setMotionZ(0);
-                            double speed = 0;
-                            if (count == 0) {
-                                speed = 0.37;
-                            } else if (count >= 1) {
-                                speed = 0.575;
-                            }
-                            assert mc.world != null;
-                            if (!mc.world.getBlockState(new BlockPos(mc.player.lastTickPosX, mc.player.lastTickPosY + 2, mc.player.lastTickPosZ)).getBlock().equals(Blocks.AIR)) {
-                                if (count >= 1) {
-                                    speed = 0.472;
-                                }
-                            }
-                            MathUtils.setSpeed(speed - 0.005);
-                            if (count < 2) {
-                                count++;
-                            }
-                            air = 0;
-                        } else {
-                            EntityUtils.setMotionY(-0.21);
-                            EntityUtils.setMotionX(0);
-                            EntityUtils.setMotionZ(0);
-                            double speed = 0;
-                            if (air == 0) {
-                                if (count == 1) {
-                                    speed = 0.277;
-                                } else if (count == 2) {
-                                    speed = 0.339;
-                                }
-                            } else if (air == 1) {
-                                if (count == 1) {
-                                    speed = 0.275;
-                                } else if (count == 2) {
-                                    speed = 0.336;
-                                }
-                            }
-                            if (!mc.world.getBlockState(new BlockPos(mc.player.lastTickPosX, mc.player.lastTickPosY + 2, mc.player.lastTickPosZ)).getBlock().equals(Blocks.AIR)) {
-                                if (count == 2) {
-                                    speed = 0.3;
-                                }
-                            }
-                            MathUtils.setSpeed(speed - 0.005);
-                            air++;
-                        }
-                    } else {
-                        if (count > 0) {
-                            EntityUtils.setMotionX(mc.player.getMotion().x * 0.2);
-                            EntityUtils.setMotionZ(mc.player.getMotion().z * 0.2);
+                // Stage checks if you're greater than 0 as step sets you -6 stage to make sure the player won't flag.
+                if (stage > 0) {
+                    // Set strafe motion.
+                    MathUtils.setSpeed(speed);
+                }
+                // If the player is moving, step the stage up.
+                if (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f) {
+                    ++stage;
+                }
+            } else if (mode.sval == "otherncp") {
+                if (mc.player.collidedHorizontally) {
+                    collided = true;
+                }
+                if (collided) {
+                    //mc.timer.tickLength = 50.0F; // Adjust this value as needed.
+                    stage = -1;
+                }
+                if (stair > 0)
+                    stair -= 0.25;
+                less -= less > 1 ? 0.12 : 0.11;
+                if (less < 0)
+                    less = 0;
+                if (mc.player.isOnGround() && (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f)) {
+                    collided = mc.player.collidedHorizontally;
+                    if (stage >= 0 || collided) {
+                        stage = 0;
 
-                            air = 0;
-                            count = 0;
-                        }
-                    }
-                } else if (mode.sval == "oldhop") {
-                    if ((mc.player.moveForward == 0.0F) && (mc.player.moveStrafing == 0.0F)) {
-                        speed = 0.26;
-                    }
-                    if ((stage == 1) && (mc.player.collidedVertically) && ((mc.player.moveForward != 0.0F) || (mc.player.moveStrafing != 0.0F))) {
-                        speed = (0.25D + 0.26 - 0.01D);
-                    } else if ((stage == 2) && (mc.player.collidedVertically) && mc.player.isOnGround() && ((mc.player.moveForward != 0.0F) || (mc.player.moveStrafing != 0.0F))) {
-                        EntityUtils.setMotionY(0.4D);
-                        mc.player.jump();
-                        speed *= 2.149D;
-                    } else if (stage == 3) {
-                        double difference = 0.66D * (this.lastDist - 0.26);
-                        speed = (this.lastDist - difference);
-                    } else {
-                        List<AxisAlignedBB> collidingList = (List<AxisAlignedBB>) mc.world.getBlockCollisionShapes(mc.player, mc.player.getBoundingBox().offset(0.0D, mc.player.getMotion().y, 0.0D));
-                        if ((collidingList.size() > 0) || (mc.player.collidedVertically)) {
-                            if (stage > 0) {
-                                if (1.35D * 0.26 - 0.01D > speed) {
-                                    stage = 0;
-                                } else {
-                                    stage = (mc.player.moveForward != 0.0F) || (mc.player.moveStrafing != 0.0F) ? 1 : 0;
-                                }
-                            }
-                        }
-                        speed = (this.lastDist - this.lastDist / 159.0D);
-                    }
-                    speed = Math.max(speed, 0.26);
-                    if (stage > 0) {
-                        MathUtils.setSpeed(speed);
-                    }
-                    if ((mc.player.moveForward != 0.0F) || (mc.player.moveStrafing != 0.0F)) {
-                        stage += 1;
-                    }
-                } else if (mode.sval == "onground") {
-                    double forward = mc.player.movementInput.moveForward;
-                    double strafe = mc.player.movementInput.moveStrafe;
-
-                    if ((forward != 0 || strafe != 0) && !mc.gameSettings.keyBindJump.isKeyDown() && !mc.player.isInWater() && !mc.player.isOnLadder() && !mc.player.collidedHorizontally) {
-                        assert mc.world != null;
-                        double yOffset = !mc.world.getBlockCollisionShapes(mc.player, mc.player.getBoundingBox().offset(0.0D, 0.4D, 0.0D)).findAny().isPresent() ? (mc.player.ticksExisted % 2 != 0 ? 0.2 : 0) : (mc.player.ticksExisted % 2 != 0 ? 0.4198 : 0);
-                        mc.player.setPosition(mc.player.getPosX(), mc.player.getPosY() + yOffset, mc.player.getPosZ());
-                    }
-
-                    double speed = mc.player.ticksExisted % 2 == 0 ? 2.1 : 1.3;
-                    float yaw = mc.player.rotationYaw;
-
-                    if ((forward == 0.0D) && (strafe == 0.0D)) {
-                        EntityUtils.setMotionX(0D);
-                        EntityUtils.setMotionZ(0D);
-                    } else {
-                        if (forward != 0.0D) {
-                            if (strafe > 0.0D) {
-                                yaw += (forward > 0.0D ? -45 : 45);
-                            } else if (strafe < 0.0D) {
-                                yaw += (forward > 0.0D ? 45 : -45);
-                            }
-                            strafe = 0.0D;
-                            if (forward > 0.0D) {
-                                forward = 0.15;
-                            } else if (forward < 0.0D) {
-                                forward = -0.15;
-                            }
-                        }
-                        if (strafe > 0) {
-                            strafe = 0.15;
-                        } else if (strafe < 0) {
-                            strafe = -0.15;
-                        }
-                        double motionX = (forward * speed * Math.cos(Math.toRadians(yaw + 90.0F)) + strafe * speed * Math.sin(Math.toRadians(yaw + 90.0F)));
-                        double motionZ = (forward * speed * Math.sin(Math.toRadians(yaw + 90.0F)) - strafe * speed * Math.cos(Math.toRadians(yaw + 90.0F)));
-                        EntityUtils.setMotionX(motionX);
-                        EntityUtils.setMotionZ(motionZ);
-                    }
-                } else if (mode.sval == "ncpbasic") {
-                    if (mc.gameSettings.keyBindForward.isKeyDown() || mc.gameSettings.keyBindRight.isKeyDown() || mc.gameSettings.keyBindBack.isKeyDown() || mc.gameSettings.keyBindLeft.isKeyDown()) {
-                        if (mc.player.isOnGround()) {
+                        double motY = 0.407;
+                        if (stair == 0) {
                             mc.player.jump();
+                            EntityUtils.setMotionY(motY);
                         } else {
-                            MathUtils.setSpeed(0.26);
+                            // Handle stair logic here if needed.
                         }
+
+                        less++;
+                        lessSlow = less > 1 && !lessSlow;
+                        if (less > 1.12)
+                            less = 1.12;
                     }
                 }
-            } catch (Exception ignored) {
+                speed = getOtherNCPSpeed(stage) + 0.0331;
+                speed *= 0.91;
+                if (stair > 0) {
+                    speed *= 0.7;
+                }
+
+                if (stage < 0)
+                    speed = 0.26;
+                if (lessSlow) {
+                    speed *= 0.95;
+                }
+
+                if (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f) {
+                    MathUtils.setSpeed(speed);
+                    ++stage;
+                }
+            } else if (mode.sval == "aac") {
+                if (mc.player.collidedVertically && mc.player.isOnGround() && (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f)) {
+                    stage = 0;
+                    mc.player.jump();
+                    EntityUtils.setMotionY(0.41999998688698);
+                    if (aacCount < 4)
+                        aacCount++;
+                }
+                speed = getAACSpeed(stage, aacCount);
+                if (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f) {
+                    MathUtils.setSpeed(speed);
+                }
+
+                if (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f) {
+                    ++stage;
+                }
+            } else if (mode.sval == "aacwall") {
+                if (mc.player.moveForward == 0 && mc.player.moveStrafing == 0) {
+                    if (count > 0) {
+                        EntityUtils.setMotionX(mc.player.getMotion().x * 0.2);
+                        EntityUtils.setMotionZ(mc.player.getMotion().z * 0.2);
+                        count = 0;
+                    }
+                    air = 0;
+                    return;
+                }
+                if (mc.player.collidedHorizontally) {
+                    if (mc.player.isOnGround()) {
+                        mc.player.setOnGround(true);
+                        EntityUtils.setMotionY(0.42);
+                        EntityUtils.setMotionX(0);
+                        EntityUtils.setMotionZ(0);
+                        double speed = 0;
+                        if (count == 0) {
+                            speed = 0.37;
+                        } else if (count >= 1) {
+                            speed = 0.575;
+                        }
+                        assert mc.world != null;
+                        if (!mc.world.getBlockState(new BlockPos(mc.player.lastTickPosX, mc.player.lastTickPosY + 2, mc.player.lastTickPosZ)).getBlock().equals(Blocks.AIR)) {
+                            if (count >= 1) {
+                                speed = 0.472;
+                            }
+                        }
+                        MathUtils.setSpeed(speed - 0.005);
+                        if (count < 2) {
+                            count++;
+                        }
+                        air = 0;
+                    } else {
+                        EntityUtils.setMotionY(-0.21);
+                        EntityUtils.setMotionX(0);
+                        EntityUtils.setMotionZ(0);
+                        double speed = 0;
+                        if (air == 0) {
+                            if (count == 1) {
+                                speed = 0.277;
+                            } else if (count == 2) {
+                                speed = 0.339;
+                            }
+                        } else if (air == 1) {
+                            if (count == 1) {
+                                speed = 0.275;
+                            } else if (count == 2) {
+                                speed = 0.336;
+                            }
+                        }
+                        if (!mc.world.getBlockState(new BlockPos(mc.player.lastTickPosX, mc.player.lastTickPosY + 2, mc.player.lastTickPosZ)).getBlock().equals(Blocks.AIR)) {
+                            if (count == 2) {
+                                speed = 0.3;
+                            }
+                        }
+                        MathUtils.setSpeed(speed - 0.005);
+                        air++;
+                    }
+                } else {
+                    if (count > 0) {
+                        EntityUtils.setMotionX(mc.player.getMotion().x * 0.2);
+                        EntityUtils.setMotionZ(mc.player.getMotion().z * 0.2);
+
+                        air = 0;
+                        count = 0;
+                    }
+                }
+            } else if (mode.sval == "oldhop") {
+                if ((mc.player.moveForward == 0.0F) && (mc.player.moveStrafing == 0.0F)) {
+                    speed = 0.26;
+                }
+                if ((stage == 1) && (mc.player.collidedVertically) && ((mc.player.moveForward != 0.0F) || (mc.player.moveStrafing != 0.0F))) {
+                    speed = (0.25D + 0.26 - 0.01D);
+                } else if ((stage == 2) && (mc.player.collidedVertically) && mc.player.isOnGround() && ((mc.player.moveForward != 0.0F) || (mc.player.moveStrafing != 0.0F))) {
+                    EntityUtils.setMotionY(0.4D);
+                    mc.player.jump();
+                    speed *= 2.149D;
+                } else if (stage == 3) {
+                    double difference = 0.66D * (this.lastDist - 0.26);
+                    speed = (this.lastDist - difference);
+                } else {
+                    List<AxisAlignedBB> collidingList = (List<AxisAlignedBB>) mc.world.getBlockCollisionShapes(mc.player, mc.player.getBoundingBox().offset(0.0D, mc.player.getMotion().y, 0.0D));
+                    if ((collidingList.size() > 0) || (mc.player.collidedVertically)) {
+                        if (stage > 0) {
+                            if (1.35D * 0.26 - 0.01D > speed) {
+                                stage = 0;
+                            } else {
+                                stage = (mc.player.moveForward != 0.0F) || (mc.player.moveStrafing != 0.0F) ? 1 : 0;
+                            }
+                        }
+                    }
+                    speed = (this.lastDist - this.lastDist / 159.0D);
+                }
+                speed = Math.max(speed, 0.26);
+                if (stage > 0) {
+                    MathUtils.setSpeed(speed);
+                }
+                if ((mc.player.moveForward != 0.0F) || (mc.player.moveStrafing != 0.0F)) {
+                    stage += 1;
+                }
+            } else if (mode.sval == "onground") {
+                double forward = mc.player.movementInput.moveForward;
+                double strafe = mc.player.movementInput.moveStrafe;
+
+                if ((forward != 0 || strafe != 0) && !mc.gameSettings.keyBindJump.isKeyDown() && !mc.player.isInWater() && !mc.player.isOnLadder() && !mc.player.collidedHorizontally) {
+                    assert mc.world != null;
+                    double yOffset = !mc.world.getBlockCollisionShapes(mc.player, mc.player.getBoundingBox().offset(0.0D, 0.4D, 0.0D)).findAny().isPresent() ? (mc.player.ticksExisted % 2 != 0 ? 0.2 : 0) : (mc.player.ticksExisted % 2 != 0 ? 0.4198 : 0);
+                    mc.player.setPosition(mc.player.getPosX(), mc.player.getPosY() + yOffset, mc.player.getPosZ());
+                }
+
+                double speed = mc.player.ticksExisted % 2 == 0 ? 2.1 : 1.3;
+                float yaw = mc.player.rotationYaw;
+
+                if ((forward == 0.0D) && (strafe == 0.0D)) {
+                    EntityUtils.setMotionX(0D);
+                    EntityUtils.setMotionZ(0D);
+                } else {
+                    if (forward != 0.0D) {
+                        if (strafe > 0.0D) {
+                            yaw += (forward > 0.0D ? -45 : 45);
+                        } else if (strafe < 0.0D) {
+                            yaw += (forward > 0.0D ? 45 : -45);
+                        }
+                        strafe = 0.0D;
+                        if (forward > 0.0D) {
+                            forward = 0.15;
+                        } else if (forward < 0.0D) {
+                            forward = -0.15;
+                        }
+                    }
+                    if (strafe > 0) {
+                        strafe = 0.15;
+                    } else if (strafe < 0) {
+                        strafe = -0.15;
+                    }
+                    double motionX = (forward * speed * Math.cos(Math.toRadians(yaw + 90.0F)) + strafe * speed * Math.sin(Math.toRadians(yaw + 90.0F)));
+                    double motionZ = (forward * speed * Math.sin(Math.toRadians(yaw + 90.0F)) - strafe * speed * Math.cos(Math.toRadians(yaw + 90.0F)));
+                    EntityUtils.setMotionX(motionX);
+                    EntityUtils.setMotionZ(motionZ);
+                }
+            } else if (mode.sval == "ncpbasic") {
+                if (mc.gameSettings.keyBindForward.isKeyDown() || mc.gameSettings.keyBindRight.isKeyDown() || mc.gameSettings.keyBindBack.isKeyDown() || mc.gameSettings.keyBindLeft.isKeyDown()) {
+                    if (mc.player.isOnGround()) {
+                        mc.player.jump();
+                    } else {
+                        MathUtils.setSpeed(0.26);
+                    }
+                }
             }
+        } catch (Exception ignored) {
         }
     }
 

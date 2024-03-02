@@ -28,11 +28,11 @@ public class ColorPalette extends Comp {
     public void drawScreen(int mouseX, int mouseY) {
         super.drawScreen(mouseX, mouseY);
         Color pickedColor = new Color((int) setting.dval);
-        int pickerSize = 10;
-        for (int i = 0; i < 360; i++) {
-            for (int j = 0; j < 100; j++) {
-                float h = (float) (i) / 360F;
-                float s = j / 100F;
+        int pickerSize = 10; // smaller palette size
+        for (int i = 0; i < 180; i++) { // reduced loop range for smaller palette
+            for (int j = 0; j < 50; j++) { // reduced loop range for smaller palette
+                float h = (float) (i * 2) / 360F; // adjust hue range
+                float s = j / 50F; // adjust saturation range
                 float v = 1F;
                 Color c = Color.getHSBColor(h, s, v);
                 int rgb = c.getRGB();
@@ -44,7 +44,7 @@ public class ColorPalette extends Comp {
             }
         }
 
-        UIUtils.drawTextOnScreen(setting.getName(), (int) (parent.posX + x - 65), (int) (parent.posY + y + 1), new Color(FALLENClient.INSTANCE.getClickgui().textRGB).getRGB());
+        UIUtils.drawTextOnScreen(String.valueOf(setting.dval), (int) (parent.posX + x - 55), (int) (parent.posY + y + 1), new Color(FALLENClient.INSTANCE.getClickgui().textRGB).getRGB());
     }
 
     @Override
