@@ -5,10 +5,12 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import paul.fallen.ClientSupport;
+import paul.fallen.FALLENClient;
 import paul.fallen.module.Module;
 import paul.fallen.utils.client.Logger;
 import paul.fallen.utils.client.Logger.LogState;
 
+import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -10,12 +10,6 @@ import java.awt.*;
 
 public class ColorPalette extends Comp {
 
-    private final double x;
-    private final double y;
-    private final Clickgui parent;
-    private final Module module;
-    private final Setting setting;
-
     public ColorPalette(double x, double y, Clickgui parent, Module module, Setting setting) {
         this.x = x;
         this.y = y;

@@ -51,6 +51,15 @@ public class ClickGuiHack extends Module {
         try {
             super.onEnable();
             ClientSupport.mc.displayGuiScreen(FALLENClient.INSTANCE.getClickgui());
+
+            // Set to default
+            if (FALLENClient.INSTANCE.getClickgui().primary == FALLENClient.INSTANCE.getClickgui().secondary) {
+                //FALLENClient.INSTANCE.getSettingManager().getSettingByName("primary", FALLENClient.INSTANCE.getModuleManager().clickGuiHack).setValDouble(new Color(100, 0, 255).getRGB());
+                //FALLENClient.INSTANCE.getSettingManager().getSettingByName("secondary", FALLENClient.INSTANCE.getModuleManager().clickGuiHack).setValDouble(new Color(45, 0, 255).getRGB());
+
+                primary.setValDouble(new Color(100, 0, 255).getRGB());
+                secondary.setValDouble(new Color(45, 0, 255).getRGB());
+            }
         } catch (Exception ignored) {
         }
     }

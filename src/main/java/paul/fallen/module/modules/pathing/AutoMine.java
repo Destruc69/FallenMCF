@@ -37,15 +37,11 @@ public class AutoMine extends Module {
 
     @Override
     public void onEnable() {
+        super.onEnable();
         started = false;
 
         posA = new BlockPos(0, 0, 0);
         posB = new BlockPos(0, 0, 0);
-    }
-
-    @Override
-    public void onDisable() {
-
     }
 
     @SubscribeEvent

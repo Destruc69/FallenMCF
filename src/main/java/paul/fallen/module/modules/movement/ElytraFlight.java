@@ -46,6 +46,7 @@ public final class ElytraFlight extends Module {
         addSetting(baseSpeed);
         addSetting(downSpeed);
         addSetting(autoTakeOff);
+        addSetting(antiFireworkLag);
     }
 
     @SubscribeEvent
