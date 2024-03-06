@@ -52,6 +52,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new FastBow(0, "FastBow", "FastBow", Category.Combat));
 		addModule(new NoKnockBack(0, "NoKnockback", "NoKnockback", Category.Combat));
 		addModule(new InfiniteAura(0, "InfiniteAura", "InfiniteAura", Category.Combat));
+		addModule(new Regen(0, "Regen", "Regen", Category.Combat));
 
 		addModule(new AutoPilot(0, "AutoPilot", "AutoPilot", Category.Pathing));
 		addModule(new AutoMine(0, "AutoMine", "AutoMine", Category.Pathing));
@@ -97,6 +98,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new MoreInv(0, "MoreInv", "MoreInv", Category.Player));
 		addModule(new NoFall(0, "NoFall", "NoFall", Category.Player));
 		addModule(new AntiForge(0, "AntiForge", "AntiForge", Category.Player));
+		addModule(new ServerCrasher(0, "ServerCrasher", "ServerCrasher", Category.Player));
 
 		addModule(new ChestEspHack(0, "ChestESP", "ChestESP", Category.Render));
 		addModule(new AntiRender(0, "AntiRender", "AntiRender", Category.Render));

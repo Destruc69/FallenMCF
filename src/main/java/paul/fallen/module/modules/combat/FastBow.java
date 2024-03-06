@@ -7,11 +7,9 @@
  */
 package paul.fallen.module.modules.combat;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.play.client.CPlayerDiggingPacket;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -24,25 +22,13 @@ public class FastBow extends Module {
     }
 
     @SubscribeEvent
-    public void onUpdate(TickEvent.ClientTickEvent event) {
+    public void onUpdate(TickEvent.PlayerTickEvent event) {
         try {
-            if (event.phase != TickEvent.Phase.START) return;
-
-            assert mc.player != null;
-            if (mc.player.getHealth() > 0.0f && mc.player.isOnGround()) {
-                mc.player.inventory.getCurrentItem();
-                mc.player.inventory.getCurrentItem().getItem();
-                if (Minecraft.getInstance().gameSettings.keyBindUseItem.isKeyDown()) {
-                    assert mc.playerController != null;
-                    assert mc.world != null;
-                    mc.playerController.processRightClick(mc.player, mc.world, Hand.MAIN_HAND);
-                    for (int i = 0; i < 20; ++i) {
-                        mc.player.connection.sendPacket(new CPlayerPacket());
-                    }
-                    mc.player.connection.sendPacket(new CPlayerDiggingPacket(CPlayerDiggingPacket.Action.RELEASE_USE_ITEM, new BlockPos(0, 0, 0), Direction.DOWN));
-                    mc.player.inventory.getCurrentItem().getItem().onPlayerStoppedUsing(mc.player.inventory.getCurrentItem(), mc.world, mc.player, 10);
-                }
+            for (int i = 0; i < 20; i++) {
+                mc.player.connection.sendPacket(new CPlayerPacket(true));
             }
+            mc.player.connection.sendPacket(new CPlayerDiggingPacket(CPlayerDiggingPacket.Action.RELEASE_USE_ITEM, BlockPos.ZERO, Direction.DOWN));
+            mc.playerController.onStoppedUsingItem(mc.player);
         } catch (Exception ignored) {
         }
     }
