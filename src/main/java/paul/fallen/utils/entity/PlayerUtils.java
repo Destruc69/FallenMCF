@@ -17,6 +17,7 @@ import net.minecraft.world.Explosion;
 import net.minecraft.world.Explosion.Mode;
 import paul.fallen.ClientSupport;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -161,6 +162,34 @@ public class PlayerUtils implements ClientSupport {
 
     public static void setSpeed(double speed) {
         mc.player.setVelocity(-MathHelper.sin(getDirection()) * speed, mc.player.getMotion().getY(), MathHelper.cos(getDirection()) * speed);
+    }
+
+    public static void setTickSpeed(float speed) {
+        try {
+            // Get Minecraft instance
+            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+
+            // Get the 'timer' field from the Minecraft class
+            Field timerField = mc.getClass().getDeclaredField("timer");
+
+            // Set the accessibility of the field to true to be able to access it
+            timerField.setAccessible(true);
+
+            // Get the value of the 'timer' field
+            Object timer = timerField.get(mc);
+
+            // Get the 'tickLength' field from the Timer class
+            Field tickLengthField = timer.getClass().getDeclaredField("tickLength");
+
+            // Set the accessibility of the field to true to be able to access it
+            tickLengthField.setAccessible(true);
+
+            // Set the custom tick speed
+            tickLengthField.set(timer, 50 / speed);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void setCockSpeed(final double moveSpeed, final float pseudoYaw, final double pseudoStrafe, final double pseudoForward) {

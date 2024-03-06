@@ -97,6 +97,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new HideMyAss(0, "HideMyAss", "HideMyAss", Category.Player));
 		addModule(new MoreInv(0, "MoreInv", "MoreInv", Category.Player));
 		addModule(new NoFall(0, "NoFall", "NoFall", Category.Player));
+		addModule(new Timer(0, "Timer", "Timer", Category.Player));
 		addModule(new AntiForge(0, "AntiForge", "AntiForge", Category.Player));
 		addModule(new ServerCrasher(0, "ServerCrasher", "ServerCrasher", Category.Player));
 
