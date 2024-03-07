@@ -77,7 +77,6 @@ public class Timer extends Module {
             }
 
             PlayerUtils.setTickSpeed(i);
-            ClientUtils.addChatMessage(String.valueOf(i));
         }
     }
 }
