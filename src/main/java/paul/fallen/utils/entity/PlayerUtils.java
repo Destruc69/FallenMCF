@@ -11,6 +11,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.CombatRules;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.Timer;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Explosion;
@@ -21,7 +22,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Timer;
 import java.util.stream.Collectors;
 
 public class PlayerUtils implements ClientSupport {
@@ -187,6 +187,35 @@ public class PlayerUtils implements ClientSupport {
 
             // Set the custom tick speed
             tickLengthField.set(timer, 50 / speed);
+
+
+
+
+
+
+
+
+
+
+
+
+            // Get the 'timer' field from the Minecraft class
+            Field timerFieldA = mc.getClass().getDeclaredField("field_71428_T");
+
+            // Set the accessibility of the field to true to be able to access it
+            timerFieldA.setAccessible(true);
+
+            // Get the value of the 'timer' field
+            Object timerA = timerField.get(mc);
+
+            // Get the 'tickLength' field from the Timer class
+            Field tickLengthFieldA = timerA.getClass().getDeclaredField("field_194149_e");
+
+            // Set the accessibility of the field to true to be able to access it
+            tickLengthFieldA.setAccessible(true);
+
+            // Set the custom tick speed
+            tickLengthFieldA.set(timer, 50 / speed);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -53,6 +53,9 @@ public class ModuleManager implements ClientSupport {
 		addModule(new NoKnockBack(0, "NoKnockback", "NoKnockback", Category.Combat));
 		addModule(new InfiniteAura(0, "InfiniteAura", "InfiniteAura", Category.Combat));
 		addModule(new Regen(0, "Regen", "Regen", Category.Combat));
+		addModule(new WTap(0, "WTap", "WTap", Category.Combat));
+		addModule(new ComboAttack(0, "ComboAttack", "ComboAttack", Category.Combat));
+		addModule(new BackTrack(0, "BackTrack", "BackTrack", Category.Combat));
 
 		addModule(new AutoPilot(0, "AutoPilot", "AutoPilot", Category.Pathing));
 		addModule(new AutoMine(0, "AutoMine", "AutoMine", Category.Pathing));

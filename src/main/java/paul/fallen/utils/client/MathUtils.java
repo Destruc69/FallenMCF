@@ -13,6 +13,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 
+import java.util.Random;
+
 public final class MathUtils {
     private static float forward;
     private static float side;
@@ -45,6 +47,11 @@ public final class MathUtils {
     public static int floor(double value) {
         int i = (int) value;
         return value < i ? i - 1 : i;
+    }
+
+    public static int generateRandomNumber(int min, int max) {
+        Random random = new Random();
+        return random.nextInt((max - min) + 1) + min;
     }
 
     public static int clamp(int num, int min, int max) {
