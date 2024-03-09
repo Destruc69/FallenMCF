@@ -36,6 +36,8 @@ public class BackTrack extends Module {
 
         amount = new Setting("Amount", this, 20, 1, 100);
         forward = new Setting("Forward", this, 20, 1, 100);
+        addSetting(amount);
+        addSetting(forward);
     }
 
     @Override
@@ -99,23 +101,21 @@ public class BackTrack extends Module {
     }
 
     @SubscribeEvent
-    public void onPacketSend(PacketEvent event) {
+    public void onPacketSend(PacketEvent.Outgoing event) {
         try {
-            if (event instanceof PacketEvent.Outgoing) {
-                if (target == null) return;
+            if (target == null) return;
 
-                IPacket p = event.getPacket();
+            IPacket p = event.getPacket();
 
-                packets.add(p);
-                event.setCanceled(true);
+            packets.add(p);
+            event.setCanceled(true);
 
-                if ((int) amount.dval <= pastPositions.size()) {
+            if ((int) amount.dval <= pastPositions.size()) {
 
-                    for (final IPacket thisPacket : packets) mc.player.connection.sendPacket(thisPacket);
+                for (final IPacket thisPacket : packets) mc.player.connection.sendPacket(thisPacket);
 
-                    pastPositions.clear();
-                    packets.clear();
-                }
+                pastPositions.clear();
+                packets.clear();
             }
         } catch (Exception ignored) {
         }

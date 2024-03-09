@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import paul.fallen.FALLENClient;
 import paul.fallen.utils.render.RenderUtils;
 
 import java.util.ArrayList;
@@ -109,7 +110,11 @@ public class AStarCustomPathFinder {
         BlockPos block1 = new BlockPos(x, y, z);
         BlockPos block2 = new BlockPos(x, y + 1, z);
         BlockPos block3 = new BlockPos(x, y - 1, z);
-        return !isBlockSolid(block1) && !isBlockSolid(block2) && (isBlockSolid(block3) || !checkGround) && isSafeToWalkOn(block3);
+        if (FALLENClient.INSTANCE.getModuleManager().pathfinder.type.sval == "ground") {
+            return !isBlockSolid(block1) && !isBlockSolid(block2) && (isBlockSolid(block3) || !checkGround) && isSafeToWalkOn(block3);
+        } else {
+            return !isBlockSolid(block1) && !isBlockSolid(block2) && !isBlockSolid(block3);
+        }
     }
 
     private static boolean isBlockSolid(BlockPos block) {

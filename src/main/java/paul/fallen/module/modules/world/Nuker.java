@@ -73,11 +73,12 @@ public class Nuker extends Module {
             for (BlockPos blockPos : blockPosArrayList) {
                 BlockState blockState = mc.world.getBlockState(blockPos);
                 if (!blockState.isAir()) {
-                    mc.playerController.onPlayerDamageBlock(blockPos, Direction.fromAngle(mc.player.rotationYaw));
+
+                    RotationUtils.rotateTo(new Vector3d(blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5));
 
                     mc.player.swingArm(Hand.MAIN_HAND);
 
-                    RotationUtils.rotateTo(new Vector3d(blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5));
+                    mc.playerController.onPlayerDamageBlock(blockPos, Direction.fromAngle(mc.player.rotationYaw));
 
                     targetPosition = blockPos;
                     return;

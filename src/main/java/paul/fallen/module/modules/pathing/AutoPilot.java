@@ -30,6 +30,16 @@ public class AutoPilot extends Module {
 
     private boolean initStart = true;
 
+    @Override
+    public void onEnable() {
+        try {
+            super.onEnable();
+
+            aStarCustomPathFinder.getPath().clear();
+        } catch (Exception ignored) {
+        }
+    }
+
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {

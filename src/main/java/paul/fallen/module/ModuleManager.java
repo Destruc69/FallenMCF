@@ -13,6 +13,7 @@ import paul.fallen.ClientSupport;
 import paul.fallen.module.Module.Category;
 import paul.fallen.module.modules.client.ClickGuiHack;
 import paul.fallen.module.modules.client.FallenLanguage;
+import paul.fallen.module.modules.client.Pathfinder;
 import paul.fallen.module.modules.client.Tones;
 import paul.fallen.module.modules.combat.*;
 import paul.fallen.module.modules.movement.*;
@@ -35,6 +36,7 @@ public class ModuleManager implements ClientSupport {
 	private final ArrayList<Module> modules = new ArrayList<Module>();
 
 	public ClickGuiHack clickGuiHack;
+	public Pathfinder pathfinder;
 
 	public ModuleManager() {
 		MinecraftForge.EVENT_BUS.register(this);
@@ -64,6 +66,8 @@ public class ModuleManager implements ClientSupport {
 		clickGuiHack = new ClickGuiHack(KeyEvent.VK_P, "ClickGUI", "ClickGUI", Category.Client);
 		addModule(clickGuiHack);
 		addModule(new Tones(0, "Tones", "Tones", Category.Client));
+		pathfinder = new Pathfinder(0, "Pathfinder", "Pathfinder", Category.Client);
+		addModule(pathfinder);
 
 		addModule(new AntiAFK(0, "AntiAFK", "AntiAFK", Category.Movement));
 		addModule(new ElytraFlight(0, "ElytraFlight", "ElytraFlight", Category.Movement));
@@ -125,6 +129,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new Nuker(0, "Nuker", "Nuker", Category.World));
 		addModule(new AutoHighway(0, "AutoHighway", "AutoHighway", Category.World));
 		addModule(new OverKill(0, "OverKill", "OverKill", Category.World));
+		addModule(new FastBreak(0, "FastBreak", "FastBreak", Category.World));
 	}
 
 	public ArrayList<Module> getModules() {
