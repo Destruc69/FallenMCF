@@ -127,7 +127,7 @@ public class CrystalAuraHack extends Module {
         for (Entity e : crystals) {
             if (faceBlocks.bval) {
                 Vector3d toLook = new Vector3d(e.getBoundingBox().getCenter().x, e.getBoundingBox().getCenter().y, e.getBoundingBox().getCenter().z);
-                int[] rot = RotationUtils.getYawAndPitch(toLook);
+                float[] rot = RotationUtils.getYawAndPitch(toLook);
                 assert mc.player != null;
                 mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
             }
@@ -282,7 +282,7 @@ public class CrystalAuraHack extends Module {
                 return false;
 
             Vector3d toLook = new Vector3d(neighbor.getX() + 0.5, mc.player.lastTickPosY > neighbor.getY() ? neighbor.getY() + 1 : neighbor.getY(), neighbor.getZ() + 0.5);
-            int[] rot = RotationUtils.getYawAndPitch(toLook);
+            float[] rot = RotationUtils.getYawAndPitch(toLook);
             mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
 
             // Place the crystal

@@ -49,7 +49,7 @@ public final class Arson extends Module {
                             PlayerControllerUtils.rightClickBlock(new Vector3d(0.5, 0, 0.5), Direction.DOWN, posToLight);
                             mc.player.swingArm(Hand.MAIN_HAND);
 
-                            int[] rot = RotationUtils.getYawAndPitch(new Vector3d(posToLight.getX() + 0.5, posToLight.getY(), posToLight.getZ() + 0.5));
+                            float[] rot = RotationUtils.getYawAndPitch(new Vector3d(posToLight.getX() + 0.5, posToLight.getY(), posToLight.getZ() + 0.5));
                             if (mode.sval == "packet") {
                                 //mc.player.connection.sendPacket(new CPacketPlayer.Rotation(rot[0], rot[1], mc.player.onGround));
                                 mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], mc.player.isOnGround()));

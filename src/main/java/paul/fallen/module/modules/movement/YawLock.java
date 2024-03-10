@@ -13,7 +13,7 @@ import paul.fallen.module.Module;
 
 public final class YawLock extends Module {
 
-    public static double yawthis;
+    public double yawthis;
 
     public YawLock(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
@@ -22,6 +22,7 @@ public final class YawLock extends Module {
     @Override
     public void onEnable() {
         try {
+            super.onEnable();
             assert mc.player != null;
             yawthis = mc.player.rotationYaw;
         } catch (Exception ignored) {

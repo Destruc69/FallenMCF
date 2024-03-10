@@ -34,7 +34,7 @@ public final class Killaura extends Module {
         try {
             Entity entity = findClosestEntity();
             if (entity != null) {
-                int[] rot = RotationUtils.getYawAndPitch(new Vector3d(entity.lastTickPosX + 0.5, entity.lastTickPosY + 0.5, entity.lastTickPosZ + 0.5));
+                float[] rot = RotationUtils.getYawAndPitch(entity.getBoundingBox().getCenter());
                 assert mc.player != null;
                 if (mc.player.ticksExisted % 10 == 0) {
                     mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], mc.player.isOnGround()));

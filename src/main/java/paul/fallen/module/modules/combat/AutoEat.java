@@ -39,12 +39,14 @@ public class AutoEat extends Module {
 
     @Override
     public void onEnable() {
+        super.onEnable();
         this.oldSlot = -1;
         this.bestSlot = -1;
     }
 
     @Override
     public void onDisable() {
+        super.onDisable();
         stop();
     }
 

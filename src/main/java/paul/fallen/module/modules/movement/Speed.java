@@ -52,7 +52,6 @@ public final class Speed extends Module {
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
-            mc.player.setSprinting(true);
             if (mode.sval == "bhop") {
                 if (mc.player.moveForward == 0.0f && mc.player.moveStrafing == 0.0f) {
                     speed = 0.26;
@@ -302,6 +301,7 @@ public final class Speed extends Module {
                     }
                 }
             }
+            mc.player.setSprinting(true);
         } catch (Exception ignored) {
         }
     }

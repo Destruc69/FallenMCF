@@ -58,6 +58,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new WTap(0, "WTap", "WTap", Category.Combat));
 		addModule(new ComboAttack(0, "ComboAttack", "ComboAttack", Category.Combat));
 		addModule(new BackTrack(0, "BackTrack", "BackTrack", Category.Combat));
+		addModule(new LegitFightBot(0, "LegitFightBot", "LegitFightBot", Category.Combat));
 
 		addModule(new AutoPilot(0, "AutoPilot", "AutoPilot", Category.Pathing));
 		addModule(new AutoMine(0, "AutoMine", "AutoMine", Category.Pathing));
@@ -120,6 +121,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new WaypointModule(0, "Waypoint", "Waypoint", Category.Render));
 		addModule(new HeadRoll(0, "HeadRoll", "HeadRoll", Category.Render));
 		addModule(new Chams(0, "Chams", "Chams", Category.Render));
+		addModule(new BodySpin(0, "BodySpin", "BodySpin", Category.Render));
 
 		addModule(new AntiFog(0, "AntiFog", "AntiFog", Category.World));
 		addModule(new AntiWeather(0, "AntiWeather", "AntiWeather", Category.World));
