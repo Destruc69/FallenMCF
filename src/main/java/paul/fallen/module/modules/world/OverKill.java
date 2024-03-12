@@ -12,8 +12,11 @@ public class OverKill extends Module {
 
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (Thread.currentThread().getPriority() != Thread.MAX_PRIORITY) {
-            Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+        try {
+            if (Thread.currentThread().getPriority() != Thread.MAX_PRIORITY) {
+                Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+            }
+        } catch (Exception ignored) {
         }
     }
 }

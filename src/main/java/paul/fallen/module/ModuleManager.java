@@ -116,7 +116,6 @@ public class ModuleManager implements ClientSupport {
 		addModule(new FullbrightHack(0, "Fullbright", "Fullbright", Category.Render));
 		addModule(new ItemEspHack(0,"ItemESP", "ItemESP", Category.Render));
 		addModule(new MobEspHack(0, "MobESP", "MobESP", Category.Render));
-		addModule(new NameTags(0, "Nametags", "Nametags", Category.Render));
 		addModule(new PlayerEspHack(0, "PlayerESP", "PlayerESP", Category.Render));
 		addModule(new WaypointModule(0, "Waypoint", "Waypoint", Category.Render));
 		addModule(new HeadRoll(0, "HeadRoll", "HeadRoll", Category.Render));

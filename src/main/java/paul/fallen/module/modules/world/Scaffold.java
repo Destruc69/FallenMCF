@@ -31,7 +31,7 @@ public final class Scaffold extends Module {
     public Scaffold(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        rotationMode = new Setting("RoationMode", this, "a", new ArrayList<>(Arrays.asList("a", "b")));
+        rotationMode = new Setting("RotationMode", this, "a", new ArrayList<>(Arrays.asList("a", "b")));
         swing = new Setting("Swing", this, true);
         tower = new Setting("Tower", this, true);
         addSetting(swing);

@@ -9,15 +9,15 @@ import paul.fallen.setting.Setting;
 
 public class FastBreak extends Module {
 
-    private Setting breakSpeed;
+    private Setting addition;
     private Setting bypass;
 
     public FastBreak(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        breakSpeed = new Setting("BreakSpeed", this, 2, 1, 20);
+        addition = new Setting("Addition", this, 2, 1, 20);
         bypass = new Setting("Bypass", this, false);
-        addSetting(breakSpeed);
+        addSetting(addition);
         addSetting(bypass);
     }
 
@@ -30,7 +30,7 @@ public class FastBreak extends Module {
                 mc.player.connection.sendPacket(new CPlayerDiggingPacket(CPlayerDiggingPacket.Action.STOP_DESTROY_BLOCK,
                         event.getPos(),  mc.player.getHorizontalFacing()));
             } else {
-                event.setNewSpeed(breakSpeed.dval);
+                event.setNewSpeed(mc.player.getActiveItemStack().getDestroySpeed(mc.world.getBlockState(event.getPos())) + addition.dval);
             }
         } catch (Exception ignored) {
         }

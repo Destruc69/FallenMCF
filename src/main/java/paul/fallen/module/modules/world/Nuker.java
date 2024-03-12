@@ -1,6 +1,7 @@
 package paul.fallen.module.modules.world;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -70,20 +71,18 @@ public class Nuker extends Module {
                 }
             });
 
-            for (BlockPos blockPos : blockPosArrayList) {
-                BlockState blockState = mc.world.getBlockState(blockPos);
-                if (!blockState.isAir()) {
 
-                    RotationUtils.rotateTo(new Vector3d(blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5));
+            blockPosArrayList.removeIf(blockPos -> mc.world.getBlockState(blockPos).getBlock().equals(Blocks.AIR));
 
-                    mc.player.swingArm(Hand.MAIN_HAND);
+            BlockPos blockPos = blockPosArrayList.get(0);
 
-                    mc.playerController.onPlayerDamageBlock(blockPos, Direction.fromAngle(mc.player.rotationYaw));
+            RotationUtils.rotateTo(new Vector3d(blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5));
 
-                    targetPosition = blockPos;
-                    return;
-                }
-            }
+            mc.player.swingArm(Hand.MAIN_HAND);
+
+            mc.playerController.onPlayerDamageBlock(blockPos, Direction.fromAngle(mc.player.rotationYaw));
+
+            targetPosition = blockPos;
         } catch (Exception ignored) {
         }
     }
