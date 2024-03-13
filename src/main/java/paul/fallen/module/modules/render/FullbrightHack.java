@@ -11,17 +11,16 @@ public final class FullbrightHack extends Module {
     }
 
     @Override
-    public void onEnable() {
-        mc.gameSettings.gamma = 500;
-    }
-
-    @Override
     public void onDisable() {
+        super.onDisable();
         mc.gameSettings.gamma = 1;
     }
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
-
+        try {
+            mc.gameSettings.gamma = 500;
+        } catch (Exception ignored) {
+        }
     }
 }

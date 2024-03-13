@@ -15,27 +15,25 @@ import paul.fallen.setting.Setting;
 
 public final class NoFall extends Module {
 
-    Setting damage;
+    Setting alternative;
 
     public NoFall(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        damage = new Setting("Damage", this, false);
-        addSetting(damage);
+        alternative = new Setting("Alternative", this, false);
+        addSetting(alternative);
     }
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
-            assert mc.player != null;
-            if (mc.player.fallDistance > 3) {
-                if (!damage.bval) {
+            if (!alternative.bval) {
+                if (mc.player.fallDistance > 3) {
                     mc.player.connection.sendPacket(new CPlayerPacket(true));
-                } else {
+                }
+            } else {
+                if (mc.player.fallDistance > 3) {
                     mc.player.setOnGround(true);
-                    mc.player.isAirBorne = false;
-                    mc.player.collidedHorizontally = false;
-                    mc.player.collidedVertically = true;
                 }
             }
         } catch (Exception ignored) {

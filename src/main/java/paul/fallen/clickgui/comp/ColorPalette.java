@@ -22,18 +22,26 @@ public class ColorPalette extends Comp {
     public void drawScreen(int mouseX, int mouseY) {
         super.drawScreen(mouseX, mouseY);
         Color pickedColor = new Color((int) setting.dval);
-        int pickerSize = 10; // smaller palette size
-        for (int i = 0; i < 180; i++) { // reduced loop range for smaller palette
-            for (int j = 0; j < 50; j++) { // reduced loop range for smaller palette
-                float h = (float) (i * 2) / 360F; // adjust hue range
-                float s = j / 50F; // adjust saturation range
-                float v = 1F;
-                Color c = Color.getHSBColor(h, s, v);
-                int rgb = c.getRGB();
-                if (isInside(mouseX, mouseY, (int) (parent.posX + x) + i, (int) (parent.posY + y) + j, (int) (parent.posX + x) + i + pickerSize, (int) (parent.posY + y) + j + pickerSize)) {
-                    UIUtils.drawRect((int) (parent.posX + x) + i, (int) (parent.posY + y) + j, pickerSize, pickerSize, new Color(pickedColor.getRed(), pickedColor.getGreen(), pickedColor.getBlue()).getRGB());
-                } else {
-                    UIUtils.drawRect((int) (parent.posX + x) + i, (int) (parent.posY + y) + j, pickerSize, pickerSize, rgb);
+        int radius = 30; // radius of the circular palette
+        int centerX = (int) (parent.posX + x) + radius;
+        int centerY = (int) (parent.posY + y) + radius;
+
+        for (int i = centerX - radius; i < centerX + radius; i++) {
+            for (int j = centerY - radius; j < centerY + radius; j++) {
+                double dist = Math.sqrt(Math.pow(i - centerX, 2) + Math.pow(j - centerY, 2));
+                if (dist <= radius) {
+                    double angle = Math.atan2(j - centerY, i - centerX);
+                    float h = (float) Math.toDegrees(angle);
+                    if (h < 0) h += 360;
+                    float s = 1; // set saturation to max for a fully saturated color wheel
+                    float v = 1F;
+                    Color c = Color.getHSBColor(h / 360F, s, v);
+                    int rgb = c.getRGB();
+                    if (isInside(mouseX, mouseY, i, j, i + 1, j + 1)) {
+                        UIUtils.drawRect(i, j, 1, 1, new Color(pickedColor.getRed(), pickedColor.getGreen(), pickedColor.getBlue()).getRGB());
+                    } else {
+                        UIUtils.drawRect(i, j, 1, 1, rgb);
+                    }
                 }
             }
         }
@@ -44,11 +52,17 @@ public class ColorPalette extends Comp {
     @Override
     public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
         super.mouseClicked(mouseX, mouseY, mouseButton);
-        if (isInside(mouseX, mouseY, (int) (parent.posX + x), (int) (parent.posY + y), (int) (parent.posX + x) + 180, (int) (parent.posY + y) + 50) && mouseButton == 0) {
-            float h = (float) ((mouseX - (parent.posX + x)) * 2 / 360F); // adjust hue range
-            float s = (float) ((mouseY - (parent.posY + y)) / 50F); // adjust saturation range
+        int radius = 30; // radius of the circular palette
+        int centerX = (int) (parent.posX + x) + radius;
+        int centerY = (int) (parent.posY + y) + radius;
+
+        if (Math.sqrt(Math.pow(mouseX - centerX, 2) + Math.pow(mouseY - centerY, 2)) <= radius && mouseButton == 0) {
+            double angle = Math.atan2(mouseY - centerY, mouseX - centerX);
+            float h = (float) Math.toDegrees(angle);
+            if (h < 0) h += 360;
+            float s = 1; // set saturation to max for a fully saturated color wheel
             float v = 1F;
-            Color c = Color.getHSBColor(h, s, v);
+            Color c = Color.getHSBColor(h / 360F, s, v);
             setting.setValDouble(new Color(c.getRed(), c.getGreen(), c.getBlue()).getRGB());
         }
     }

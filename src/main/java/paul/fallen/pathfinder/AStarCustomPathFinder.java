@@ -336,11 +336,21 @@ public class AStarCustomPathFinder {
     public void move() {
         Minecraft mc = Minecraft.getInstance();
         double[] m = calculateMotion(this.getPath(), Math.toRadians(mc.player.rotationYaw), mc.player.isSprinting() ? 0.26 : 0.2);
-        mc.player.setMotion(m[0], mc.player.getMotion().y, m[1]);
+        if (FALLENClient.INSTANCE.getModuleManager().pathfinder.type.sval == "ground") {
+            mc.player.setMotion(m[0], mc.player.getMotion().y, m[1]);
 
-        if (getTargetPosition(this.getPath()).y > mc.player.getPosY()) {
-            if (mc.player.isOnGround()) {
-                mc.player.jump();
+            if (getTargetPosition(this.getPath()).y > mc.player.getPosY()) {
+                if (mc.player.isOnGround()) {
+                    mc.player.jump();
+                }
+            }
+        } else {
+            if (getTargetPosition(this.getPath()).y > mc.player.getPosY()) {
+                mc.player.setMotion(mc.player.getMotion().x, 1, mc.player.getMotion().z);
+            } else if (getTargetPosition(this.getPath()).y < mc.player.getPosY()) {
+                mc.player.setMotion(mc.player.getMotion().x, -1, mc.player.getMotion().z);
+            } else {
+                mc.player.setMotion(m[0], 0, m[1]);
             }
         }
     }
