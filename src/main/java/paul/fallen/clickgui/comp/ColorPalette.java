@@ -47,6 +47,7 @@ public class ColorPalette extends Comp {
         }
 
         UIUtils.drawTextOnScreen(String.valueOf(setting.dval), (int) (parent.posX + x - 55), (int) (parent.posY + y + 1), new Color(FALLENClient.INSTANCE.getClickgui().textRGB).getRGB());
+        UIUtils.drawTextOnScreen(String.valueOf(setting.getDisplayName()), (int) (parent.posX + x - 55), (int) (parent.posY + y + 10), new Color(FALLENClient.INSTANCE.getClickgui().textRGB).getRGB());
     }
 
     @Override

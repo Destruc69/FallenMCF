@@ -31,6 +31,11 @@ public class Clickgui extends Screen {
 
     public int primary;
     public int secondary;
+
+    public boolean gradient;
+    public int primaryG;
+    public int secondaryG;
+
     public int textRGB;
 
     public StringBuilder searchInquiry;
@@ -84,95 +89,13 @@ public class Clickgui extends Screen {
         return false;
     }
 
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        super.mouseClicked(mouseX, mouseY, button);
-        if (isInside(mouseX, mouseY, posX, posY - 10, width, posY) && button == 0) {
-            dragging = true;
-            dragX = mouseX - posX;
-            dragY = mouseY - posY;
-        }
+    public static String convertTicksToHMS(int ticks) {
+        long totalMilliseconds = ticks * 50L;
+        long hours = totalMilliseconds / 3600000;
+        long minutes = (totalMilliseconds % 3600000) / 60000;
+        long seconds = ((totalMilliseconds % 3600000) % 60000) / 1000;
 
-        if (isInside(mouseX, mouseY, posX + width - 2, posY, posX + width, posY + height) && button == 0) {
-            resizingWidth = true;
-            lastMouseX = mouseX;
-            lastMouseY = mouseY;
-        } else if (isInside(mouseX, mouseY, posX, posY + height - 2, posX + width, posY + height) && button == 0) {
-            resizingHeight = true;
-            lastMouseX = mouseX;
-            lastMouseY = mouseY;
-        }
-
-        // Check if the mouse click is on the right border of the ClickGUI
-        else if (isInside(mouseX, mouseY, posX + width - 2, posY, posX + width, posY + height) && button == 0) {
-            scaleWidth(mouseX);
-        }
-        // Check if the mouse click is on the bottom border of the ClickGUI
-        else if (isInside(mouseX, mouseY, posX, posY + height - 2, posX + width, posY + height) && button == 0) {
-            scaleHeight(mouseY);
-        }
-
-        int offset = 0;
-        for (Module.Category category : Module.Category.values()) {
-            if (isInside(mouseX, mouseY, posX, posY + 1 + offset, posX + 60, posY + 15 + offset) && button == 0) {
-                selectedCategory = category;
-            }
-            offset += 15;
-        }
-        offset = 0;
-        for (Module m : FALLENClient.INSTANCE.getModuleManager().getModulesInCategory(selectedCategory)) {
-            if (isInside(mouseX, mouseY,posX + 65,posY + 1 + offset,posX + 125,posY + 15 + offset)) {
-                if (button == 0) {
-                    m.toggle();
-                }
-                if (button == 1) {
-                    comps.clear();
-                    int column = 0;
-                    int count = 0;
-                    int maxSettingsPerColumn = 10;
-                    int columnOffsetBase = 275;
-                    int columnOffset = columnOffsetBase;
-                    int yOffset = 3;
-
-                    if (FALLENClient.INSTANCE.getSettingManager().getSettingsByMod(m) != null) {
-                        for (Setting setting : FALLENClient.INSTANCE.getSettingManager().getSettingsByMod(m)) {
-                            selectedModule = m;
-
-                            if (count >= maxSettingsPerColumn) {
-                                count = 0;
-                                column++;
-                                columnOffset = columnOffsetBase + column * 150; // Adjust the column spacing as needed
-                                yOffset = 3;
-                            }
-
-                            count++;
-
-                            if (setting.isCombo()) {
-                                comps.add(new Combo(columnOffset, yOffset, this, selectedModule, setting));
-                                yOffset += 15;
-                            }
-                            if (setting.isCheck()) {
-                                comps.add(new CheckBox(columnOffset, yOffset, this, selectedModule, setting));
-                                yOffset += 15;
-                            }
-                            if (setting.isSlider()) {
-                                comps.add(new Slider(columnOffset, yOffset, this, selectedModule, setting));
-                                yOffset += 25;
-                            }
-                            if (setting.isColorPalette()) {
-                                comps.add(new ColorPalette(columnOffset, yOffset, this, selectedModule, setting));
-                                yOffset += 80;
-                            }
-                        }
-                    }
-                }
-            }
-            offset += 15;
-        }
-        for (Comp comp : comps) {
-            comp.mouseClicked((int) mouseX, (int) mouseY, button);
-        }
-        return true;
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 
     @Override
@@ -239,6 +162,99 @@ public class Clickgui extends Screen {
     }
 
     @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        super.mouseClicked(mouseX, mouseY, button);
+        if (isInside(mouseX, mouseY, posX, posY - 10, width, posY) && button == 0) {
+            dragging = true;
+            dragX = mouseX - posX;
+            dragY = mouseY - posY;
+        }
+
+        if (isInside(mouseX, mouseY, posX + width - 2, posY, posX + width, posY + height) && button == 0) {
+            resizingWidth = true;
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+        } else if (isInside(mouseX, mouseY, posX, posY + height - 2, posX + width, posY + height) && button == 0) {
+            resizingHeight = true;
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+        }
+
+        // Check if the mouse click is on the right border of the ClickGUI
+        else if (isInside(mouseX, mouseY, posX + width - 2, posY, posX + width, posY + height) && button == 0) {
+            scaleWidth(mouseX);
+        }
+        // Check if the mouse click is on the bottom border of the ClickGUI
+        else if (isInside(mouseX, mouseY, posX, posY + height - 2, posX + width, posY + height) && button == 0) {
+            scaleHeight(mouseY);
+        }
+
+        int offset = 0;
+        for (Module.Category category : Module.Category.values()) {
+            if (isInside(mouseX, mouseY, posX, posY + 1 + offset, posX + 60, posY + 15 + offset) && button == 0) {
+                selectedCategory = category;
+            }
+            offset += 15;
+        }
+        offset = 0;
+        for (Module m : FALLENClient.INSTANCE.getModuleManager().getModulesInCategory(selectedCategory)) {
+            if (isInside(mouseX, mouseY,posX + 65,posY + 1 + offset,posX + 125,posY + 15 + offset)) {
+                if (button == 0) {
+                    m.toggle();
+                }
+                if (button == 1) {
+                    comps.clear();
+                    int column = 0;
+                    int count = 0;
+                    int maxSettingsPerColumn = 10;
+                    int columnOffsetBase = 275;
+                    int columnOffset = columnOffsetBase;
+                    int yOffset = 3;
+
+                    if (FALLENClient.INSTANCE.getSettingManager().getSettingsByMod(m) != null) {
+                        for (Setting setting : FALLENClient.INSTANCE.getSettingManager().getSettingsByMod(m)) {
+                            selectedModule = m;
+
+                            if (count >= maxSettingsPerColumn) {
+                                count = 0;
+                                column++;
+                                columnOffset = columnOffsetBase + column * 150; // Adjust the column spacing as needed
+                                yOffset = 3;
+                            }
+
+                            if (setting.isCombo()) {
+                                comps.add(new Combo(columnOffset, yOffset, this, selectedModule, setting));
+                                yOffset += 15;
+                                count++;
+                            }
+                            if (setting.isCheck()) {
+                                comps.add(new CheckBox(columnOffset, yOffset, this, selectedModule, setting));
+                                yOffset += 15;
+                                count++;
+                            }
+                            if (setting.isSlider()) {
+                                comps.add(new Slider(columnOffset, yOffset, this, selectedModule, setting));
+                                yOffset += 25;
+                                count++;
+                            }
+                            if (setting.isColorPalette()) {
+                                comps.add(new ColorPalette(columnOffset, yOffset, this, selectedModule, setting));
+                                yOffset += 80;
+                                count = count + 3;
+                            }
+                        }
+                    }
+                }
+            }
+            offset += 15;
+        }
+        for (Comp comp : comps) {
+            comp.mouseClicked((int) mouseX, (int) mouseY, button);
+        }
+        return true;
+    }
+
+    @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         if (dragging) {
@@ -253,12 +269,28 @@ public class Clickgui extends Screen {
         // 1701 170 170 = Text RGB
 
         //Gui.drawRect(posX, posY - 10, width, posY, new Color(100,10,100).getRGB());
-        UIUtils.drawRect(posX, posY - 10, width, 10, new Color(primary).getRGB());
-        //Gui.drawRect(posX, posY, width, height, new Color(45,45,45).getRGB());
-        UIUtils.drawRect(posX, posY, width, height, new Color(secondary).getRGB());
 
-        UIUtils.drawRect(posX + width - 2, posY, 2, height, new Color(primary).getRGB());
-        UIUtils.drawRect(posX, posY + height - 2, width, 2, new Color(secondary).getRGB());
+        if (!gradient) {
+            UIUtils.drawRect(posX, posY - 10, width, 10, new Color(primary).getRGB());
+        } else {
+            UIUtils.drawGradientRect(posX, posY - 10, width, 10, new Color(primary).getRGB(), new Color(primaryG).getRGB());
+        }
+
+        //Gui.drawRect(posX, posY, width, height, new Color(45,45,45).getRGB());
+
+        if (!gradient) {
+            UIUtils.drawRect(posX, posY, width, height, new Color(secondary).getRGB());
+        } else {
+            UIUtils.drawGradientRect(posX, posY, width, height, new Color(secondary).getRGB(), new Color(secondaryG).getRGB());
+        }
+
+        if (!gradient) {
+            UIUtils.drawRect(posX + width - 2, posY, 2, height, new Color(primary).getRGB());
+            UIUtils.drawRect(posX, posY + height - 2, width, 2, new Color(secondary).getRGB());
+        } else {
+            UIUtils.drawGradientRect(posX + width - 2, posY, 2, height, new Color(primary).getRGB(), new Color(primaryG).getRGB());
+            UIUtils.drawGradientRect(posX, posY + height - 2, width, 2, new Color(secondary).getRGB(), new Color(secondaryG).getRGB());
+        }
 
         UIUtils.drawTextOnScreen("Fallen", (int) posX + 2, (int) (posY - 8), Color.CYAN.getRGB());
 
@@ -268,6 +300,9 @@ public class Clickgui extends Screen {
 
         Calendar calendar = Calendar.getInstance();
         UIUtils.drawTextOnScreen(calendar.getTime().toString(), (int) ((int) posX + width - 160), (int) (posY - 8), new Color(textRGB).getRGB());
+
+        // Format the time as hours:minutes:seconds
+        UIUtils.drawTextOnScreen(convertTicksToHMS(Minecraft.getInstance().player.ticksExisted), (int) ((int) posX + width - 280), (int) (posY - 8), new Color(textRGB).getRGB());
 
         int offset = 0;
         for (Module.Category category : Module.Category.values()) {

@@ -16,8 +16,12 @@ import java.util.Arrays;
 public class ClickGuiHack extends Module {
 
     private static Setting primary;
+    private static Setting primaryG;
+
+    private static Setting gradient;
 
     private static Setting secondary;
+    private static Setting secondaryG;
 
     private static Setting text;
 
@@ -30,6 +34,10 @@ public class ClickGuiHack extends Module {
 
         secondary = new Setting("Secondary", this, new Color(45, 0, 255).getRGB());
 
+        primaryG = new Setting("PrimaryG", this, new Color(0, 0, 0).getRGB());
+
+        secondaryG = new Setting("SecondaryG", this, new Color(0, 0, 0).getRGB());
+
         text = new Setting("Text", this, new Color(170, 0, 255).getRGB());
 
         prefix = new Setting("Prefix", "Prefix", this, "dot", new ArrayList<>(Arrays.asList("dot", "minus")));
@@ -37,6 +45,14 @@ public class ClickGuiHack extends Module {
         addSetting(primary);
 
         addSetting(secondary);
+
+        gradient = new Setting("Gradient", this, false);
+
+        addSetting(gradient);
+
+        addSetting(primaryG);
+
+        addSetting(secondaryG);
 
         addSetting(text);
 
@@ -75,6 +91,9 @@ public class ClickGuiHack extends Module {
             FALLENClient.INSTANCE.getClickgui().primary = (int) primary.dval;
             FALLENClient.INSTANCE.getClickgui().secondary = (int) secondary.dval;
             FALLENClient.INSTANCE.getClickgui().textRGB = (int) text.dval;
+            FALLENClient.INSTANCE.getClickgui().gradient = gradient.bval;
+            FALLENClient.INSTANCE.getClickgui().primaryG = (int) primaryG.dval;
+            FALLENClient.INSTANCE.getClickgui().secondaryG = (int) secondaryG.dval;
 
             FALLENClient.INSTANCE.getCommandManager().prefix = prefix.sval == "minus" ? "-" : ".";
 
