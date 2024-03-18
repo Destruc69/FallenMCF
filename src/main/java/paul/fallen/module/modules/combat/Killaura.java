@@ -60,8 +60,8 @@ public final class Killaura extends Module {
                         mc.playerController.attackEntity(mc.player, entity);
                         mc.player.swingArm(Hand.MAIN_HAND);
 
-                        mc.player.rotationYawHead = currentStrictYaw;
-                        mc.player.renderYawOffset = currentStrictYaw;
+                        mc.player.rotationYawHead = rot[0];
+                        mc.player.renderYawOffset = rot[0];
                     }
                 } else if (rotationMethod.sval.equalsIgnoreCase("strict")) {
                     interpolateRotation(rot[0], rot[1]);
@@ -70,7 +70,7 @@ public final class Killaura extends Module {
                     mc.player.rotationYawHead = currentStrictYaw;
                     mc.player.renderYawOffset = currentStrictYaw;
 
-                    if (currentStrictYaw == rot[0] && currentStrictPitch == rot[1]) {
+                    if (Math.round(currentStrictYaw) == Math.round(rot[0]) && Math.round(currentStrictPitch) == Math.round(rot[1])) {
                         if (mc.player.ticksExisted % 10 == 0) {
                             mc.playerController.attackEntity(mc.player, entity);
                             mc.player.swingArm(Hand.MAIN_HAND);
