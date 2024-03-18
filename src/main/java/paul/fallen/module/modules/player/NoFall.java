@@ -40,5 +40,3 @@ public final class NoFall extends Module {
         }
     }
 }
-
-

@@ -9,6 +9,7 @@ import paul.fallen.command.CommandManager;
 import paul.fallen.events.GuiTweaks;
 import paul.fallen.friend.FriendManager;
 import paul.fallen.module.ModuleManager;
+import paul.fallen.module.modules.player.Timer;
 import paul.fallen.music.MusicManager;
 import paul.fallen.packetevent.ChannelHandlerInput;
 import paul.fallen.setting.SettingManager;

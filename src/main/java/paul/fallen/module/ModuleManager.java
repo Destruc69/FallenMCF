@@ -38,6 +38,9 @@ public class ModuleManager implements ClientSupport {
 	public ClickGuiHack clickGuiHack;
 	public Pathfinder pathfinder;
 
+	// For modules that use mixins
+	public Timer timer;
+
 	public ModuleManager() {
 		MinecraftForge.EVENT_BUS.register(this);
 
@@ -105,7 +108,11 @@ public class ModuleManager implements ClientSupport {
 		addModule(new HideMyAss(0, "HideMyAss", "HideMyAss", Category.Player));
 		addModule(new MoreInv(0, "MoreInv", "MoreInv", Category.Player));
 		addModule(new NoFall(0, "NoFall", "NoFall", Category.Player));
-		addModule(new Timer(0, "Timer", "Timer", Category.Player));
+
+		timer = new Timer(0, "Timer", "Timer", Category.Player);
+		addModule(timer);
+
+
 		addModule(new AntiForge(0, "AntiForge", "AntiForge", Category.Player));
 		addModule(new ServerCrasher(0, "ServerCrasher", "ServerCrasher", Category.Player));
 
