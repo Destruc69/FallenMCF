@@ -31,10 +31,13 @@ public class Tones extends Module {
 
     @Override
     public void onDisable() {
-        super.onDisable();
+        try {
+            super.onDisable();
 
-        if (track.isPlaying) {
-            track.stop();
+            if (track.isPlaying) {
+                track.stop();
+            }
+        } catch (Exception ignored) {
         }
     }
 
