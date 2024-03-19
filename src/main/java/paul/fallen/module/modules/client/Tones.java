@@ -29,6 +29,15 @@ public class Tones extends Module {
         addSetting(shuffle);
     }
 
+    @Override
+    public void onDisable() {
+        super.onDisable();
+
+        if (track.isPlaying) {
+            track.stop();
+        }
+    }
+
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         try {
@@ -95,5 +104,4 @@ public class Tones extends Module {
         UIUtils.drawTextOnScreen(text, x, y, color.getRGB());
         GL11.glPopMatrix();
     }
-
 }

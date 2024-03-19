@@ -8,10 +8,8 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import org.lwjgl.glfw.GLFW;
 import paul.fallen.module.Module;
 import paul.fallen.pathfinder.AStarCustomPathFinder;
 import paul.fallen.utils.entity.RotationUtils;
@@ -28,8 +26,6 @@ public class AutoMine extends Module {
 
     private BlockPos posA;
     private BlockPos posB;
-
-    private boolean hasShifted = false;
 
     public AutoMine(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
@@ -48,16 +44,14 @@ public class AutoMine extends Module {
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         try {
             if (!started) {
-                BlockPos blockPos = mc.player.getPosition().down();
+                BlockPos blockPos = new BlockPos(mc.objectMouseOver.getHitVec());
                 if (posA.getX() == 0 && posB.getX() == 0 && posA.getZ() == 0 && posB.getZ() == 0) {
-                    if (hasShifted) {
+                    if (mc.playerController.getIsHittingBlock()) {
                         posA = blockPos;
-                        hasShifted = false;
                     }
                 } else if (posA.getX() != 0 && posB.getX() == 0 && posA.getZ() != 0 && posB.getZ() == 0) {
-                    if (hasShifted) {
+                    if (mc.playerController.getIsHittingBlock()) {
                         posB = blockPos;
-                        hasShifted = false;
                     }
                 } else if (posA.getX() != 0 && posB.getX() != 0 && posA.getZ() != 0 && posB.getZ() != 0) {
                     started = true;
@@ -87,11 +81,6 @@ public class AutoMine extends Module {
             }
         } catch (Exception ignored) {
         }
-    }
-
-    @SubscribeEvent
-    public void onInput(InputEvent.KeyInputEvent event) {
-        hasShifted = event.getKey() == GLFW.GLFW_KEY_LEFT_SHIFT;
     }
 
     private ArrayList<BlockPos> sortBlockPosByY(ArrayList<BlockPos> blockPosList) {
