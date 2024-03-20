@@ -7,9 +7,11 @@ import com.google.gson.reflect.TypeToken;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.glfw.GLFW;
 import paul.fallen.ClientSupport;
+import paul.fallen.FALLENClient;
 import paul.fallen.module.Module.Category;
 import paul.fallen.module.modules.client.ClickGuiHack;
 import paul.fallen.module.modules.client.FallenLanguage;
@@ -25,6 +27,7 @@ import paul.fallen.module.modules.world.*;
 import paul.fallen.utils.client.Logger;
 import paul.fallen.utils.client.Logger.LogState;
 
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.*;
 import java.util.ArrayList;
@@ -138,6 +141,36 @@ public class ModuleManager implements ClientSupport {
 		addModule(new AutoHighway(0, "AutoHighway", "AutoHighway", Category.World));
 		addModule(new OverKill(0, "OverKill", "OverKill", Category.World));
 		addModule(new FastBreak(0, "FastBreak", "FastBreak", Category.World));
+	}
+
+	@SubscribeEvent
+	public void onTickEvent(TickEvent event) {
+
+		//
+		//  For ClickGUI
+		//
+
+		try {
+			FALLENClient.INSTANCE.getClickgui().primary = (int) FALLENClient.INSTANCE.getModuleManager().clickGuiHack.primary.dval;
+			FALLENClient.INSTANCE.getClickgui().secondary = (int) FALLENClient.INSTANCE.getModuleManager().clickGuiHack.secondary.dval;
+			FALLENClient.INSTANCE.getClickgui().textRGB = (int) FALLENClient.INSTANCE.getModuleManager().clickGuiHack.text.dval;
+			FALLENClient.INSTANCE.getClickgui().gradient = FALLENClient.INSTANCE.getModuleManager().clickGuiHack.gradient.bval;
+			FALLENClient.INSTANCE.getClickgui().primaryG = (int) FALLENClient.INSTANCE.getModuleManager().clickGuiHack.primaryG.dval;
+			FALLENClient.INSTANCE.getClickgui().secondaryG = (int) FALLENClient.INSTANCE.getModuleManager().clickGuiHack.secondaryG.dval;
+
+			FALLENClient.INSTANCE.getCommandManager().prefix = FALLENClient.INSTANCE.getModuleManager().clickGuiHack.prefix.sval == "minus" ? "-" : ".";
+
+			// Set to default
+			if (FALLENClient.INSTANCE.getClickgui().primary == FALLENClient.INSTANCE.getClickgui().secondary) {
+				//FALLENClient.INSTANCE.getSettingManager().getSettingByName("primary", FALLENClient.INSTANCE.getModuleManager().clickGuiHack).setValDouble(new Color(100, 0, 255).getRGB());
+				//FALLENClient.INSTANCE.getSettingManager().getSettingByName("secondary", FALLENClient.INSTANCE.getModuleManager().clickGuiHack).setValDouble(new Color(45, 0, 255).getRGB());
+
+				FALLENClient.INSTANCE.getModuleManager().clickGuiHack.primary.setValDouble(new Color(100, 0, 255).getRGB());
+				FALLENClient.INSTANCE.getModuleManager().clickGuiHack.secondary.setValDouble(new Color(45, 0, 255).getRGB());
+
+			}
+		} catch (Exception ignored) {
+		}
 	}
 
 	public ArrayList<Module> getModules() {

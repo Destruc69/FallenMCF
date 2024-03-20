@@ -1,9 +1,5 @@
 package paul.fallen.module.modules.client;
 
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import org.lwjgl.glfw.GLFW;
 import paul.fallen.ClientSupport;
 import paul.fallen.FALLENClient;
 import paul.fallen.module.Module;
@@ -15,17 +11,17 @@ import java.util.Arrays;
 
 public class ClickGuiHack extends Module {
 
-    private static Setting primary;
-    private static Setting primaryG;
+    public Setting primary;
+    public Setting primaryG;
 
-    private static Setting gradient;
+    public Setting gradient;
 
-    private static Setting secondary;
-    private static Setting secondaryG;
+    public Setting secondary;
+    public Setting secondaryG;
 
-    private static Setting text;
+    public Setting text;
 
-    private static Setting prefix;
+    public Setting prefix;
 
     public ClickGuiHack(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
@@ -56,10 +52,7 @@ public class ClickGuiHack extends Module {
 
         addSetting(text);
 
-        // I just put the setting in clickgui settings for now
         addSetting(prefix);
-
-        setState(true);
     }
 
     @Override
@@ -68,51 +61,8 @@ public class ClickGuiHack extends Module {
             super.onEnable();
             ClientSupport.mc.displayGuiScreen(FALLENClient.INSTANCE.getClickgui());
 
-            // Set to default
-            if (FALLENClient.INSTANCE.getClickgui().primary == FALLENClient.INSTANCE.getClickgui().secondary) {
-                //FALLENClient.INSTANCE.getSettingManager().getSettingByName("primary", FALLENClient.INSTANCE.getModuleManager().clickGuiHack).setValDouble(new Color(100, 0, 255).getRGB());
-                //FALLENClient.INSTANCE.getSettingManager().getSettingByName("secondary", FALLENClient.INSTANCE.getModuleManager().clickGuiHack).setValDouble(new Color(45, 0, 255).getRGB());
-
-                primary.setValDouble(new Color(100, 0, 255).getRGB());
-                secondary.setValDouble(new Color(45, 0, 255).getRGB());
-            }
-        } catch (Exception ignored) {
-        }
-    }
-
-    @Override
-    public void onDisable() {
-        super.onDisable();
-    }
-
-    @SubscribeEvent
-    public void onTick(TickEvent event) {
-        try {
-            FALLENClient.INSTANCE.getClickgui().primary = (int) primary.dval;
-            FALLENClient.INSTANCE.getClickgui().secondary = (int) secondary.dval;
-            FALLENClient.INSTANCE.getClickgui().textRGB = (int) text.dval;
-            FALLENClient.INSTANCE.getClickgui().gradient = gradient.bval;
-            FALLENClient.INSTANCE.getClickgui().primaryG = (int) primaryG.dval;
-            FALLENClient.INSTANCE.getClickgui().secondaryG = (int) secondaryG.dval;
-
-            FALLENClient.INSTANCE.getCommandManager().prefix = prefix.sval == "minus" ? "-" : ".";
-
-            if (!(mc.currentScreen == FALLENClient.INSTANCE.getClickgui())) {
-                setState(false);
-                onDisable();
-            }
-        } catch (Exception ignored) {
-        }
-    }
-
-    @SubscribeEvent
-    public void onKeyPress(InputEvent.KeyInputEvent event) {
-        try {
-            if (event.getKey() == GLFW.GLFW_KEY_ESCAPE) {
-                ClientSupport.mc.currentScreen.closeScreen();
-                setState(false);
-                onDisable();
-            }
+            onDisable();
+            setState(false);
         } catch (Exception ignored) {
         }
     }

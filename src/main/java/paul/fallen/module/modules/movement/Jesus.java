@@ -13,7 +13,7 @@ public class Jesus extends Module {
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         try {
-            // TODO: THIS
+
         } catch (Exception ignored) {
         }
     }
