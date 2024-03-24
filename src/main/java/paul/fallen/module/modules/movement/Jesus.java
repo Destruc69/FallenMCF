@@ -20,7 +20,7 @@ public class Jesus extends Module {
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         try {
             PlayerEntity player = event.player;
-            BlockPos blockPos = new BlockPos(player.getPosX(), player.getPosY() - 0.01, player.getPosZ());
+            BlockPos blockPos = new BlockPos(player.getPosX(), player.getPosY() - 0.0000001, player.getPosZ());
 
             if (player.world.getBlockState(blockPos).getBlock().equals(Blocks.WATER)) {
                 // Check if the block above is air, indicating the player is above the water surface
@@ -29,6 +29,8 @@ public class Jesus extends Module {
                     player.setMotion(player.getMotion().x, 0.0, player.getMotion().z);
                     player.jumpMovementFactor = 0.05f; // Adjust jump speed
                     player.setOnGround(true); // Trick the game into thinking the player is on the ground
+                    player.collidedVertically = true;
+                    player.setSwimming(false);
                 }
             }
         } catch (Exception ignored) {
