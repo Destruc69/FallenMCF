@@ -21,6 +21,37 @@ public class UIUtils implements ClientSupport {
         fontRenderer.drawString(new MatrixStack(), text, x, y, color);
     }
 
+    // Method to draw a line between two points using rectangles
+    public static void drawLine(int x1, int y1, int x2, int y2, int color) {
+        int dx = Math.abs(x2 - x1);
+        int dy = Math.abs(y2 - y1);
+        int sx = x1 < x2 ? 1 : -1;
+        int sy = y1 < y2 ? 1 : -1;
+        int err = dx - dy;
+
+        while (x1 != x2 || y1 != y2) {
+            drawRect(x1, y1, 1, 1, color);
+            int e2 = 2 * err;
+            if (e2 > -dy) {
+                err -= dy;
+                x1 += sx;
+            }
+            if (e2 < dx) {
+                err += dx;
+                y1 += sy;
+            }
+        }
+    }
+
+    public static void drawCircle(int centerX, int centerY, int radius, int color) {
+        for (int x = centerX - radius; x <= centerX + radius; x++) {
+            for (int y = centerY - radius; y <= centerY + radius; y++) {
+                if ((x - centerX) * (x - centerX) + (y - centerY) * (y - centerY) <= radius * radius) {
+                    drawRect(x, y, 1, 1, color);
+                }
+            }
+        }
+    }
 
     // Method to draw a filled rectangle on the screen
     public static void drawRect(int x, int y, int width, int height, int color) {

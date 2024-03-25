@@ -1,5 +1,13 @@
 package paul.fallen.module.modules.render;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.entity.passive.WaterMobEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
@@ -17,6 +25,9 @@ public class HUD extends Module {
 	private final Setting watermark;
 	private final Setting arrayList;
 	private final Setting coords;
+	private static final int RADAR_SIZE = 150; // Size of the radar square
+	private static final ResourceLocation RADAR_TEXTURE = new ResourceLocation("textures/map/map_background.png"); // Radar texture
+	private final Setting radar;
 
 	public HUD(int bind, String name, Category category) {
 		super(bind, name, category);
@@ -25,9 +36,11 @@ public class HUD extends Module {
 		watermark = new Setting("Watermark", this, true);
 		arrayList = new Setting("ArrayList", this, true);
 		coords = new Setting("Coords", this, true);
+		radar = new Setting("Radar", this, false);
 		FALLENClient.INSTANCE.getSettingManager().addSetting(watermark);
 		FALLENClient.INSTANCE.getSettingManager().addSetting(arrayList);
 		FALLENClient.INSTANCE.getSettingManager().addSetting(coords);
+		FALLENClient.INSTANCE.getSettingManager().addSetting(radar);
 	}
 
 	static class NameLengthComparator implements Comparator<Module> {
@@ -40,43 +53,146 @@ public class HUD extends Module {
 	@SubscribeEvent
 	public void onRenderHUD(RenderGameOverlayEvent.Post event) {
 		try {
-			if (watermark.bval) {
-				drawText("Fallen", 2, 2, new Color(FALLENClient.INSTANCE.getClickgui().textRGB), 2);
-			}
-			if (arrayList.bval) {
-				ArrayList<Module> moduleArrayList = FALLENClient.INSTANCE.getModuleManager().getModulesForArrayList();
-				moduleArrayList.sort(new NameLengthComparator().reversed());
+			if (event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
+				if (watermark.bval) {
+					drawText("Fallen", 2, 2, new Color(FALLENClient.INSTANCE.getClickgui().textRGB), 2);
+				}
+				if (arrayList.bval) {
+					ArrayList<Module> moduleArrayList = FALLENClient.INSTANCE.getModuleManager().getModulesForArrayList();
+					moduleArrayList.sort(new NameLengthComparator().reversed());
 
-				int y = 22;
-				for (Module module : moduleArrayList) {
-					if (module.getCategory() == Category.Combat) {
-						drawText(module.getDisplayName(), 2, y, Color.RED);
-					} else if (module.getCategory() == Category.Render) {
-						drawText(module.getDisplayName(), 2, y, Color.GREEN);
-					} else if (module.getCategory() == Category.Movement) {
-						drawText(module.getDisplayName(), 2, y, Color.BLUE);
-					} else if (module.getCategory() == Category.Player) {
-						drawText(module.getDisplayName(), 2, y, Color.ORANGE);
-					} else if (module.getCategory() == Category.World) {
-						drawText(module.getDisplayName(), 2, y, Color.YELLOW);
-					} else if (module.getCategory() == Category.Pathing) {
-						drawText(module.getDisplayName(), 2, y, Color.PINK);
+					int y = 22;
+					for (Module module : moduleArrayList) {
+						if (module.getCategory() == Category.Combat) {
+							drawText(module.getDisplayName(), 2, y, Color.RED);
+						} else if (module.getCategory() == Category.Render) {
+							drawText(module.getDisplayName(), 2, y, Color.GREEN);
+						} else if (module.getCategory() == Category.Movement) {
+							drawText(module.getDisplayName(), 2, y, Color.BLUE);
+						} else if (module.getCategory() == Category.Player) {
+							drawText(module.getDisplayName(), 2, y, Color.ORANGE);
+						} else if (module.getCategory() == Category.World) {
+							drawText(module.getDisplayName(), 2, y, Color.YELLOW);
+						} else if (module.getCategory() == Category.Pathing) {
+							drawText(module.getDisplayName(), 2, y, Color.PINK);
+						}
+						y += 12;
 					}
-					y += 12;
 				}
-			}
 
-			if (coords.bval) {
-				String coordString = Math.round(mc.player.lastTickPosX) + " " + Math.round(mc.player.lastTickPosY) + " " + Math.round(mc.player.lastTickPosZ);
-				drawText(coordString, 25 + mc.fontRenderer.getStringWidth(coordString), 10, Color.WHITE);
+				if (coords.bval) {
+					String coordString = Math.round(mc.player.lastTickPosX) + " " + Math.round(mc.player.lastTickPosY) + " " + Math.round(mc.player.lastTickPosZ);
+					drawText(coordString, 25 + mc.fontRenderer.getStringWidth(coordString), 10, Color.WHITE);
 
-				StringBuilder stringBuilder = new StringBuilder();
-				for (int i = 0; i < coordString.length(); i++) {
-					stringBuilder.append("_");
+					StringBuilder stringBuilder = new StringBuilder();
+					for (int i = 0; i < coordString.length(); i++) {
+						stringBuilder.append("_");
+					}
+					drawText(stringBuilder.toString(), 25 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
+					drawText(stringBuilder.toString(), 26 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
+					drawText(stringBuilder.toString(), 24 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
 				}
-				drawText(stringBuilder.toString(), 25 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
-				drawText(stringBuilder.toString(), 26 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
-				drawText(stringBuilder.toString(), 24 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
+				if (radar.bval) {
+					Minecraft mc = Minecraft.getInstance();
+					int screenWidth = mc.getMainWindow().getScaledWidth();
+
+					// Calculate player's rotation
+					float playerYaw = mc.player.rotationYaw;
+
+					// Draw radar texture
+					mc.getTextureManager().bindTexture(RADAR_TEXTURE);
+					int radarX = screenWidth - 80 - RADAR_SIZE / 2;
+					int radarY = 2;
+					UIUtils.drawCustomSizedTexture(RADAR_TEXTURE, radarX, radarY, 0, 0, RADAR_SIZE, RADAR_SIZE, RADAR_SIZE, RADAR_SIZE);
+
+					// Draw player arrow
+					int arrowX = radarX + RADAR_SIZE / 2;
+					int arrowY = radarY + RADAR_SIZE / 2;
+
+					//mc.textureManager.bindTexture(getEntityFaceSkin(mc.player));
+					//UIUtils.drawCustomSizedTexture(getEntityFaceSkin(mc.player), arrowX - 2, arrowY - 2, 0, 0, 10, 10, 10, 10);
+					//UIUtils.drawRect(arrowX - 2, arrowY - 2, 6, 6, Color.WHITE.getRGB());
+
+					// Draw other entities on radar
+					for (Entity entity : mc.world.getAllEntities()) {
+						if (entity != null && !(entity == mc.player)) {
+							double relativeX = entity.getPosX() - mc.player.getPosX();
+							double relativeZ = entity.getPosZ() - mc.player.getPosZ();
+							double angle = MathHelper.atan2(relativeZ, relativeX) - Math.toRadians(playerYaw - 180);
+							double distance = Math.sqrt(relativeX * relativeX + relativeZ * relativeZ)
+									* 1.5;
+
+							// Calculate position on radar
+							int entityRadarX = (int) (arrowX + distance * Math.cos(angle));
+							int entityRadarY = (int) (arrowY + distance * Math.sin(angle));
+
+							//mc.textureManager.bindTexture(getEntityFaceSkin(entity));
+							//UIUtils.drawCustomSizedTexture(getEntityFaceSkin(entity), entityRadarX - 2, entityRadarY - 2, 0, 0, 10, 10, 10, 10);
+							if (entity instanceof MobEntity) {
+								//UIUtils.drawRect(entityRadarX - 2, entityRadarY - 2, 4, 4, Color.RED.getRGB());
+								UIUtils.drawCircle(entityRadarX - 2, entityRadarY - 2, 1, Color.RED.getRGB());
+							} else if (entity instanceof AnimalEntity) {
+								//UIUtils.drawRect(entityRadarX - 2, entityRadarY - 2, 4, 4, Color.GREEN.getRGB());
+								UIUtils.drawCircle(entityRadarX - 2, entityRadarY - 2, 1, Color.GREEN.getRGB());
+							} else if (entity instanceof WaterMobEntity) {
+								//UIUtils.drawRect(entityRadarX - 2, entityRadarY - 2, 4, 4, Color.BLUE.getRGB());
+								UIUtils.drawCircle(entityRadarX - 2, entityRadarY - 2, 1, Color.BLUE.getRGB());
+							} else if (entity instanceof PlayerEntity) {
+								//UIUtils.drawRect(entityRadarX - 2, entityRadarY - 2, 4, 4, Color.ORANGE.getRGB());
+								UIUtils.drawCircle(entityRadarX - 2, entityRadarY - 2, 2, Color.WHITE.getRGB());
+							} else {
+								UIUtils.drawCircle(entityRadarX - 2, entityRadarY - 2, 1, Color.YELLOW.getRGB());
+							}
+						}
+					}
+
+					//UIUtils.drawRect(arrowX - 2, arrowY - 2, 6, 6, Color.WHITE.getRGB());
+					UIUtils.drawCircle(arrowX - 2, arrowY - 2, 2, Color.WHITE.getRGB());
+
+
+					// Draw line with marks indicating rotation yaw
+					int marksCount = 8; // Number of marks
+					int markLength = 5; // Length of each mark
+					int markSpacing = 20; // Spacing between marks
+					int lineLength = markSpacing * (marksCount - 1); // Total length of line
+
+					// Draw the line
+					int startX = arrowX - lineLength / 2;
+					int endX = startX + lineLength;
+					int lineY = arrowY + RADAR_SIZE / 2 + 5; // Position below the radar
+					UIUtils.drawLine(startX, lineY, endX, lineY, Color.WHITE.getRGB());
+
+					// Draw marks
+					for (int i = 0; i < marksCount; i++) {
+						int markX = startX + i * markSpacing;
+						UIUtils.drawLine(markX, lineY - markLength / 2, markX, lineY + markLength / 2, Color.WHITE.getRGB());
+					}
+
+					// Adjust playerYaw if it exceeds 360 or goes below 0
+					if (playerYaw > 360) {
+						playerYaw %= 360;
+					} else if (playerYaw < 0) {
+						playerYaw += 360;
+					}
+
+					// Calculate the player's yaw position on the line
+					int playerMarkX = startX + (int) ((playerYaw % 360) / 360.0 * lineLength);
+					if (playerMarkX < startX) {
+						playerMarkX = startX + lineLength - (startX - playerMarkX);
+					} else if (playerMarkX > endX) {
+						playerMarkX = endX - (playerMarkX - endX);
+					}
+
+					// Draw the current rotation yaw mark
+					UIUtils.drawLine(playerMarkX, lineY - markLength, playerMarkX, lineY + markLength, Color.RED.getRGB());
+
+					// Display the current yaw value
+					String yawText = "Yaw: " + String.format("%.2f", playerYaw);
+					int textWidth = mc.fontRenderer.getStringWidth(yawText);
+					int textX = arrowX - textWidth / 2;
+					int textY = lineY + markLength + 5; // Below the line marks
+					UIUtils.drawTextOnScreen(yawText, textX, textY, Color.WHITE.getRGB());
+				}
 			}
 		} catch (Exception ignored) {
 		}
