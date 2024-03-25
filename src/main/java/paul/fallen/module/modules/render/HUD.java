@@ -85,7 +85,7 @@ public class HUD extends Module {
 				if (coords.bval) {
 					int screenWidth = mc.getMainWindow().getScaledWidth();
 					int screenHeight = mc.getMainWindow().getScaledHeight();
-					if (mc.world.getDimensionKey() == World.OVERWORLD) {
+					if (mc.world.getDimensionKey() == World.OVERWORLD || mc.world.getDimensionKey() == World.THE_END) {
 						double netherX = Math.round(mc.player.getPosX() / 8);
 						double netherZ = Math.round(mc.player.getPosZ() / 8);
 						drawText(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + netherX + "] " + " [" + netherZ + "]", screenWidth - 5 - mc.fontRenderer.getStringWidth(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + netherX + "] " + " [" + netherZ + "]"), screenHeight - 10, new Color(FALLENClient.INSTANCE.getClickgui().textRGB));
@@ -123,8 +123,7 @@ public class HUD extends Module {
 							double relativeX = entity.getPosX() - mc.player.getPosX();
 							double relativeZ = entity.getPosZ() - mc.player.getPosZ();
 							double angle = MathHelper.atan2(relativeZ, relativeX) - Math.toRadians(playerYaw - 180);
-							double distance = Math.sqrt(relativeX * relativeX + relativeZ * relativeZ)
-									* 1.2;
+							double distance = Math.sqrt(relativeX * relativeX + relativeZ * relativeZ);
 
 							// Calculate position on radar
 							int entityRadarX = (int) (arrowX + distance * Math.cos(angle));
