@@ -8,6 +8,8 @@ import net.minecraft.entity.passive.WaterMobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.DimensionType;
+import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
@@ -25,7 +27,7 @@ public class HUD extends Module {
 	private final Setting watermark;
 	private final Setting arrayList;
 	private final Setting coords;
-	private static final int RADAR_SIZE = 150; // Size of the radar square
+	private static final int RADAR_SIZE = 110; // Size of the radar square
 	private static final ResourceLocation RADAR_TEXTURE = new ResourceLocation("textures/map/map_background.png"); // Radar texture
 	private final Setting radar;
 
@@ -81,17 +83,19 @@ public class HUD extends Module {
 				}
 
 				if (coords.bval) {
-					String coordString = Math.round(mc.player.lastTickPosX) + " " + Math.round(mc.player.lastTickPosY) + " " + Math.round(mc.player.lastTickPosZ);
-					drawText(coordString, 25 + mc.fontRenderer.getStringWidth(coordString), 10, Color.WHITE);
-
-					StringBuilder stringBuilder = new StringBuilder();
-					for (int i = 0; i < coordString.length(); i++) {
-						stringBuilder.append("_");
+					int screenWidth = mc.getMainWindow().getScaledWidth();
+					int screenHeight = mc.getMainWindow().getScaledHeight();
+					if (mc.world.getDimensionKey() == World.OVERWORLD) {
+						double netherX = Math.round(mc.player.getPosX() / 8);
+						double netherZ = Math.round(mc.player.getPosZ() / 8);
+						drawText(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + netherX + "] " + " [" + netherZ + "]", screenWidth - 5 - mc.fontRenderer.getStringWidth(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + netherX + "] " + " [" + netherZ + "]"), screenHeight - 10, new Color(FALLENClient.INSTANCE.getClickgui().textRGB));
+					} else if (mc.world.getDimensionKey() == World.THE_NETHER) {
+						double overworldX = Math.round(mc.player.getPosX() * 8);
+						double overworldZ = Math.round(mc.player.getPosZ() * 8);
+						drawText(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + overworldX + "] " + " [" + overworldZ + "]", screenWidth - 5 - mc.fontRenderer.getStringWidth(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + overworldX + "] " + " [" + overworldZ + "]"), screenHeight - 10, new Color(FALLENClient.INSTANCE.getClickgui().textRGB));
 					}
-					drawText(stringBuilder.toString(), 25 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
-					drawText(stringBuilder.toString(), 26 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
-					drawText(stringBuilder.toString(), 24 + mc.fontRenderer.getStringWidth(coordString), 11, Color.WHITE);
 				}
+
 				if (radar.bval) {
 					Minecraft mc = Minecraft.getInstance();
 					int screenWidth = mc.getMainWindow().getScaledWidth();
@@ -120,7 +124,7 @@ public class HUD extends Module {
 							double relativeZ = entity.getPosZ() - mc.player.getPosZ();
 							double angle = MathHelper.atan2(relativeZ, relativeX) - Math.toRadians(playerYaw - 180);
 							double distance = Math.sqrt(relativeX * relativeX + relativeZ * relativeZ)
-									* 1.5;
+									* 1.2;
 
 							// Calculate position on radar
 							int entityRadarX = (int) (arrowX + distance * Math.cos(angle));
@@ -148,6 +152,7 @@ public class HUD extends Module {
 
 					//UIUtils.drawRect(arrowX - 2, arrowY - 2, 6, 6, Color.WHITE.getRGB());
 					UIUtils.drawCircle(arrowX - 2, arrowY - 2, 2, Color.WHITE.getRGB());
+
 
 
 					// Draw line with marks indicating rotation yaw

@@ -29,7 +29,7 @@ public class Jesus extends Module {
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         try {
             PlayerEntity player = event.player;
-            BlockPos blockPos = new BlockPos(player.getPosX(), player.getPosY() - 0.0000001, player.getPosZ());
+            BlockPos blockPos = new BlockPos(player.getPosX(), player.getPosY() - 0.000000001, player.getPosZ());
 
             if (player.world.getBlockState(blockPos).getBlock().equals(Blocks.WATER)) {
                 // Check if the block above is air, indicating the player is above the water surface
