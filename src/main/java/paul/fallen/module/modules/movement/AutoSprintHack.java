@@ -18,12 +18,8 @@ public final class AutoSprintHack extends Module {
     }
 
     @SubscribeEvent
-    public void onTick(TickEvent.PlayerTickEvent event) {
+    public void onTick(TickEvent.PlayerTickEvent event) throws Exception {
         try {
-            assert mc.player != null;
-            // Didint work on 2b2t
-            //mc.player.setSprinting(true);
-
             mc.gameSettings.keyBindSprint.setPressed(true);
         } catch (Exception ignored) {
         }

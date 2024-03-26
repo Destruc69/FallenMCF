@@ -1,14 +1,7 @@
 package paul.fallen.module.modules.player;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.play.server.SPlayerPositionLookPacket;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
-import paul.fallen.packetevent.PacketEvent;
 import paul.fallen.setting.Setting;
-import paul.fallen.utils.client.ClientUtils;
-import paul.fallen.utils.entity.PlayerUtils;
 
 public class Timer extends Module {
 

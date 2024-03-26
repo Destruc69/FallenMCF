@@ -15,28 +15,19 @@ import paul.fallen.setting.Setting;
 
 public final class Disabler extends Module {
 
-    private final Setting extra;
-
     public Disabler(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-
-        extra = new Setting("Extra", this, false);
-        addSetting(extra);
     }
 
     @SubscribeEvent
     public void onPacket(PacketEvent event) {
         try {
-            if (event.getPacket() instanceof CConfirmTransactionPacket || event.getPacket() instanceof CKeepAlivePacket) {
+            if (event.getPacket() instanceof CConfirmTransactionPacket ||
+                    event.getPacket() instanceof CAnimateHandPacket ||
+                    event.getPacket() instanceof CEntityActionPacket ||
+                    event.getPacket() instanceof CPlayerDiggingPacket ||
+                    event.getPacket() instanceof CPlayerAbilitiesPacket) {
                 event.setCanceled(true);
-            }
-            if (extra.bval) {
-                if (event.getPacket() instanceof CEntityActionPacket) {
-                    event.setCanceled(true);
-                }
-                if (event.getPacket() instanceof CPlayerPacket) {
-                    mc.player.connection.sendPacket(new CSpectatePacket(mc.player.getUniqueID()));
-                }
             }
         } catch (Exception ignored) {
         }
