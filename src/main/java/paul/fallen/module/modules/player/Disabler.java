@@ -7,16 +7,21 @@
  */
 package paul.fallen.module.modules.player;
 
-import net.minecraft.network.play.client.CConfirmTransactionPacket;
-import net.minecraft.network.play.client.CKeepAlivePacket;
+import net.minecraft.network.play.client.*;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
 import paul.fallen.packetevent.PacketEvent;
+import paul.fallen.setting.Setting;
 
 public final class Disabler extends Module {
 
+    private final Setting extra;
+
     public Disabler(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
+
+        extra = new Setting("Extra", this, false);
+        addSetting(extra);
     }
 
     @SubscribeEvent
@@ -24,6 +29,14 @@ public final class Disabler extends Module {
         try {
             if (event.getPacket() instanceof CConfirmTransactionPacket || event.getPacket() instanceof CKeepAlivePacket) {
                 event.setCanceled(true);
+            }
+            if (extra.bval) {
+                if (event.getPacket() instanceof CEntityActionPacket) {
+                    event.setCanceled(true);
+                }
+                if (event.getPacket() instanceof CPlayerPacket) {
+                    mc.player.connection.sendPacket(new CSpectatePacket(mc.player.getUniqueID()));
+                }
             }
         } catch (Exception ignored) {
         }

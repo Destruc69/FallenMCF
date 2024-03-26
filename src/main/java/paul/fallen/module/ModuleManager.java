@@ -157,7 +157,7 @@ public class ModuleManager implements ClientSupport {
 			FALLENClient.INSTANCE.getClickgui().gradient = FALLENClient.INSTANCE.getModuleManager().clickGuiHack.gradient.bval;
 			FALLENClient.INSTANCE.getClickgui().primaryG = (int) FALLENClient.INSTANCE.getModuleManager().clickGuiHack.primaryG.dval;
 			FALLENClient.INSTANCE.getClickgui().secondaryG = (int) FALLENClient.INSTANCE.getModuleManager().clickGuiHack.secondaryG.dval;
-
+			FALLENClient.INSTANCE.getClickgui().lineNetwork = FALLENClient.INSTANCE.getModuleManager().clickGuiHack.networkLines.bval;
 			FALLENClient.INSTANCE.getCommandManager().prefix = FALLENClient.INSTANCE.getModuleManager().clickGuiHack.prefix.sval == "minus" ? "-" : ".";
 
 			// Set to default

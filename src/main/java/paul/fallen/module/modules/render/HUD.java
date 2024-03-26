@@ -8,7 +8,6 @@ import net.minecraft.entity.passive.WaterMobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -57,11 +56,13 @@ public class HUD extends Module {
 		try {
 			if (event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
 				if (watermark.bval) {
-					drawText("Fallen", 2, 2, new Color(FALLENClient.INSTANCE.getClickgui().textRGB), 2);
+					drawText("Fallen", 2, 2, new Color(FALLENClient.INSTANCE.getModuleManager().clickGuiHack.text.colorval), 2);
 				}
 				if (arrayList.bval) {
 					ArrayList<Module> moduleArrayList = FALLENClient.INSTANCE.getModuleManager().getModulesForArrayList();
 					moduleArrayList.sort(new NameLengthComparator().reversed());
+
+					moduleArrayList.removeIf(Module::isHidden);
 
 					int y = 22;
 					for (Module module : moduleArrayList) {
@@ -88,11 +89,11 @@ public class HUD extends Module {
 					if (mc.world.getDimensionKey() == World.OVERWORLD || mc.world.getDimensionKey() == World.THE_END) {
 						double netherX = Math.round(mc.player.getPosX() / 8);
 						double netherZ = Math.round(mc.player.getPosZ() / 8);
-						drawText(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + netherX + "] " + " [" + netherZ + "]", screenWidth - 5 - mc.fontRenderer.getStringWidth(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + netherX + "] " + " [" + netherZ + "]"), screenHeight - 10, new Color(FALLENClient.INSTANCE.getClickgui().textRGB));
+						drawText(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + netherX + "] " + " [" + netherZ + "]", screenWidth - 5 - mc.fontRenderer.getStringWidth(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + netherX + "] " + " [" + netherZ + "]"), screenHeight - 10, new Color(FALLENClient.INSTANCE.getModuleManager().clickGuiHack.text.colorval));
 					} else if (mc.world.getDimensionKey() == World.THE_NETHER) {
 						double overworldX = Math.round(mc.player.getPosX() * 8);
 						double overworldZ = Math.round(mc.player.getPosZ() * 8);
-						drawText(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + overworldX + "] " + " [" + overworldZ + "]", screenWidth - 5 - mc.fontRenderer.getStringWidth(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + overworldX + "] " + " [" + overworldZ + "]"), screenHeight - 10, new Color(FALLENClient.INSTANCE.getClickgui().textRGB));
+						drawText(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + overworldX + "] " + " [" + overworldZ + "]", screenWidth - 5 - mc.fontRenderer.getStringWidth(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + overworldX + "] " + " [" + overworldZ + "]"), screenHeight - 10, new Color(FALLENClient.INSTANCE.getModuleManager().clickGuiHack.text.colorval));
 					}
 				}
 

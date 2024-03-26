@@ -16,6 +16,7 @@ import paul.fallen.utils.render.UIUtils;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class Clickgui extends Screen {
@@ -36,7 +37,11 @@ public class Clickgui extends Screen {
     public int primaryG;
     public int secondaryG;
 
+    private final ArrayList<Ball> balls = new ArrayList<>();
+
     public int textRGB;
+    private final Random random = new Random();
+    public boolean lineNetwork;
 
     public StringBuilder searchInquiry;
 
@@ -56,6 +61,21 @@ public class Clickgui extends Screen {
         height = height + 200 * 2;
         selectedCategory = Module.Category.Combat;
         searchInquiry = new StringBuilder();
+
+        // Generate initial balls (adjust count and position for desired density)
+        for (int i = 0; i < 50; i++) {
+            balls.add(new Ball(random.nextInt(Minecraft.getInstance().getMainWindow().getScaledWidth()),
+                    random.nextInt(Minecraft.getInstance().getMainWindow().getScaledHeight())));
+        }
+    }
+
+    public static String convertTicksToHMS(int ticks) {
+        long totalMilliseconds = ticks * 50L;
+        long hours = totalMilliseconds / 3600000;
+        long minutes = (totalMilliseconds % 3600000) / 60000;
+        long seconds = ((totalMilliseconds % 3600000) % 60000) / 1000;
+
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 
     @Override
@@ -87,15 +107,6 @@ public class Clickgui extends Screen {
         }
 
         return false;
-    }
-
-    public static String convertTicksToHMS(int ticks) {
-        long totalMilliseconds = ticks * 50L;
-        long hours = totalMilliseconds / 3600000;
-        long minutes = (totalMilliseconds % 3600000) / 60000;
-        long seconds = ((totalMilliseconds % 3600000) % 60000) / 1000;
-
-        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 
     @Override
@@ -198,7 +209,7 @@ public class Clickgui extends Screen {
         }
         offset = 0;
         for (Module m : FALLENClient.INSTANCE.getModuleManager().getModulesInCategory(selectedCategory)) {
-            if (isInside(mouseX, mouseY,posX + 65,posY + 1 + offset,posX + 125,posY + 15 + offset)) {
+            if (isInside(mouseX, mouseY, posX + 65, posY + 1 + offset, posX + 125, posY + 15 + offset)) {
                 if (button == 0) {
                     m.toggle();
                 }
@@ -256,6 +267,9 @@ public class Clickgui extends Screen {
 
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        if (lineNetwork) {
+            renderBackground();
+        }
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         if (dragging) {
             posX = mouseX - dragX;
@@ -337,6 +351,76 @@ public class Clickgui extends Screen {
 
         for (Comp comp : comps) {
             comp.drawScreen(mouseX, mouseY);
+        }
+    }
+
+    private void renderBackground() {
+        // Draw lines and balls
+        for (Ball ball1 : balls) {
+            ball1.tick(); // Update ball position
+            for (Ball ball2 : balls) {
+                if (ball1 != ball2 && isConnected(ball1, ball2)) {
+                    drawLine(ball1.getX(), ball1.getY(), ball2.getX(), ball2.getY());
+                }
+            }
+            drawBall(ball1);
+        }
+    }
+
+    private boolean isConnected(Ball ball1, Ball ball2) {
+        // Define connection criteria (e.g., distance threshold)
+        double distance = Math.sqrt(Math.pow(ball2.getX() - ball1.getX(), 2) + Math.pow(ball2.getY() - ball1.getY(), 2));
+        return distance < 100; // Adjust threshold value for desired connection density
+    }
+
+    private void drawLine(int x1, int y1, int x2, int y2) {
+        UIUtils.drawLine(x1, y1, x2, y2, Color.WHITE.getRGB());
+    }
+
+    private void drawBall(Ball ball) {
+        UIUtils.drawCircle(ball.x, ball.y, (int) ball.getSize(), Color.WHITE.getRGB());
+    }
+
+    public class Ball {
+
+        private final double size;
+        private int x;
+        private int y;
+        private int speedX;
+        private int speedY;
+
+        public Ball(int x, int y) {
+            this.x = x;
+            this.y = y;
+            this.speedX = random.nextInt(4) - 1; // Random number between -2 and 2
+            this.speedY = random.nextInt(4) - 1; // Random number between -2 and 2
+            size = Math.round(Math.random() * 4);
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public int getY() {
+            return y;
+        }
+
+        public double getSize() {
+            return size;
+        }
+
+        public void tick() {
+            // Update ball position
+            x += speedX;
+            y += speedY;
+
+            // Change direction when hitting screen edges
+            if (x <= 0 || x >= Minecraft.getInstance().getMainWindow().getScaledWidth()) {
+                speedX = -speedX;
+            }
+            if (y <= 0 || y >= Minecraft.getInstance().getMainWindow().getScaledHeight()) {
+                speedY = -speedY;
+            }
         }
     }
 }

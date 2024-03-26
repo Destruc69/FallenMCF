@@ -21,6 +21,8 @@ public class ClickGuiHack extends Module {
 
     public Setting text;
 
+    public Setting networkLines;
+
     public Setting prefix;
 
     public ClickGuiHack(int bind, String name, String displayName, Category category) {
@@ -35,6 +37,8 @@ public class ClickGuiHack extends Module {
         secondaryG = new Setting("SecondaryG", this, new Color(0, 0, 0).getRGB());
 
         text = new Setting("Text", this, new Color(170, 0, 255).getRGB());
+
+        networkLines = new Setting("NetworkLines", this, false);
 
         prefix = new Setting("Prefix", "Prefix", this, "dot", new ArrayList<>(Arrays.asList("dot", "minus")));
 
@@ -51,6 +55,8 @@ public class ClickGuiHack extends Module {
         addSetting(secondaryG);
 
         addSetting(text);
+
+        addSetting(networkLines);
 
         addSetting(prefix);
     }

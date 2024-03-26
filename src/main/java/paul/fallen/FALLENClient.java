@@ -8,8 +8,8 @@ import paul.fallen.clickgui.Clickgui;
 import paul.fallen.command.CommandManager;
 import paul.fallen.events.GuiTweaks;
 import paul.fallen.friend.FriendManager;
+import paul.fallen.irc.IRC;
 import paul.fallen.module.ModuleManager;
-import paul.fallen.module.modules.player.Timer;
 import paul.fallen.music.MusicManager;
 import paul.fallen.packetevent.ChannelHandlerInput;
 import paul.fallen.setting.SettingManager;
@@ -31,6 +31,7 @@ public class FALLENClient implements ClientSupport {
     private final MusicManager musicManager;
     private final WaypointManager waypointManager;
     private final Clickgui clickgui;
+    private final IRC irc;
     private final Gson gson;
 
     public FALLENClient() {
@@ -45,6 +46,9 @@ public class FALLENClient implements ClientSupport {
         MinecraftForge.EVENT_BUS.register(new ChannelHandlerInput());
 
         MinecraftForge.EVENT_BUS.register(new GuiTweaks());
+
+        irc = new IRC();
+        MinecraftForge.EVENT_BUS.register(irc);
 
         Logger.log(LogState.Normal, "Initializing Gson with pretty printing");
         this.gson = new GsonBuilder().setPrettyPrinting().create();
@@ -155,5 +159,9 @@ public class FALLENClient implements ClientSupport {
 
     public MusicManager getMusicManager() {
         return this.musicManager;
+    }
+
+    public IRC getIrc() {
+        return this.irc;
     }
 }
