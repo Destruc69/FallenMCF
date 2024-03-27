@@ -8,7 +8,7 @@ import paul.fallen.utils.client.MathUtils;
 
 public final class Speed extends Module {
 
-    private Setting ncp;
+    private final Setting ncp;
 
     private boolean collided;
     private int stage;
@@ -16,6 +16,10 @@ public final class Speed extends Module {
     private double less;
     private boolean lessSlow;
     private double speed;
+
+    private int stageOG;
+    private double lastDistOG;
+    private double moveSpeedOG;
 
     public Speed(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
@@ -59,10 +63,7 @@ public final class Speed extends Module {
                         }
 
                         less++;
-                        if (less > 1 && !lessSlow)
-                            lessSlow = true;
-                        else
-                            lessSlow = false;
+                        lessSlow = less > 1 && !lessSlow;
                         if (less > 1.12)
                             less = 1.12;
                     }
@@ -89,11 +90,6 @@ public final class Speed extends Module {
                     ++stage;
                 }
             } else {
-                if (mc.player.moveForward != 0) {
-                    if (mc.player.isOnGround()) {
-                        mc.player.jump();
-                    }
-                }
             }
         } catch (Exception ignored) {
         }

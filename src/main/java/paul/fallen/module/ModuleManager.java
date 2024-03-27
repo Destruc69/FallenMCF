@@ -83,7 +83,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new AutoMove(0, "AutoMove", "AutoMove", Category.Movement));
 		addModule(new AutoSneak(0, "AutoSneak", "AutoSneak", Category.Movement));
 		addModule(new AutoSprintHack(0, "AutoSprint", "AutoSprint", Category.Movement));
-		addModule(new AntiAFK(0, "AutoSwim", "AutoSwim", Category.Movement));
+		addModule(new AutoSwimHack(0, "AutoSwim", "AutoSwim", Category.Movement));
 		addModule(new BlinkHack(0, "Blink", "Blink", Category.Movement));
 		addModule(new EntityFlight(0, "EntityFlight", "EntityFlight", Category.Movement));
 		addModule(new EntitySpeed(0, "EntitySpeed", "EntitySpeed", Category.Movement));
@@ -132,6 +132,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new Chams(0, "Chams", "Chams", Category.Render));
 		addModule(new BodySpin(0, "BodySpin", "BodySpin", Category.Render));
 
+		addModule(new FakePlayer(0, "FakePlayer", "FakePlayer", Category.World));
 		addModule(new AntiFog(0, "AntiFog", "AntiFog", Category.World));
 		addModule(new AntiWeather(0, "AntiWeather", "AntiWeather", Category.World));
 		addModule(new AutoMount(0, "AutoMount", "AutoMount", Category.World));

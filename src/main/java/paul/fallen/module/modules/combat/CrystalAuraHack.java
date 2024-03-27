@@ -20,6 +20,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.TickEvent;
@@ -30,7 +31,6 @@ import paul.fallen.utils.client.MathUtils;
 import paul.fallen.utils.entity.EntityUtils;
 import paul.fallen.utils.entity.InventoryUtils;
 import paul.fallen.utils.entity.RotationUtils;
-import paul.fallen.utils.world.BlockUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -286,8 +286,7 @@ public class CrystalAuraHack extends Module {
             mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
 
             // Place the crystal
-            //mc.playerController.processRightClickBlock(mc.player, mc.world, neighbor, side, hitVec, Hand.MAIN_HAND);
-            BlockUtils.placeCrystalOnBlock(neighbor, Hand.MAIN_HAND);
+            mc.playerController.func_217292_a(mc.player, mc.world, Hand.MAIN_HAND, new BlockRayTraceResult(hitVec, Direction.UP, neighbor, false));
             return true;
         }
 
