@@ -18,7 +18,7 @@ public class EntityUtils {
         while (true) {
             assert Minecraft.getInstance().world != null;
             if (!Minecraft.getInstance().world.getBlockState(pos).getBlock().equals(Blocks.AIR)) break;
-            pos = pos.add(0, -1, 0);
+            pos = pos.add(0, -0.1, 0);
             c++;
         }
 

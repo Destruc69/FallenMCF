@@ -26,7 +26,8 @@ public final class Disabler extends Module {
                     event.getPacket() instanceof CAnimateHandPacket ||
                     event.getPacket() instanceof CEntityActionPacket ||
                     event.getPacket() instanceof CPlayerDiggingPacket ||
-                    event.getPacket() instanceof CPlayerAbilitiesPacket) {
+                    event.getPacket() instanceof CPlayerAbilitiesPacket ||
+            event.getPacket() instanceof CClientStatusPacket) {
                 event.setCanceled(true);
             }
         } catch (Exception ignored) {

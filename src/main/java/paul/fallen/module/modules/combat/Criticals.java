@@ -7,6 +7,7 @@
  */
 package paul.fallen.module.modules.combat;
 
+import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.network.play.client.CUseEntityPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -19,28 +20,29 @@ import java.util.Arrays;
 
 public final class Criticals extends Module {
 
-    private final Setting mode;
+    private final Setting neww;
 
     public Criticals(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        mode = new Setting("mode", "Mode", this, "bypass", new ArrayList<>(Arrays.asList("bypass", "basic")));
-        addSetting(mode);
+        neww = new Setting("New", this, false);
+        addSetting(neww);
     }
 
     public void doCrits() {
-        double off = 0.0626;
-        assert mc.player != null;
-        double x = mc.player.getPosX();
-        double y = mc.player.getPosY();
-        double z = mc.player.getPosZ();
-        if (mode.sval == "bypass") {
-            mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(x, y + off, z, false));
-            mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(x, y + off + 0.00000000001, z, false));
-            mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(x, y, z, false));
-
-        } else if (mode.sval == "basic") {
-            mc.player.connection.sendPacket(new CPlayerPacket(false));
+        if (neww.bval) {
+            mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX(), mc.player.getPosY() + 0.05000000074505806, mc.player.getPosZ(), false));
+            mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX(), mc.player.getPosY(), mc.player.getPosZ(), false));
+            mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX(), mc.player.getPosY() + 0.012511000037193298, mc.player.getPosZ(), false));
+            mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX(), mc.player.getPosY(), mc.player.getPosZ(), false));
+        } else {
+            mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX(), mc.player.getPosY() + 0.1625, mc.player.getPosZ(), false));
+            mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX(), mc.player.getPosY(), mc.player.getPosZ(), false));
+            mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX(), mc.player.getPosY() + 4.0E-6, mc.player.getPosZ(), false));
+            mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX(), mc.player.getPosY(), mc.player.getPosZ(), false));
+            mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX(), mc.player.getPosY() + 1.0E-6, mc.player.getPosZ(), false));
+            mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX(), mc.player.getPosY(), mc.player.getPosZ(), false));
+            mc.player.connection.sendPacket(new CPlayerPacket());
         }
     }
 

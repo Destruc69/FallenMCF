@@ -13,6 +13,7 @@ import paul.fallen.module.Module;
 import paul.fallen.setting.Setting;
 import paul.fallen.utils.entity.RotationUtils;
 import paul.fallen.utils.render.RenderUtils;
+import paul.fallen.utils.world.BlockUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -76,11 +77,7 @@ public class Nuker extends Module {
 
             BlockPos blockPos = blockPosArrayList.get(0);
 
-            RotationUtils.rotateTo(new Vector3d(blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5));
-
-            mc.player.swingArm(Hand.MAIN_HAND);
-
-            mc.playerController.onPlayerDamageBlock(blockPos, Direction.fromAngle(mc.player.rotationYaw));
+            BlockUtils.breakBlock(blockPos, mc.player.inventory.currentItem, true, true);
 
             targetPosition = blockPos;
         } catch (Exception ignored) {

@@ -56,7 +56,7 @@ public class HUD extends Module {
 		try {
 			if (event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
 				if (watermark.bval) {
-					drawText("Fallen", 2, 2, new Color(FALLENClient.INSTANCE.getModuleManager().clickGuiHack.text.colorval), 2);
+					drawText("Fallen", 2, 2, new Color(FALLENClient.INSTANCE.getClickgui().textRGB), 2);
 				}
 				if (arrayList.bval) {
 					ArrayList<Module> moduleArrayList = FALLENClient.INSTANCE.getModuleManager().getModulesForArrayList();
@@ -89,11 +89,11 @@ public class HUD extends Module {
 					if (mc.world.getDimensionKey() == World.OVERWORLD || mc.world.getDimensionKey() == World.THE_END) {
 						double netherX = Math.round(mc.player.getPosX() / 8);
 						double netherZ = Math.round(mc.player.getPosZ() / 8);
-						drawText(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + netherX + "] " + " [" + netherZ + "]", screenWidth - 5 - mc.fontRenderer.getStringWidth(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + netherX + "] " + " [" + netherZ + "]"), screenHeight - 10, new Color(FALLENClient.INSTANCE.getModuleManager().clickGuiHack.text.colorval));
+						drawText(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + netherX + "] " + " [" + netherZ + "]", screenWidth - 5 - mc.fontRenderer.getStringWidth(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + netherX + "] " + " [" + netherZ + "]"), screenHeight - 10, new Color(FALLENClient.INSTANCE.getClickgui().textRGB));
 					} else if (mc.world.getDimensionKey() == World.THE_NETHER) {
 						double overworldX = Math.round(mc.player.getPosX() * 8);
 						double overworldZ = Math.round(mc.player.getPosZ() * 8);
-						drawText(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + overworldX + "] " + " [" + overworldZ + "]", screenWidth - 5 - mc.fontRenderer.getStringWidth(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + overworldX + "] " + " [" + overworldZ + "]"), screenHeight - 10, new Color(FALLENClient.INSTANCE.getModuleManager().clickGuiHack.text.colorval));
+						drawText(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + overworldX + "] " + " [" + overworldZ + "]", screenWidth - 5 - mc.fontRenderer.getStringWidth(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + overworldX + "] " + " [" + overworldZ + "]"), screenHeight - 10, new Color(FALLENClient.INSTANCE.getClickgui().textRGB));
 					}
 				}
 
@@ -196,7 +196,7 @@ public class HUD extends Module {
 					int textWidth = mc.fontRenderer.getStringWidth(yawText);
 					int textX = arrowX - textWidth / 2;
 					int textY = lineY + markLength + 5; // Below the line marks
-					UIUtils.drawTextOnScreen(yawText, textX, textY, Color.WHITE.getRGB());
+					UIUtils.drawTextOnScreen(yawText, textX, textY, new Color(FALLENClient.INSTANCE.getClickgui().textRGB).getRGB());
 				}
 			}
 		} catch (Exception ignored) {

@@ -16,6 +16,8 @@ import net.minecraft.entity.item.EnderCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
 import net.minecraft.network.play.client.CPlayerPacket;
+import net.minecraft.network.play.client.CPlayerTryUseItemOnBlockPacket;
+import net.minecraft.network.play.client.CUseEntityPacket;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -43,7 +45,6 @@ public class CrystalAuraHack extends Module {
     private final Setting range;
     private final Setting autoPlace;
     private final Setting faceBlocks;
-    private final Setting checkLOS;
     private final Setting tick;
 
     public CrystalAuraHack(int bind, String name, String displayName, Category category) {
@@ -52,13 +53,11 @@ public class CrystalAuraHack extends Module {
         range = new Setting("range", this, 4, 2, 6);
         autoPlace = new Setting("autoPlace", "Auto-place crystals", this, true);
         faceBlocks = new Setting("faceBlocks", "Face crystals", this, false);
-        checkLOS = new Setting("checkLOS", "Check line of sight", this, false);
         tick = new Setting("tick", "Tick", this, 6, 1, 20);
 
         addSetting(range);
         addSetting(autoPlace);
         addSetting(faceBlocks);
-        addSetting(checkLOS);
         addSetting(tick);
     }
 
@@ -125,8 +124,8 @@ public class CrystalAuraHack extends Module {
 
     private void detonate(ArrayList<Entity> crystals) {
         for (Entity e : crystals) {
+            Vector3d toLook = new Vector3d(e.getBoundingBox().getCenter().x, e.getBoundingBox().getCenter().y, e.getBoundingBox().getCenter().z);
             if (faceBlocks.bval) {
-                Vector3d toLook = new Vector3d(e.getBoundingBox().getCenter().x, e.getBoundingBox().getCenter().y, e.getBoundingBox().getCenter().z);
                 float[] rot = RotationUtils.getYawAndPitch(toLook);
                 assert mc.player != null;
                 mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
@@ -134,6 +133,7 @@ public class CrystalAuraHack extends Module {
             assert mc.playerController != null;
             assert mc.player != null;
             mc.playerController.attackEntity(mc.player, e);
+            mc.player.connection.sendPacket(new CUseEntityPacket(e, Hand.MAIN_HAND, toLook, mc.player.isSneaking()));
         }
 
         if (!crystals.isEmpty()) {
@@ -252,7 +252,6 @@ public class CrystalAuraHack extends Module {
     }
 
     private boolean placeCrystal(BlockPos pos) {
-        Vector3d eyesVec = mc.player.getEyePosition(mc.getRenderPartialTicks());
         double rangeSq = Math.pow(range.dval, 2);
         Vector3d posVec = new Vector3d(pos.getX(), pos.getY(), pos.getZ());
         double distanceSqPosVec = MathUtils.getDistance(mc.player.getPositionVec().add(0, 1, 0), new Vector3d(posVec.x, posVec.y, posVec.z));
@@ -274,9 +273,6 @@ public class CrystalAuraHack extends Module {
                 continue;
             }
 
-            if (checkLOS.bval && EntityUtils.rayTraceBlocks(mc.player.getPositionVec().add(0, 1, 0), new Vector3d(hitVec.x, hitVec.y, hitVec.z)).getType() != RayTraceResult.Type.MISS)
-                continue;
-
             assert mc.player != null;
             if (!mc.player.getHeldItemMainhand().getItem().equals(Items.END_CRYSTAL))
                 return false;
@@ -287,6 +283,7 @@ public class CrystalAuraHack extends Module {
 
             // Place the crystal
             mc.playerController.func_217292_a(mc.player, mc.world, Hand.MAIN_HAND, new BlockRayTraceResult(hitVec, Direction.UP, neighbor, false));
+            mc.player.connection.sendPacket(new CPlayerTryUseItemOnBlockPacket(Hand.MAIN_HAND, new BlockRayTraceResult(hitVec, Direction.UP, neighbor, false)));
             return true;
         }
 

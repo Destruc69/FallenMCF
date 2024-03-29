@@ -51,8 +51,8 @@ public final class Speed extends Module {
                 less -= less > 1 ? 0.12 : 0.11;
                 if (less < 0)
                     less = 0;
-                double s = Math.sqrt(mc.player.getMotion().x * mc.player.getMotion().x + mc.player.getMotion().z * mc.player.getMotion().z);
-                if (mc.player.isOnGround() && s > 0) {
+                boolean a = mc.player.moveForward != 0 || mc.player.moveStrafing != 0;
+                if (mc.player.isOnGround() && a) {
                     collided = mc.player.collidedHorizontally;
                     if (stage >= 0 || collided) {
                         stage = 0;

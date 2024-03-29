@@ -19,7 +19,7 @@ public class Breadcrumbs extends Module {
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
-        Vector3d vector3d = new Vector3d(mc.player.getPosition().down().getX(), mc.player.getPosition().down().getY(), mc.player.getPosition().down().getZ());
+        Vector3d vector3d = new Vector3d(mc.player.getPosition().getX(), mc.player.getPosition().getY(), mc.player.getPosition().getZ());
 
         if (!vecArrayList.contains(vector3d)) {
             vecArrayList.add(vector3d);

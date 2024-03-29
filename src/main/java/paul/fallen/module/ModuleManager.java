@@ -13,10 +13,7 @@ import org.lwjgl.glfw.GLFW;
 import paul.fallen.ClientSupport;
 import paul.fallen.FALLENClient;
 import paul.fallen.module.Module.Category;
-import paul.fallen.module.modules.client.ClickGuiHack;
-import paul.fallen.module.modules.client.FallenLanguage;
-import paul.fallen.module.modules.client.Pathfinder;
-import paul.fallen.module.modules.client.Tones;
+import paul.fallen.module.modules.client.*;
 import paul.fallen.module.modules.combat.*;
 import paul.fallen.module.modules.movement.*;
 import paul.fallen.module.modules.pathing.AutoMine;
@@ -40,9 +37,7 @@ public class ModuleManager implements ClientSupport {
 
 	public ClickGuiHack clickGuiHack;
 	public Pathfinder pathfinder;
-
-	// For modules that use mixins
-	public Timer timer;
+	public AutoJoin autoJoin;
 
 	public ModuleManager() {
 		MinecraftForge.EVENT_BUS.register(this);
@@ -75,6 +70,9 @@ public class ModuleManager implements ClientSupport {
 		addModule(new Tones(0, "Tones", "Tones", Category.Client));
 		pathfinder = new Pathfinder(0, "Pathfinder", "Pathfinder", Category.Client);
 		addModule(pathfinder);
+
+		autoJoin = new AutoJoin(0, "AutoJoin", "AutoJoin", Category.Client);
+		addModule(autoJoin);
 
 		addModule(new AntiAFK(0, "AntiAFK", "AntiAFK", Category.Movement));
 		addModule(new ElytraFlight(0, "ElytraFlight", "ElytraFlight", Category.Movement));
@@ -111,10 +109,6 @@ public class ModuleManager implements ClientSupport {
 		addModule(new HideMyAss(0, "HideMyAss", "HideMyAss", Category.Player));
 		addModule(new MoreInv(0, "MoreInv", "MoreInv", Category.Player));
 		addModule(new NoFall(0, "NoFall", "NoFall", Category.Player));
-
-		timer = new Timer(0, "Timer", "Timer", Category.Player);
-		addModule(timer);
-
 
 		addModule(new AntiForge(0, "AntiForge", "AntiForge", Category.Player));
 		addModule(new ServerCrasher(0, "ServerCrasher", "ServerCrasher", Category.Player));

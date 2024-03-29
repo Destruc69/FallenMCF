@@ -3,12 +3,20 @@ package paul.fallen.module.modules.movement;
 import net.minecraft.network.play.client.CConfirmTeleportPacket;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.network.play.server.SPlayerPositionLookPacket;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
 import paul.fallen.packetevent.PacketEvent;
 import paul.fallen.setting.Setting;
 import paul.fallen.utils.client.MathUtils;
+import paul.fallen.utils.entity.EntityUtils;
+import paul.fallen.utils.entity.PlayerUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 
 public final class Flight extends Module {
 
@@ -16,6 +24,7 @@ public final class Flight extends Module {
     private final Setting upSpeed;
     private final Setting baseSpeed;
     private final Setting downSpeed;
+    private final Setting antiKick;
 
     public Flight(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
@@ -24,10 +33,12 @@ public final class Flight extends Module {
         upSpeed = new Setting("up-speed", "Up-Speed", this, 1.0F, (float) 0.005, 10.0F);
         baseSpeed = new Setting("base-speed", "Base-Speed", this, 1.0F, (float) 0.005, 10.0F);
         downSpeed = new Setting("down-speed", "Down-Speed", this, 1.0F, (float) 0.005, 10.0F);
+        antiKick = new Setting("AntiKick", this, false);
         addSetting(ncp);
         addSetting(upSpeed);
         addSetting(baseSpeed);
         addSetting(downSpeed);
+        addSetting(antiKick);
     }
 
     @SubscribeEvent
@@ -50,6 +61,9 @@ public final class Flight extends Module {
                     mc.player.setMotion(0, mc.player.getMotion().y, 0);
                 }
                 MathUtils.setSpeed(baseSpeed.dval);
+                if (antiKick.bval) {
+                    handleVanillaKickBypass();
+                }
             } else {
                 if (mc.gameSettings.keyBindJump.isKeyDown()) {
                     mc.player.setMotion(mc.player.getMotion().x, upSpeed.dval, mc.player.getMotion().z);
@@ -90,6 +104,33 @@ public final class Flight extends Module {
                 mc.player.setPosition(sPlayerPositionLookPacket.getX(), sPlayerPositionLookPacket.getY(), sPlayerPositionLookPacket.getZ());
                 event.setCanceled(true);
             }
+        }
+    }
+
+    private void handleVanillaKickBypass() {
+        final double x = mc.player.getPosX();
+        final double y = mc.player.getPosY();
+        final double z = mc.player.getPosZ();
+
+        final double ground = EntityUtils.getFallDistance(mc.player);
+
+        if (mc.player.ticksExisted % 2 == 0) {
+            for (double posY = y; posY > ground; posY -= 8D) {
+                mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(x, posY, z, true));
+
+                if (posY - 8D < ground) break; // Prevent next step
+            }
+
+            mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(x, ground, z, true));
+
+
+            for (double posY = ground; posY < y; posY += 8D) {
+                mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(x, posY, z, true));
+
+                if (posY + 8D > y) break; // Prevent next step
+            }
+
+            mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(x, y, z, true));
         }
     }
 }
