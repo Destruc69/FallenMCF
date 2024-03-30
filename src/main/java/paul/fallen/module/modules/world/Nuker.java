@@ -17,6 +17,7 @@ import paul.fallen.utils.world.BlockUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 public class Nuker extends Module {
 
@@ -42,26 +43,46 @@ public class Nuker extends Module {
     }
 
     @SubscribeEvent
-    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+    public void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.START) return;
+
+        if (targetPosition == null || mc.world.getBlockState(targetPosition).getBlock().equals(Blocks.AIR)) {
+            targetPosition = getTargetPosition();
+        } else {
+            BlockUtils.breakBlock(targetPosition, mc.player.inventory.currentItem, true, true);
+        }
+    }
+
+    @SubscribeEvent
+    public void onRender(RenderWorldLastEvent event) {
         try {
-            double playerX = mc.player.lastTickPosX;
-            double playerY = mc.player.lastTickPosY;
-            double playerZ = mc.player.lastTickPosZ;
+            if (targetPosition != null) {
+                RenderUtils.drawOutlinedBox(targetPosition, 1, 0, 0, event);
+            }
+        } catch (Exception ignored) {
+        }
+    }
 
-            ArrayList<BlockPos> blockPosArrayList = new ArrayList<>(); // Create list outside loops
+    private BlockPos getTargetPosition() {
+        double playerX = mc.player.lastTickPosX;
+        double playerY = mc.player.lastTickPosY;
+        double playerZ = mc.player.lastTickPosZ;
 
-            for (int xi = (int) -x.dval; xi < x.dval; xi++) {
-                double posX = playerX + xi;
-                for (int y = (int) -yMin.dval; y < yMax.dval; y++) {
-                    double posY = playerY + y;
-                    for (int zi = (int) -z.dval; zi < z.dval; zi++) {
-                        double posZ = playerZ + zi;
-                        BlockPos blockPos = new BlockPos(posX, posY, posZ);
-                        blockPosArrayList.add(blockPos);
-                    }
+        ArrayList<BlockPos> blockPosArrayList = new ArrayList<>();
+
+        for (int xi = (int) -x.dval; xi < x.dval; xi++) {
+            double posX = playerX + xi;
+            for (int y = (int) -yMin.dval; y < yMax.dval; y++) {
+                double posY = playerY + y;
+                for (int zi = (int) -z.dval; zi < z.dval; zi++) {
+                    double posZ = playerZ + zi;
+                    BlockPos blockPos = new BlockPos(posX, posY, posZ);
+                    blockPosArrayList.add(blockPos);
                 }
             }
+        }
 
+        if (blockPosArrayList.size() > 0) {
             // Sort blockPosArrayList based on distance from player
             blockPosArrayList.sort(new Comparator<BlockPos>() {
                 @Override
@@ -75,22 +96,9 @@ public class Nuker extends Module {
 
             blockPosArrayList.removeIf(blockPos -> mc.world.getBlockState(blockPos).getBlock().equals(Blocks.AIR));
 
-            BlockPos blockPos = blockPosArrayList.get(0);
-
-            BlockUtils.breakBlock(blockPos, mc.player.inventory.currentItem, true, true);
-
-            targetPosition = blockPos;
-        } catch (Exception ignored) {
-        }
-    }
-
-    @SubscribeEvent
-    public void onRender(RenderWorldLastEvent event) {
-        try {
-            if (targetPosition != null) {
-                RenderUtils.drawOutlinedBox(targetPosition, 1, 0, 0, event);
-            }
-        } catch (Exception ignored) {
+            return blockPosArrayList.get(0);
+        } else {
+            return new BlockPos(0, 0, 0);
         }
     }
 }
