@@ -8,6 +8,7 @@ import paul.fallen.clickgui.Clickgui;
 import paul.fallen.command.CommandManager;
 import paul.fallen.events.AutoJoin;
 import paul.fallen.events.GuiTweaks;
+import paul.fallen.events.ServerFinder;
 import paul.fallen.friend.FriendManager;
 import paul.fallen.irc.IRC;
 import paul.fallen.module.ModuleManager;
@@ -49,6 +50,8 @@ public class FALLENClient implements ClientSupport {
         MinecraftForge.EVENT_BUS.register(new GuiTweaks());
 
         MinecraftForge.EVENT_BUS.register(new AutoJoin());
+
+        MinecraftForge.EVENT_BUS.register(new ServerFinder());
 
         irc = new IRC();
         MinecraftForge.EVENT_BUS.register(irc);

@@ -15,8 +15,13 @@ import paul.fallen.setting.Setting;
 
 public final class Disabler extends Module {
 
+    private Setting abilities;
+
     public Disabler(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
+
+        abilities = new Setting("Abilities", this, false);
+        addSetting(abilities);
     }
 
     @SubscribeEvent
@@ -29,6 +34,14 @@ public final class Disabler extends Module {
                     event.getPacket() instanceof CPlayerAbilitiesPacket ||
             event.getPacket() instanceof CClientStatusPacket) {
                 event.setCanceled(true);
+            }
+
+            if (abilities.bval) {
+                mc.player.abilities.allowEdit = true;
+                mc.player.abilities.allowFlying = true;
+                mc.player.abilities.isFlying = false;
+                mc.player.abilities.isCreativeMode = true;
+                mc.player.abilities.disableDamage = false;
             }
         } catch (Exception ignored) {
         }

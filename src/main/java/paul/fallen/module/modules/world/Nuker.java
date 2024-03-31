@@ -43,13 +43,14 @@ public class Nuker extends Module {
     }
 
     @SubscribeEvent
-    public void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.START) return;
-
-        if (targetPosition == null || mc.world.getBlockState(targetPosition).getBlock().equals(Blocks.AIR)) {
-            targetPosition = getTargetPosition();
-        } else {
-            BlockUtils.breakBlock(targetPosition, mc.player.inventory.currentItem, true, true);
+    public void onClientTick(TickEvent.PlayerTickEvent event) {
+        try {
+            if (targetPosition == null || mc.world.getBlockState(targetPosition).getBlock().equals(Blocks.AIR)) {
+                targetPosition = getTargetPosition();
+            } else {
+                BlockUtils.breakBlock(targetPosition, mc.player.inventory.currentItem, true, true);
+            }
+        } catch (Exception ignored) {
         }
     }
 

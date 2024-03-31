@@ -37,7 +37,6 @@ public class ModuleManager implements ClientSupport {
 
 	public ClickGuiHack clickGuiHack;
 	public Pathfinder pathfinder;
-	public AutoJoin autoJoin;
 
 	public ModuleManager() {
 		MinecraftForge.EVENT_BUS.register(this);
@@ -70,9 +69,6 @@ public class ModuleManager implements ClientSupport {
 		addModule(new Tones(0, "Tones", "Tones", Category.Client));
 		pathfinder = new Pathfinder(0, "Pathfinder", "Pathfinder", Category.Client);
 		addModule(pathfinder);
-
-		autoJoin = new AutoJoin(0, "AutoJoin", "AutoJoin", Category.Client);
-		addModule(autoJoin);
 
 		addModule(new AntiAFK(0, "AntiAFK", "AntiAFK", Category.Movement));
 		addModule(new ElytraFlight(0, "ElytraFlight", "ElytraFlight", Category.Movement));
