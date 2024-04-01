@@ -19,6 +19,8 @@ import paul.fallen.module.Module;
 import paul.fallen.setting.Setting;
 import paul.fallen.utils.entity.PlayerUtils;
 
+import java.util.List;
+
 public class CrystalAuraReWrite extends Module {
 
     private Setting breakTicks;
@@ -47,83 +49,91 @@ public class CrystalAuraReWrite extends Module {
     }
 
     @SubscribeEvent
-    public void onPlayerTick(TickEvent.PlayerTickEvent event) throws Exception {
+    public void onTick(TickEvent.PlayerTickEvent event) {
         try {
-            if (event.phase != TickEvent.Phase.START) return;
-
-            CrystalTarget target = findTarget();
-            if (target == null) return;
-
-            lookAtTarget(target);
-
             if (mc.player.ticksExisted % placeTicks.dval == 0) {
-                placeCrystal(target.blockPos);
+                placeCrystal();
             }
-
             if (mc.player.ticksExisted % breakTicks.dval == 0) {
-                breakCrystal(target.crystalEntity);
+                breakCrystal();
             }
         } catch (Exception ignored) {
         }
     }
 
-    private CrystalTarget findTarget() {
+    public EnderCrystalEntity getBestCrystal() {
         double bestDamage = 0;
-        BlockPos bestBlock = null;
         EnderCrystalEntity bestCrystal = null;
-
-        for (Entity entity : mc.world.getAllEntities()) {
-            if (entity instanceof PlayerEntity && entity != mc.player) {
-                PlayerEntity player = (PlayerEntity) entity;
-                for (BlockPos block : PlayerUtils.possiblePlacePositions((float) maxDistance.dval, true, true)) {
-                    double targetDamage = PlayerUtils.calculateCrystalDamage(block.getX() + 0.5, block.getY() + 1, block.getZ() + 0.5, player);
-                    double selfDamage = PlayerUtils.calculateCrystalDamage(block.getX() + 0.5, block.getY() + 1, block.getZ() + 0.5, mc.player);
-                    if (targetDamage > bestDamage && targetDamage >= minDamage.dval && selfDamage <= maxDamageSelf.dval) {
-                        bestDamage = targetDamage;
-                        bestBlock = block;
-                    }
-                }
-
-                for (Entity crystalEntity : mc.world.getAllEntities()) {
-                    if (crystalEntity instanceof EnderCrystalEntity && mc.player.getDistance(crystalEntity) <= maxDistance.dval) {
-                        double damage = PlayerUtils.calculateCrystalDamage((EnderCrystalEntity) crystalEntity, player);
-                        if (damage > bestDamage && damage >= minDamage.dval) {
-                            bestDamage = damage;
-                            bestCrystal = (EnderCrystalEntity) crystalEntity;
-                        }
-                    }
+        for(Entity e: mc.world.getAllEntities()) {
+            if(!(e instanceof EnderCrystalEntity)) continue;
+            EnderCrystalEntity c = (EnderCrystalEntity) e;
+            if(mc.player.getDistance(e) > maxDistance.dval) continue;
+            if(!c.isAlive()) continue;
+            for(Entity e2: mc.world.getAllEntities()) {
+                if(!(e2 instanceof PlayerEntity) || e2 == mc.player) continue;
+                PlayerEntity pe = (PlayerEntity) e2;
+                if(mc.player.getDistance(pe) > maxDistance.dval) continue;
+                if(!pe.isAlive() || pe.getHealth() <= 0) continue;
+                double targetDamage = PlayerUtils.calculateCrystalDamage(c, pe);
+                if(targetDamage < minDamage.dval) continue;
+                double selfDamage = PlayerUtils.calculateCrystalDamage(c, mc.player);
+                if(selfDamage > maxDamageSelf.dval) continue;
+                if(targetDamage > bestDamage) {
+                    bestDamage = targetDamage;
+                    bestCrystal = c;
                 }
             }
         }
-
-        return new CrystalTarget(bestBlock, bestCrystal);
+        return bestCrystal;
     }
 
-    private void lookAtTarget(CrystalTarget target) {
-        float[] rotations;
-        if (target.blockPos != null) {
-            rotations = getRotations(target.blockPos.getX(), target.blockPos.getY(), target.blockPos.getZ());
-        } else {
-            rotations = getRotations(target.crystalEntity);
+    public BlockPos getBestBlock() {
+        double bestDamage = 0;
+        BlockPos bestBlock = null;
+        List<BlockPos> blocks = PlayerUtils.possiblePlacePositions((float) maxDistance.dval, true, true);
+        for(Entity e: mc.world.getAllEntities()) {
+            if(!(e instanceof PlayerEntity) || e == mc.player) continue;
+            PlayerEntity pe = (PlayerEntity) e;
+            for(BlockPos block: blocks) {
+                if(pe.getDistance(mc.player) > maxDistance.dval) continue;
+                double targetDamage = PlayerUtils.calculateCrystalDamage(block.getX() + 0.5, block.getY() + 1, block.getZ() + 0.5, pe);
+                if(targetDamage < minDamage.dval) continue;
+                double selfDamage = PlayerUtils.calculateCrystalDamage(block.getX() + 0.5, block.getY() + 1, block.getZ() + 0.5, mc.player);
+                if(selfDamage > maxDamageSelf.dval) continue;
+                if(targetDamage > bestDamage) {
+                    bestDamage = targetDamage;
+                    bestBlock = block;
+                }
+            }
         }
+        return bestBlock;
+    }
+
+    public void placeCrystal() {
+        BlockPos targetBlock = getBestBlock();
+        if(targetBlock == null) return;
+        boolean offhandCheck = false;
+        if(mc.player.getHeldItemOffhand().getItem() != Items.END_CRYSTAL) {
+            if(mc.player.getHeldItemMainhand().getItem() != Items.END_CRYSTAL) {
+                return;
+            }
+        } else offhandCheck = true;
+        float[] rotations = getRotations(targetBlock.getX(), targetBlock.getY(), targetBlock.getZ());
         mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rotations[0], rotations[1], mc.player.isOnGround()));
-    }
-
-    private void placeCrystal(BlockPos targetBlock) {
-        boolean offhandCheck = mc.player.getHeldItemOffhand().getItem() == Items.END_CRYSTAL;
-        if (!offhandCheck && mc.player.getHeldItemMainhand().getItem() != Items.END_CRYSTAL) {
-            return;
-        }
 
         mc.playerController.func_217292_a(mc.player, mc.world, offhandCheck ? Hand.OFF_HAND : Hand.MAIN_HAND, new BlockRayTraceResult(new Vector3d(targetBlock.getX(), targetBlock.getY(), targetBlock.getZ()), Direction.UP, targetBlock, false));
         mc.player.connection.sendPacket(new CPlayerTryUseItemOnBlockPacket(offhandCheck ? Hand.OFF_HAND : Hand.MAIN_HAND, new BlockRayTraceResult(new Vector3d(targetBlock.getX(), targetBlock.getY(), targetBlock.getZ()), Direction.UP, targetBlock, false)));
         mc.player.swingArm(offhandCheck ? Hand.OFF_HAND : Hand.MAIN_HAND);
     }
 
-    private void breakCrystal(EnderCrystalEntity crystal) {
-        if (mc.player.getCooledAttackStrength(0.0f) >= 1.0f) {
-            mc.getConnection().sendPacket(new CUseEntityPacket(crystal, true));
-            mc.playerController.attackEntity(mc.player, crystal);
+    public void breakCrystal() {
+        EnderCrystalEntity c = getBestCrystal();
+        if(c == null) return;
+        float[] rotations = getRotations(c);
+        mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rotations[0], rotations[1], mc.player.isOnGround()));
+        if(mc.player.getCooledAttackStrength(0.0f) >= 1.0f) {
+            mc.getConnection().sendPacket(new CUseEntityPacket(c, true));
+            mc.playerController.attackEntity(mc.player, c);
             mc.player.swingArm(Hand.MAIN_HAND);
         }
     }
@@ -138,15 +148,5 @@ public class CrystalAuraReWrite extends Module {
         double x = posX - mc.player.getPosition().getX(), y = posY - mc.player.getPosition().getY() - 1.2, z = posZ - mc.player.getPosition().getZ();
 
         return new float[]{MathHelper.wrapDegrees((float) (Math.atan2(z, x) * 180 / Math.PI) - 90), (float) -(Math.atan2(y, MathHelper.sqrt(x * x + z * z)) * 180 / Math.PI)};
-    }
-
-    private static class CrystalTarget {
-        public final BlockPos blockPos;
-        public final EnderCrystalEntity crystalEntity;
-
-        public CrystalTarget(BlockPos blockPos, EnderCrystalEntity crystalEntity) {
-            this.blockPos = blockPos;
-            this.crystalEntity = crystalEntity;
-        }
     }
 }
