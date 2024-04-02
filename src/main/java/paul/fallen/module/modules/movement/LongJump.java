@@ -13,44 +13,50 @@ import java.util.Arrays;
 
 public class LongJump extends Module {
 
-    private final Setting mode;
-    private boolean jump = false;
+    private final Setting ncp;
+    private final Setting customSpeed;
 
     public LongJump(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        mode = new Setting("Mode", "Mode", this, "oldaac", new ArrayList<>(Arrays.asList("oldaac", "ncp")));
-        addSetting(mode);
+        ncp = new Setting("NCP", this, false);
+        customSpeed = new Setting("CustomSpeed", "CustomSpeed", this, 0.3f, 0f, 1);
+        addSetting(ncp);
+        addSetting(customSpeed);
     }
 
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (mode.sval == "oldaac") {
-            this.mc.gameSettings.keyBindForward.setPressed(false);
-            if (this.mc.player.isOnGround()) {
-                this.jump = true;
+        try {
+            if (ncp.bval) {
+                ncpLongJump();
+            } else {
+                customLongJump(customSpeed.dval);
             }
-            if (this.mc.player.isOnGround() && mc.player.ticksExisted % 10 == 0) {
-                EntityUtils.setMotionY(0.42);
-                toFwd(2.3);
-            } else if (!this.mc.player.isOnGround() && this.jump) {
-                EntityUtils.setMotionZ(0);
-                EntityUtils.setMotionX(0);
-                this.jump = false;
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void customLongJump(double speed) {
+        if (movementInput() && this.mc.player.fallDistance < 1.0f) {
+            if (this.mc.player.collidedVertically && this.mc.gameSettings.keyBindJump.isKeyDown()) {
+                toFwd(speed);
             }
-        } else if (mode.sval == "ncp") {
-            if (movementInput() && this.mc.player.fallDistance < 1.0f) {
-                float direction = this.mc.player.rotationYaw;
-                float x = (float) Math.cos((double) (direction + 90.0f) * 3.141592653589793 / 180.0);
-                float z = (float) Math.sin((double) (direction + 90.0f) * 3.141592653589793 / 180.0);
-                if (this.mc.player.collidedVertically && this.mc.gameSettings.keyBindJump.isKeyDown()) {
-                    EntityUtils.setMotionX(x * 0.29f);
-                    EntityUtils.setMotionZ(z * 0.29f);
-                }
-                if (this.mc.player.getMotion().y == 0.33319999363422365) {
-                    EntityUtils.setMotionX((double) x * 1.261);
-                    EntityUtils.setMotionZ((double) z * 1.261);
-                }
+        }
+    }
+
+    private void ncpLongJump() {
+        if (movementInput() && this.mc.player.fallDistance < 1.0f) {
+            float direction = this.mc.player.rotationYaw;
+            float x = (float) Math.cos((double) (direction + 90.0f) * 3.141592653589793 / 180.0);
+            float z = (float) Math.sin((double) (direction + 90.0f) * 3.141592653589793 / 180.0);
+            if (this.mc.player.collidedVertically && this.mc.gameSettings.keyBindJump.isKeyDown()) {
+                EntityUtils.setMotionX(x * 0.29f);
+                EntityUtils.setMotionZ(z * 0.29f);
+            }
+            if (this.mc.player.getMotion().y == 0.33319999363422365) {
+                EntityUtils.setMotionX((double) x * 1.261);
+                EntityUtils.setMotionZ((double) z * 1.261);
             }
         }
     }
