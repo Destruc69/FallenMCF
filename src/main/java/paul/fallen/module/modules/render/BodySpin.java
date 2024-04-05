@@ -10,13 +10,13 @@ import java.util.Arrays;
 
 public class BodySpin extends Module {
 
-    private Setting mode;
+    private Setting backward;
 
     public BodySpin(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        mode = new Setting("Mode", this, "spin", new ArrayList<>(Arrays.asList("spin", "backwards")));
-        addSetting(mode);
+        backward = new Setting("Backward", this, false);
+        addSetting(backward);
     }
 
     private float yaw = 0;
@@ -24,14 +24,14 @@ public class BodySpin extends Module {
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         try {
-            if (mode.sval == "spin") {
+            if (!backward.bval) {
                 mc.player.renderYawOffset = yaw;
                 if (yaw + 1 <= 360) {
                     yaw++;
                 } else {
                     yaw = 0;
                 }
-            } else if (mode.sval == "backwards") {
+            } else {
                 mc.player.renderYawOffset = mc.player.rotationYaw + 180;
             }
         } catch (Exception ignored) {

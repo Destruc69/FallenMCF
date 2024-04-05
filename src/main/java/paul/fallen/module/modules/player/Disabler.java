@@ -15,35 +15,41 @@ import paul.fallen.setting.Setting;
 
 public final class Disabler extends Module {
 
-    private Setting abilities;
+    private Setting grim;
 
     public Disabler(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        abilities = new Setting("Abilities", this, false);
-        addSetting(abilities);
+        grim = new Setting("Grim", this, false);
+        addSetting(grim);
     }
 
     @SubscribeEvent
     public void onPacket(PacketEvent event) {
         try {
-            if (event.getPacket() instanceof CConfirmTransactionPacket ||
-                    event.getPacket() instanceof CAnimateHandPacket ||
-                    event.getPacket() instanceof CEntityActionPacket ||
-                    event.getPacket() instanceof CPlayerDiggingPacket ||
-                    event.getPacket() instanceof CPlayerAbilitiesPacket ||
-            event.getPacket() instanceof CClientStatusPacket) {
-                event.setCanceled(true);
-            }
-
-            if (abilities.bval) {
-                mc.player.abilities.allowEdit = true;
-                mc.player.abilities.allowFlying = true;
-                mc.player.abilities.isFlying = false;
-                mc.player.abilities.isCreativeMode = true;
-                mc.player.abilities.disableDamage = false;
+            if (!grim.bval) {
+                if (event.getPacket() instanceof CConfirmTransactionPacket ||
+                        event.getPacket() instanceof CAnimateHandPacket ||
+                        event.getPacket() instanceof CEntityActionPacket ||
+                        event.getPacket() instanceof CPlayerDiggingPacket ||
+                        event.getPacket() instanceof CPlayerAbilitiesPacket ||
+                        event.getPacket() instanceof CClientStatusPacket) {
+                    event.setCanceled(true);
+                }
+            } else {
+                if (event.getPacket() instanceof CKeepAlivePacket) {
+                    CKeepAlivePacket cKeepAlivePacket = (CKeepAlivePacket) event.getPacket();
+                    event.setCanceled(true);
+                    mc.player.connection.sendPacket(new CKeepAlivePacket(cKeepAlivePacket.getKey() + getFps() / 2));
+                }
             }
         } catch (Exception ignored) {
         }
+    }
+
+    private int getFps() {
+        String debugString = mc.debug;
+        String[] splits = debugString.split(" ");
+        return Integer.parseInt(splits[0]);
     }
 }
