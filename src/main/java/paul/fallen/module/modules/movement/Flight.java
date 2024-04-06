@@ -1,10 +1,11 @@
 package paul.fallen.module.modules.movement;
 
+import net.minecraft.network.IPacket;
 import net.minecraft.network.play.client.CConfirmTeleportPacket;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.network.play.server.SPlayerPositionLookPacket;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
@@ -13,14 +14,16 @@ import paul.fallen.setting.Setting;
 import paul.fallen.utils.client.MathUtils;
 import paul.fallen.utils.entity.EntityUtils;
 import paul.fallen.utils.entity.PlayerUtils;
+import paul.fallen.utils.render.RenderUtils;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
+import java.util.Arrays;
 
 public final class Flight extends Module {
 
-    private final Setting ncp;
+    private final ArrayList<IPacket> packets = new ArrayList<>();
+
+    private final Setting mode;
     private final Setting upSpeed;
     private final Setting baseSpeed;
     private final Setting downSpeed;
@@ -29,22 +32,32 @@ public final class Flight extends Module {
     public Flight(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        ncp = new Setting("NCP", this, false);
+        mode = new Setting("Mode", "Mode", this, "ncp", new ArrayList<>(Arrays.asList("ncp", "vanilla", "blink", "ground")));
         upSpeed = new Setting("up-speed", "Up-Speed", this, 1.0F, (float) 0.005, 10.0F);
         baseSpeed = new Setting("base-speed", "Base-Speed", this, 1.0F, (float) 0.005, 10.0F);
         downSpeed = new Setting("down-speed", "Down-Speed", this, 1.0F, (float) 0.005, 10.0F);
         antiKick = new Setting("AntiKick", this, false);
-        addSetting(ncp);
+        addSetting(mode);
         addSetting(upSpeed);
         addSetting(baseSpeed);
         addSetting(downSpeed);
         addSetting(antiKick);
     }
 
+    @Override
+    public void onDisable() {
+        super.onDisable();
+
+        if (packets.size() > 0 && mode.sval == "blink")
+        for (IPacket p : packets) {
+            mc.player.connection.sendPacket(p);
+        }
+    }
+
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
-            if (!ncp.bval) {
+            if (mode.sval == "vanilla") {
                 if (mc.gameSettings.keyBindJump.isKeyDown()) {
                     mc.player.setMotion(mc.player.getMotion().x, upSpeed.dval, mc.player.getMotion().z);
                 } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
@@ -64,7 +77,7 @@ public final class Flight extends Module {
                 if (antiKick.bval) {
                     handleVanillaKickBypass();
                 }
-            } else {
+            } else if (mode.sval == "ncp") {
                 if (mc.gameSettings.keyBindJump.isKeyDown()) {
                     mc.player.setMotion(mc.player.getMotion().x, upSpeed.dval, mc.player.getMotion().z);
                 } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
@@ -89,19 +102,74 @@ public final class Flight extends Module {
 
                 mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX() + mc.player.getMotion().x, mc.player.getPosY() + mc.player.getMotion().y, mc.player.getPosZ() + mc.player.getMotion().z, false));
                 mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX() + mc.player.getMotion().x, MathUtils.generateRandomNumber(0, 1) == 0 ? mc.player.getMotion().y + Integer.MAX_VALUE : mc.player.getMotion().y - Integer.MAX_VALUE, mc.player.getPosZ() + mc.player.getMotion().z, true));
+            } else if (mode.sval == "blink") {
+                if (mc.gameSettings.keyBindJump.isKeyDown()) {
+                    mc.player.setMotion(mc.player.getMotion().x, upSpeed.dval, mc.player.getMotion().z);
+                } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
+                    mc.player.setMotion(mc.player.getMotion().x, -downSpeed.dval, mc.player.getMotion().z);
+                } else {
+                    mc.player.setMotion(mc.player.getMotion().x, 0, mc.player.getMotion().z);
+                }
+                if (mc.gameSettings.keyBindForward.isKeyDown() ||
+                        mc.gameSettings.keyBindRight.isKeyDown() ||
+                        mc.gameSettings.keyBindBack.isKeyDown() ||
+                        mc.gameSettings.keyBindLeft.isKeyDown()) {
+                    MathUtils.setSpeed(baseSpeed.dval);
+                } else {
+                    mc.player.setMotion(0, mc.player.getMotion().y, 0);
+                }
+                MathUtils.setSpeed(baseSpeed.dval);
+                if (antiKick.bval) {
+                    handleVanillaKickBypass();
+                }
+            } else if (mode.sval == "ground") {
+                if (mc.gameSettings.keyBindJump.isKeyDown()) {
+                    mc.player.setMotion(mc.player.getMotion().x, upSpeed.dval, mc.player.getMotion().z);
+                } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
+                    mc.player.setMotion(mc.player.getMotion().x, -downSpeed.dval, mc.player.getMotion().z);
+                } else {
+                    mc.player.setMotion(mc.player.getMotion().x, 0, mc.player.getMotion().z);
+                }
+                if (mc.gameSettings.keyBindForward.isKeyDown() ||
+                        mc.gameSettings.keyBindRight.isKeyDown() ||
+                        mc.gameSettings.keyBindBack.isKeyDown() ||
+                        mc.gameSettings.keyBindLeft.isKeyDown()) {
+                    MathUtils.setSpeed(baseSpeed.dval);
+                } else {
+                    mc.player.setMotion(0, mc.player.getMotion().y, 0);
+                }
+                MathUtils.setSpeed(baseSpeed.dval);
+
+                mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX(), mc.player.getPosY() - EntityUtils.getFallDistance(mc.player) + 0.5, mc.player.getPosZ(), true));
             }
         } catch (Exception ignored) {
         }
     }
 
     @SubscribeEvent
+    public void onRender(RenderWorldLastEvent event) {
+        if (mode.sval == "ground") {
+            RenderUtils.drawOutlinedBox(new BlockPos(mc.player.getPosX(), mc.player.getPosY() - EntityUtils.getFallDistance(mc.player) + 0.5, mc.player.getPosZ()), 0, 1, 0, event);
+        }
+    }
+
+    @SubscribeEvent
     public void onPacket(PacketEvent event) {
-        if (ncp.bval) {
+        if (mode.sval == "ncp") {
             if (event.getPacket() instanceof SPlayerPositionLookPacket) {
                 SPlayerPositionLookPacket sPlayerPositionLookPacket = (SPlayerPositionLookPacket) event.getPacket();
                 mc.player.connection.sendPacket(new CConfirmTeleportPacket(sPlayerPositionLookPacket.getTeleportId()));
                 mc.player.connection.sendPacket(new CPlayerPacket.PositionRotationPacket(sPlayerPositionLookPacket.getX(), sPlayerPositionLookPacket.getY(), sPlayerPositionLookPacket.getZ(), sPlayerPositionLookPacket.getYaw(), sPlayerPositionLookPacket.getPitch(), false));
                 mc.player.setPosition(sPlayerPositionLookPacket.getX(), sPlayerPositionLookPacket.getY(), sPlayerPositionLookPacket.getZ());
+                event.setCanceled(true);
+            }
+        } else if (mode.sval == "blink") {
+            if (event instanceof PacketEvent.Outgoing) {
+                packets.add(event.getPacket());
+                event.setCanceled(true);
+            }
+        } else if (mode.sval == "ground") {
+            if (event.getPacket() instanceof SPlayerPositionLookPacket) {
                 event.setCanceled(true);
             }
         }

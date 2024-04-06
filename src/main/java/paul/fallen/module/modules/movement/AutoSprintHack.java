@@ -8,10 +8,13 @@
 package paul.fallen.module.modules.movement;
 
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
 import paul.fallen.utils.client.ClientUtils;
 import paul.fallen.utils.entity.EntityUtils;
+import paul.fallen.utils.world.BlockUtils;
 
 public final class AutoSprintHack extends Module {
 

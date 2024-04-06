@@ -23,7 +23,7 @@ import java.util.Arrays;
 
 public final class Killaura extends Module {
 
-    private final Setting rotationMethod;
+    private final Setting strictRotation;
     private float currentStrictYaw = 0;
     private float currentStrictPitch = 0;
     private final Setting distancee;
@@ -31,9 +31,9 @@ public final class Killaura extends Module {
     public Killaura(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        rotationMethod = new Setting("RotationMethod", this, "lock", new ArrayList<>(Arrays.asList("lock", "strict")));
+        strictRotation = new Setting("StrictRotation", this, false);
         distancee = new Setting("Distance", this, 4, 1, 6);
-        addSetting(rotationMethod);
+        addSetting(strictRotation);
         addSetting(distancee);
     }
 
@@ -54,7 +54,7 @@ public final class Killaura extends Module {
             if (entity != null) {
                 float[] rot = RotationUtils.getYawAndPitch(entity.getBoundingBox().getCenter());
                 assert mc.player != null;
-                if (rotationMethod.sval.equalsIgnoreCase("lock")) {
+                if (!strictRotation.bval) {
                     if (mc.player.ticksExisted % 10 == 0) {
                         mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
                         mc.playerController.attackEntity(mc.player, entity);
@@ -63,7 +63,7 @@ public final class Killaura extends Module {
                         mc.player.rotationYawHead = rot[0];
                         mc.player.renderYawOffset = rot[0];
                     }
-                } else if (rotationMethod.sval.equalsIgnoreCase("strict")) {
+                } else if (strictRotation.bval) {
                     interpolateRotation(rot[0], rot[1]);
                     mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(currentStrictYaw, currentStrictPitch, mc.player.isOnGround()));
 

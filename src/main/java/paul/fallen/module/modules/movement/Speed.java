@@ -1,9 +1,13 @@
 package paul.fallen.module.modules.movement;
 
+import net.minecraft.client.renderer.debug.CollisionBoxDebugRenderer;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
 import paul.fallen.setting.Setting;
+import paul.fallen.utils.client.ClientUtils;
 import paul.fallen.utils.client.MathUtils;
 
 public final class Speed extends Module {
@@ -16,10 +20,6 @@ public final class Speed extends Module {
     private double less;
     private boolean lessSlow;
     private double speed;
-
-    private int stageOG;
-    private double lastDistOG;
-    private double moveSpeedOG;
 
     public Speed(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
@@ -90,6 +90,7 @@ public final class Speed extends Module {
                     ++stage;
                 }
             } else {
+
             }
         } catch (Exception ignored) {
         }
