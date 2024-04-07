@@ -5,9 +5,9 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 import paul.fallen.FALLENClient;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
 import paul.fallen.music.Track;
-import paul.fallen.setting.Setting;
 import paul.fallen.utils.client.ClientUtils;
 import paul.fallen.utils.render.UIUtils;
 
@@ -56,7 +56,7 @@ public class Tones extends Module {
                     }
                 } else {
                     a = false;
-                    if (!shuffle.bval) {
+                    if (!shuffle.getValBoolean()) {
                         // When currentTrackIndex is at the last song, this condition will now correctly reset it to 0
                         if (currentTrackIndex + 1 >= FALLENClient.INSTANCE.getMusicManager().getMp3Files().size()) {
                             currentTrackIndex = 0;
@@ -88,13 +88,13 @@ public class Tones extends Module {
                     int textPositionX = windowWidth / 2 - 100;
 
                     // Draw the "Now playing" text
-                    drawText("Now playing " + track.musicFile.getName(), textPositionX, 3, new Color(FALLENClient.INSTANCE.getModuleManager().clickGuiHack.text.colorval));
+                    drawText("Now playing " + track.musicFile.getName(), textPositionX, 3, new Color(255, 255, 255));
 
                     double progress = (double) track.clip.getMicrosecondPosition() / (double) track.clip.getMicrosecondLength();
                     int progressBarWidth = (int) (mc.fontRenderer.getStringWidth("Now playing " + track.musicFile.getName()) * progress); // Assuming the total width of the bar is 200 pixels
 
                     // Draw the progress bar
-                    UIUtils.drawRect(textPositionX, 18, progressBarWidth, 5, new Color(FALLENClient.INSTANCE.getModuleManager().clickGuiHack.text.colorval).getRGB());
+                    UIUtils.drawRect(textPositionX, 18, progressBarWidth, 5, new Color(255, 255, 255).getRGB());
                 }
             }
         } catch (Exception ignored) {

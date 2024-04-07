@@ -15,8 +15,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 
 public final class AutoTotem extends Module {
 
@@ -29,8 +29,8 @@ public final class AutoTotem extends Module {
     public AutoTotem(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        delay = new Setting("delay", "Delay", this, 0, 0, 20);
-        health = new Setting("health", "Health", this, 0, 0, 20);
+        delay = new Setting("Delay", this, 0, 0, 20, true);
+        health = new Setting("Health", this, 0, 0, 20, true);
         addSetting(delay);
         addSetting(health);
     }
@@ -52,11 +52,11 @@ public final class AutoTotem extends Module {
             }
 
             if (wasTotemInOffhand) {
-                timer = (int) delay.dval;
+                timer = (int) delay.getValDouble();
                 wasTotemInOffhand = false;
             }
 
-            float healthF = health.dval;
+            float healthF = (float) health.getValDouble();
             if (healthF > 0 && player.getHealth() > healthF * 2F)
                 return;
 

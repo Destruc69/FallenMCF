@@ -9,8 +9,8 @@ package paul.fallen.module.modules.movement;
 
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 
 public final class AntiAFK extends Module {
     private final Setting crazy;
@@ -25,7 +25,7 @@ public final class AntiAFK extends Module {
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
             assert mc.player != null;
-            if (!crazy.bval) {
+            if (!crazy.getValBoolean()) {
                 if (mc.player.ticksExisted % 5 == 0) {
                     mc.player.rotationYaw++;
                     if (mc.player.isOnGround()) {

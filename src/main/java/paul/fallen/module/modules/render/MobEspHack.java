@@ -11,8 +11,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.MobEntity;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 import paul.fallen.utils.render.RenderUtils;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public final class MobEspHack extends Module {
     public MobEspHack(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        mode = new Setting("Mode", "Mode", this, "glow", new ArrayList<>(Arrays.asList("glow", "box")));
+        mode = new Setting("Mode", this, "glow", new ArrayList<>(Arrays.asList("glow", "box")));
         addSetting(mode);
     }
 
@@ -39,7 +39,7 @@ public final class MobEspHack extends Module {
                     .filter(e -> e instanceof MobEntity);
 
             for (Entity entity : entityStream.collect(Collectors.toList())) {
-                if (mode.sval == "box") {
+                if (mode.getValString() == "box") {
                     RenderUtils.drawOutlinedBox(entity.getPosition(), 1, 1, 0, event);
                     entity.setGlowing(false);
                 } else {

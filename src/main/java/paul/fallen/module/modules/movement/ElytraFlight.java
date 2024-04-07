@@ -7,25 +7,14 @@
  */
 package paul.fallen.module.modules.movement;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.projectile.FireworkRocketEntity;
-import net.minecraft.network.play.client.CEntityActionPacket;
-import net.minecraft.network.play.client.CPlayerPacket;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 import paul.fallen.utils.client.MathUtils;
-import paul.fallen.utils.entity.EntityUtils;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public final class ElytraFlight extends Module {
 
@@ -39,9 +28,9 @@ public final class ElytraFlight extends Module {
         super(bind, name, displayName, category);
 
         ncp = new Setting("NCP", this, false);
-        upSpeed = new Setting("up-speed", "Up-Speed", this, 0.05F, (float) 0.005, 10.0F);
-        baseSpeed = new Setting("base-speed", "Base-Speed", this, 0.05F, 0.02F, 10.0F);
-        downSpeed = new Setting("down-speed", "Down-Speed", this, 0.05F, 0.002F, 10.0F);
+        upSpeed = new Setting("Up-Speed", this, 0.05F, (float) 0.005, 10.0F, false);
+        baseSpeed = new Setting("Base-Speed", this, 0.05F, 0.02F, 10.0F, false);
+        downSpeed = new Setting( "Down-Speed", this, 0.05F, 0.002F, 10.0F, false);
         ncpInterpolate = new Setting("NCP-Interpolate", this, false);
         addSetting(ncp);
         addSetting(upSpeed);
@@ -53,11 +42,11 @@ public final class ElytraFlight extends Module {
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
-             if (!ncp.bval) {
+             if (!ncp.getValBoolean()) {
                  if (mc.gameSettings.keyBindJump.isKeyDown()) {
-                     mc.player.setMotion(mc.player.getMotion().x, upSpeed.dval, mc.player.getMotion().z);
+                     mc.player.setMotion(mc.player.getMotion().x, upSpeed.getValDouble(), mc.player.getMotion().z);
                  } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
-                     mc.player.setMotion(mc.player.getMotion().x, -downSpeed.dval, mc.player.getMotion().z);
+                     mc.player.setMotion(mc.player.getMotion().x, -downSpeed.getValDouble(), mc.player.getMotion().z);
                  } else {
                      mc.player.setMotion(mc.player.getMotion().x, 0, mc.player.getMotion().z);
                  }
@@ -65,21 +54,21 @@ public final class ElytraFlight extends Module {
                  mc.gameSettings.keyBindRight.isKeyDown() ||
                  mc.gameSettings.keyBindBack.isKeyDown() ||
                  mc.gameSettings.keyBindLeft.isKeyDown()) {
-                     MathUtils.setSpeed(baseSpeed.dval);
+                     MathUtils.setSpeed(baseSpeed.getValDouble());
                  } else {
                      mc.player.setMotion(0, mc.player.getMotion().y, 0);
                  }
              } else {
-                 if (!ncpInterpolate.bval) {
+                 if (!ncpInterpolate.getValBoolean()) {
                      Vector3d vector3d = mc.player.getMotion();
 
                      if (mc.gameSettings.keyBindJump.isKeyDown()) {
-                         vector3d = mc.player.getMotion().add(0, upSpeed.dval, 0);
+                         vector3d = mc.player.getMotion().add(0, upSpeed.getValDouble(), 0);
                      } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
-                         vector3d = mc.player.getMotion().add(0, -downSpeed.dval, 0);
+                         vector3d = mc.player.getMotion().add(0, -downSpeed.getValDouble(), 0);
                      }
                      if (mc.gameSettings.keyBindForward.isKeyDown()) {
-                         double[] dir = MathUtils.directionSpeed(baseSpeed.dval);
+                         double[] dir = MathUtils.directionSpeed(baseSpeed.getValDouble());
                          vector3d = mc.player.getMotion().add(dir[0], 0, dir[1]);
                      }
 
@@ -113,18 +102,18 @@ public final class ElytraFlight extends Module {
 
                      // Interpolate upward motion
                      if (mc.gameSettings.keyBindJump.isKeyDown()) {
-                         Vector3d upMotion = new Vector3d(0, upSpeed.dval, 0);
+                         Vector3d upMotion = new Vector3d(0, upSpeed.getValDouble(), 0);
                          interpolatedMotion = interpolateMotion(interpolatedMotion, upMotion);
                      }
                      // Interpolate downward motion
                      else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
-                         Vector3d downMotion = new Vector3d(0, -downSpeed.dval, 0);
+                         Vector3d downMotion = new Vector3d(0, -downSpeed.getValDouble(), 0);
                          interpolatedMotion = interpolateMotion(interpolatedMotion, downMotion);
                      }
 
                      // Interpolate forward motion
                      if (mc.gameSettings.keyBindForward.isKeyDown()) {
-                         double[] dir = MathUtils.directionSpeed(baseSpeed.dval);
+                         double[] dir = MathUtils.directionSpeed(baseSpeed.getValDouble());
                          Vector3d forwardMotion = new Vector3d(dir[0], 0, dir[1]);
                          interpolatedMotion = interpolateMotion(interpolatedMotion, forwardMotion);
                      }

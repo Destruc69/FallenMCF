@@ -4,12 +4,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 import paul.fallen.utils.entity.EntityUtils;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class LongJump extends Module {
 
@@ -20,7 +17,7 @@ public class LongJump extends Module {
         super(bind, name, displayName, category);
 
         ncp = new Setting("NCP", this, false);
-        customSpeed = new Setting("CustomSpeed", "CustomSpeed", this, 0.3f, 0f, 1);
+        customSpeed = new Setting("CustomSpeed", this, 0.3f, 0f, 1, false);
         addSetting(ncp);
         addSetting(customSpeed);
     }
@@ -28,10 +25,10 @@ public class LongJump extends Module {
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         try {
-            if (ncp.bval) {
+            if (ncp.getValBoolean()) {
                 ncpLongJump();
             } else {
-                customLongJump(customSpeed.dval);
+                customLongJump(customSpeed.getValDouble());
             }
         } catch (Exception ignored) {
         }

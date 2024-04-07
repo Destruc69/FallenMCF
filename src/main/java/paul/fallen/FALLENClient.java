@@ -3,8 +3,10 @@ package paul.fallen;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import paul.fallen.clickgui.Clickgui;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import paul.fallen.clickgui.ClickGui;
 import paul.fallen.command.CommandManager;
 import paul.fallen.events.AutoJoin;
 import paul.fallen.events.GuiTweaks;
@@ -32,7 +34,7 @@ public class FALLENClient implements ClientSupport {
     private final CommandManager commandManager;
     private final MusicManager musicManager;
     private final WaypointManager waypointManager;
-    private final Clickgui clickgui;
+    private final ClickGui clickgui;
     private final IRC irc;
     private final Gson gson;
 
@@ -104,7 +106,7 @@ public class FALLENClient implements ClientSupport {
         this.settingManager.saveConfig(gson);
 
         Logger.log(LogState.Normal, "Initializing ImGui");
-        this.clickgui = new Clickgui();
+        this.clickgui = new ClickGui();
 
         Runtime.getRuntime().addShutdownHook(new Thread("Fallen Client shutdown thread") {
             public void run() {
@@ -155,7 +157,7 @@ public class FALLENClient implements ClientSupport {
         return this.waypointManager;
     }
 
-    public Clickgui getClickgui() {
+    public ClickGui getClickgui() {
         return this.clickgui;
     }
 

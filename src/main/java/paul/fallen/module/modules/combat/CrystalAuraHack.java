@@ -27,8 +27,8 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 import paul.fallen.utils.client.MathUtils;
 import paul.fallen.utils.entity.EntityUtils;
 import paul.fallen.utils.entity.InventoryUtils;
@@ -50,10 +50,10 @@ public class CrystalAuraHack extends Module {
     public CrystalAuraHack(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        range = new Setting("range", this, 4, 2, 6);
-        autoPlace = new Setting("autoPlace", "Auto-place crystals", this, true);
-        faceBlocks = new Setting("faceBlocks", "Face crystals", this, false);
-        tick = new Setting("tick", "Tick", this, 6, 1, 20);
+        range = new Setting("range", this, 4, 2, 6, true);
+        autoPlace = new Setting("Auto-place crystals", this, true);
+        faceBlocks = new Setting("Face crystals", this, false);
+        tick = new Setting("Tick", this, 6, 1, 20, true);
 
         addSetting(range);
         addSetting(autoPlace);
@@ -74,7 +74,7 @@ public class CrystalAuraHack extends Module {
                 return;
             }
 
-            if (!autoPlace.bval) return;
+            if (!autoPlace.getValBoolean()) return;
 
             assert mc.player != null;
             if (!mc.player.getHeldItemMainhand().getItem().equals(Items.END_CRYSTAL)) {
@@ -104,7 +104,7 @@ public class CrystalAuraHack extends Module {
             ArrayList<BlockPos> freeBlocks = getFreeBlocksNear(target);
 
             assert mc.player != null;
-            if (mc.player.ticksExisted % tick.dval == 0) {
+            if (mc.player.ticksExisted % tick.getValDouble() == 0) {
                 for (BlockPos pos : freeBlocks)
                     if (placeCrystal(pos)) {
                         shouldSwing = true;
@@ -125,7 +125,7 @@ public class CrystalAuraHack extends Module {
     private void detonate(ArrayList<Entity> crystals) {
         for (Entity e : crystals) {
             Vector3d toLook = new Vector3d(e.getBoundingBox().getCenter().x, e.getBoundingBox().getCenter().y, e.getBoundingBox().getCenter().z);
-            if (faceBlocks.bval) {
+            if (faceBlocks.getValBoolean()) {
                 float[] rot = RotationUtils.getYawAndPitch(toLook);
                 assert mc.player != null;
                 mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
@@ -144,7 +144,7 @@ public class CrystalAuraHack extends Module {
 
     private ArrayList<Entity> getNearbyCrystals() {
         PlayerEntity player = mc.player;
-        double rangeSq = Math.pow(range.dval, 2);
+        double rangeSq = Math.pow(range.getValDouble(), 2);
 
         Comparator<Entity> furthestFromPlayer = Comparator
                 .<Entity>comparingDouble(e -> {
@@ -171,7 +171,7 @@ public class CrystalAuraHack extends Module {
     }
 
     private ArrayList<Entity> getNearbyTargets() {
-        double rangeSq = Math.pow(range.dval, 2);
+        double rangeSq = Math.pow(range.getValDouble(), 2);
 
         assert mc.world != null;
         Stream<Entity> entityStream = StreamSupport.stream(mc.world.getAllEntities().spliterator(), false);
@@ -200,7 +200,7 @@ public class CrystalAuraHack extends Module {
 
     private ArrayList<BlockPos> getFreeBlocksNear(Entity target) {
         Vector3d eyesVec = mc.player.getEyePosition(mc.getRenderPartialTicks());
-        double rangeD = range.dval;
+        double rangeD = range.getValDouble();
         double rangeSq = Math.pow(rangeD + 0.5, 2);
         int rangeI = 2;
 
@@ -252,7 +252,7 @@ public class CrystalAuraHack extends Module {
     }
 
     private boolean placeCrystal(BlockPos pos) {
-        double rangeSq = Math.pow(range.dval, 2);
+        double rangeSq = Math.pow(range.getValDouble(), 2);
         Vector3d posVec = new Vector3d(pos.getX(), pos.getY(), pos.getZ());
         double distanceSqPosVec = MathUtils.getDistance(mc.player.getPositionVec().add(0, 1, 0), new Vector3d(posVec.x, posVec.y, posVec.z));
 

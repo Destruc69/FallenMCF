@@ -9,9 +9,8 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
-import paul.fallen.utils.entity.RotationUtils;
 import paul.fallen.utils.render.RenderUtils;
 import paul.fallen.utils.world.BlockUtils;
 
@@ -31,10 +30,10 @@ public class Nuker extends Module {
     public Nuker(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        x = new Setting("X", this, 2, 0, 5);
-        yMax = new Setting("Y-Max", this, 2, 0, 5);
-        yMin = new Setting("Y-Min", this, 0, 0, 5);
-        z = new Setting("Z", this, 2, 0, 5);
+        x = new Setting("X", this, 2, 0, 5, true);
+        yMax = new Setting("Y-Max", this, 2, 0, 5, true);
+        yMin = new Setting("Y-Min", this, 0, 0, 5, true);
+        z = new Setting("Z", this, 2, 0, 5, true);
 
         addSetting(x);
         addSetting(yMax);
@@ -71,11 +70,11 @@ public class Nuker extends Module {
 
         ArrayList<BlockPos> blockPosArrayList = new ArrayList<>();
 
-        for (int xi = (int) -x.dval; xi < x.dval; xi++) {
+        for (int xi = (int) -x.getValDouble(); xi < x.getValDouble(); xi++) {
             double posX = playerX + xi;
-            for (int y = (int) -yMin.dval; y < yMax.dval; y++) {
+            for (int y = (int) -yMin.getValDouble(); y < yMax.getValDouble(); y++) {
                 double posY = playerY + y;
-                for (int zi = (int) -z.dval; zi < z.dval; zi++) {
+                for (int zi = (int) -z.getValDouble(); zi < z.getValDouble(); zi++) {
                     double posZ = playerZ + zi;
                     BlockPos blockPos = new BlockPos(posX, posY, posZ);
                     blockPosArrayList.add(blockPos);

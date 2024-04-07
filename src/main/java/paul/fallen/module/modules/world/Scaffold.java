@@ -1,5 +1,6 @@
 package paul.fallen.module.modules.world;
 
+import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
@@ -14,26 +15,29 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 import paul.fallen.utils.entity.EntityUtils;
 import paul.fallen.utils.entity.PlayerControllerUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.Set;
 
 public final class Scaffold extends Module {
 
-    Setting rotationMode;
+    Setting mode;
     Setting swing;
     Setting tower;
 
     public Scaffold(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        rotationMode = new Setting("RotationMode", this, "a", new ArrayList<>(Arrays.asList("a", "b")));
+        mode = new Setting("Mode", this, "blatant", new ArrayList<>(Arrays.asList("blatant", "legit")));
         swing = new Setting("Swing", this, true);
         tower = new Setting("Tower", this, true);
+        addSetting(mode);
         addSetting(swing);
         addSetting(tower);
     }
@@ -46,55 +50,59 @@ public final class Scaffold extends Module {
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
-            Minecraft mc = Minecraft.getInstance();
-            assert mc.player != null;
-            BlockPos playerBlock = new BlockPos(mc.player.getPosX(), mc.player.getBoundingBox().minY, mc.player.getPosZ());
-            assert mc.world != null;
-            if (mc.world.isAirBlock(playerBlock.add(0, -1, 0))) {
-                if (isValidBlock(playerBlock.add(0, -2, 0))) {
-                    place(playerBlock.add(0, -1, 0), Direction.UP);
-                } else if (isValidBlock(playerBlock.add(-1, -1, 0))) {
-                    place(playerBlock.add(0, -1, 0), Direction.EAST);
-                } else if (isValidBlock(playerBlock.add(1, -1, 0))) {
-                    place(playerBlock.add(0, -1, 0), Direction.WEST);
-                } else if (isValidBlock(playerBlock.add(0, -1, -1))) {
-                    place(playerBlock.add(0, -1, 0), Direction.SOUTH);
-                } else if (isValidBlock(playerBlock.add(0, -1, 1))) {
-                    place(playerBlock.add(0, -1, 0), Direction.NORTH);
-                } else if (isValidBlock(playerBlock.add(1, -1, 1))) {
-                    if (isValidBlock(playerBlock.add(0, -1, 1))) {
-                        place(playerBlock.add(0, -1, 1), Direction.NORTH);
-                    }
-                    place(playerBlock.add(1, -1, 1), Direction.EAST);
-                } else if (isValidBlock(playerBlock.add(-1, -1, 1))) {
-                    if (isValidBlock(playerBlock.add(-1, -1, 0))) {
-                        place(playerBlock.add(0, -1, 1), Direction.WEST);
-                    }
-                    place(playerBlock.add(-1, -1, 1), Direction.SOUTH);
-                } else if (isValidBlock(playerBlock.add(-1, -1, -1))) {
-                    if (isValidBlock(playerBlock.add(0, -1, -1))) {
-                        place(playerBlock.add(0, -1, -1), Direction.SOUTH);
-                    }
-                    place(playerBlock.add(-1, -1, -1), Direction.WEST);
-                } else if (isValidBlock(playerBlock.add(1, -1, -1))) {
-                    if (isValidBlock(playerBlock.add(1, -1, 0))) {
-                        place(playerBlock.add(1, -1, 0), Direction.EAST);
-                    }
-                    place(playerBlock.add(1, -1, -1), Direction.NORTH);
-                }
-            }
-
-            if (tower.bval) {
-                if (mc.gameSettings.keyBindJump.isKeyDown()) {
-                    EntityUtils.setMotionX(0);
-                    EntityUtils.setMotionZ(0);
-                    if (!mc.player.isOnGround() && mc.player.getPosY() - Math.floor(mc.player.getPosY()) <= 0.1) {
-                        EntityUtils.setMotionY(0.41999998688697815);
+            if (Objects.equals(mode.getValString(), "legit")) {
+                mc.gameSettings.keyBindSneak.setPressed(mc.player.isOnGround() && mc.world.getBlockState(mc.player.getPosition().down()).getBlock().equals(Blocks.AIR));
+            } else {
+                Minecraft mc = Minecraft.getInstance();
+                assert mc.player != null;
+                BlockPos playerBlock = new BlockPos(mc.player.getPosX(), mc.player.getBoundingBox().minY, mc.player.getPosZ());
+                assert mc.world != null;
+                if (mc.world.isAirBlock(playerBlock.add(0, -1, 0))) {
+                    if (isValidBlock(playerBlock.add(0, -2, 0))) {
+                        place(playerBlock.add(0, -1, 0), Direction.UP);
+                    } else if (isValidBlock(playerBlock.add(-1, -1, 0))) {
+                        place(playerBlock.add(0, -1, 0), Direction.EAST);
+                    } else if (isValidBlock(playerBlock.add(1, -1, 0))) {
+                        place(playerBlock.add(0, -1, 0), Direction.WEST);
+                    } else if (isValidBlock(playerBlock.add(0, -1, -1))) {
+                        place(playerBlock.add(0, -1, 0), Direction.SOUTH);
+                    } else if (isValidBlock(playerBlock.add(0, -1, 1))) {
+                        place(playerBlock.add(0, -1, 0), Direction.NORTH);
+                    } else if (isValidBlock(playerBlock.add(1, -1, 1))) {
+                        if (isValidBlock(playerBlock.add(0, -1, 1))) {
+                            place(playerBlock.add(0, -1, 1), Direction.NORTH);
+                        }
+                        place(playerBlock.add(1, -1, 1), Direction.EAST);
+                    } else if (isValidBlock(playerBlock.add(-1, -1, 1))) {
+                        if (isValidBlock(playerBlock.add(-1, -1, 0))) {
+                            place(playerBlock.add(0, -1, 1), Direction.WEST);
+                        }
+                        place(playerBlock.add(-1, -1, 1), Direction.SOUTH);
+                    } else if (isValidBlock(playerBlock.add(-1, -1, -1))) {
+                        if (isValidBlock(playerBlock.add(0, -1, -1))) {
+                            place(playerBlock.add(0, -1, -1), Direction.SOUTH);
+                        }
+                        place(playerBlock.add(-1, -1, -1), Direction.WEST);
+                    } else if (isValidBlock(playerBlock.add(1, -1, -1))) {
+                        if (isValidBlock(playerBlock.add(1, -1, 0))) {
+                            place(playerBlock.add(1, -1, 0), Direction.EAST);
+                        }
+                        place(playerBlock.add(1, -1, -1), Direction.NORTH);
                     }
                 }
-            }
 
-            mc.gameSettings.keyBindSneak.setPressed(mc.player.isOnGround() && mc.world.isAirBlock(mc.player.getPosition().down()));
+                if (tower.getValBoolean()) {
+                    if (mc.gameSettings.keyBindJump.isKeyDown()) {
+                        EntityUtils.setMotionX(0);
+                        EntityUtils.setMotionZ(0);
+                        if (!mc.player.isOnGround() && mc.player.getPosY() - Math.floor(mc.player.getPosY()) <= 0.1) {
+                            EntityUtils.setMotionY(0.41999998688697815);
+                        }
+                    }
+                }
+
+                mc.gameSettings.keyBindSneak.setPressed(mc.player.isOnGround() && mc.world.isAirBlock(mc.player.getPosition().down()));
+            }
         } catch (Exception ignored) {
         }
     }
@@ -122,7 +130,7 @@ public final class Scaffold extends Module {
                     mc.player.inventory.currentItem = i;
                     //mc.playerController.processRightClickBlock(mc.player, mc.world, pos, face, new Vec3d(0.5D, 0.5D, 0.5D), EnumHand.MAIN_HAND);
                     mc.playerController.func_217292_a(mc.player, mc.world, Hand.MAIN_HAND, new BlockRayTraceResult(new Vector3d(0.5, 0.5, 0.5), face, pos, false));
-                    if (swing.bval) {
+                    if (swing.getValBoolean()) {
                         mc.player.swingArm(Hand.MAIN_HAND);
                     } else {
                         mc.player.connection.sendPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
@@ -132,55 +140,34 @@ public final class Scaffold extends Module {
                 }
             }
 
-            if (rotationMode.sval == "a") {
-                double var4 = pos.getX() + 0.25D - mc.player.getPosX();
-                double var6 = pos.getZ() + 0.25D - mc.player.getPosZ();
-                double var8 = pos.getY() + 0.25D - (mc.player.getPosY() + mc.player.getEyeHeight());
-                double var14 = MathHelper.sqrt(var4 * var4 + var6 * var6);
-                double yaw = (float) (Math.atan2(var6, var4) * 180.0D / Math.PI) - 90.0F;
-                double pitch = (float) -(Math.atan2(var8, var14) * 180.0D / Math.PI);
-                mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket((float) yaw, (float) pitch, mc.player.isOnGround()));
-            } else if (rotationMode.sval == "b") {
-                mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(getRotationsBlock(pos, face)[0], getRotationsBlock(pos, face)[1], mc.player.isOnGround()));
-            }
+            double var4 = pos.getX() + 0.25D - mc.player.getPosX();
+            double var6 = pos.getZ() + 0.25D - mc.player.getPosZ();
+            double var8 = pos.getY() + 0.25D - (mc.player.getPosY() + mc.player.getEyeHeight());
+            double var14 = MathHelper.sqrt(var4 * var4 + var6 * var6);
+            double yaw = (float) (Math.atan2(var6, var4) * 180.0D / Math.PI) - 90.0F;
+            double pitch = (float) -(Math.atan2(var8, var14) * 180.0D / Math.PI);
+            mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket((float) yaw, (float) pitch, mc.player.isOnGround()));
         }
 
         if (mc.player.getHeldItem(Hand.MAIN_HAND).getItem() instanceof BlockItem) {
             //mc.playerController.processRightClickBlock(mc.player, mc.world, pos, face, new Vec3d(0.5D, 0.5D, 0.5D), EnumHand.MAIN_HAND);
             PlayerControllerUtils.rightClickBlock(new Vector3d(0.5, 0.5, 0.5), face, pos);
             mc.playerController.func_217292_a(mc.player, mc.world, Hand.MAIN_HAND, new BlockRayTraceResult(new Vector3d(0.5, 0.5, 0.5), face, pos, false));
-            if (swing.bval) {
+            if (swing.getValBoolean()) {
                 mc.player.swingArm(Hand.MAIN_HAND);
             } else {
                 mc.player.connection.sendPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
             }
 
-            if (rotationMode.sval == "a") {
-                double var4 = pos.getX() + 0.25D - mc.player.getPosX();
-                double var6 = pos.getZ() + 0.25D - mc.player.getPosZ();
-                double var8 = pos.getY() + 0.25D - (mc.player.getPosY() + mc.player.getEyeHeight());
-                double var14 = MathHelper.sqrt(var4 * var4 + var6 * var6);
-                double yaw = (float) (Math.atan2(var6, var4) * 180.0D / Math.PI) - 90.0F;
-                double pitch = (float) -(Math.atan2(var8, var14) * 180.0D / Math.PI);
-                mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket((float) yaw, (float) pitch, mc.player.isOnGround()));
-            } else if (rotationMode.sval == "b") {
-                mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(getRotationsBlock(pos, face)[0], getRotationsBlock(pos, face)[1], mc.player.isOnGround()));
-            }
+            double var4 = pos.getX() + 0.25D - mc.player.getPosX();
+            double var6 = pos.getZ() + 0.25D - mc.player.getPosZ();
+            double var8 = pos.getY() + 0.25D - (mc.player.getPosY() + mc.player.getEyeHeight());
+            double var14 = MathHelper.sqrt(var4 * var4 + var6 * var6);
+            double yaw = (float) (Math.atan2(var6, var4) * 180.0D / Math.PI) - 90.0F;
+            double pitch = (float) -(Math.atan2(var8, var14) * 180.0D / Math.PI);
+            mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket((float) yaw, (float) pitch, mc.player.isOnGround()));
         }
-    }
 
-    public float[] getRotationsBlock(BlockPos block, Direction face) {
-        assert mc.player != null;
-        double x = (double) block.getX() + 0.5 - mc.player.getPosX() + (double) face.getXOffset() / 2.0;
-        double z = (double) block.getZ() + 0.5 - mc.player.getPosZ() + (double) face.getZOffset() / 2.0;
-        double y = (double) block.getY() + 0.5;
-        double d1 = mc.player.getPosY() + (double) mc.player.getEyeHeight() - y;
-        double d3 = MathHelper.sqrt(x * x + z * z);
-        float yaw = (float) (Math.atan2(z, x) * 180.0 / 3.141592653589793) - 90.0f;
-        float pitch = (float) (Math.atan2(d1, d3) * 180.0 / 3.141592653589793);
-        if (yaw < 0.0f) {
-            yaw += 360.0f;
-        }
-        return new float[]{yaw, pitch};
+        mc.player.renderYawOffset = mc.player.rotationYaw + 180;
     }
 }

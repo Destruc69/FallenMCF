@@ -3,9 +3,9 @@ package paul.fallen.module.modules.combat;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.network.play.client.CUseEntityPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
 import paul.fallen.packetevent.PacketEvent;
-import paul.fallen.setting.Setting;
 
 public class WTap extends Module {
 
@@ -14,7 +14,7 @@ public class WTap extends Module {
     public WTap(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        strength = new Setting("Strength", this, 1, 1, 20);
+        strength = new Setting("Strength", this, 1, 1, 20, true);
         addSetting(strength);
     }
 
@@ -29,7 +29,7 @@ public class WTap extends Module {
                     if (cPacketUseEntity.getEntityFromWorld(mc.world) != null) {
                         assert mc.player != null;
                         if (mc.player.isOnGround() && !mc.gameSettings.keyBindJump.isKeyDown()) {
-                            for (int i = 0; i < strength.dval; i++) {
+                            for (int i = 0; i < strength.getValDouble(); i++) {
                                 mc.player.connection.sendPacket(new CEntityActionPacket(mc.player, CEntityActionPacket.Action.STOP_SPRINTING));
                                 mc.player.connection.sendPacket(new CEntityActionPacket(mc.player, CEntityActionPacket.Action.START_SPRINTING));
                             }

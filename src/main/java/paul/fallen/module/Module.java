@@ -3,7 +3,7 @@ package paul.fallen.module;
 import net.minecraftforge.common.MinecraftForge;
 import paul.fallen.ClientSupport;
 import paul.fallen.FALLENClient;
-import paul.fallen.setting.Setting;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.utils.render.ColorUtils;
 
 public class Module implements ClientSupport {

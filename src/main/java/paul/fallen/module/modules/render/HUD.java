@@ -13,8 +13,8 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 import paul.fallen.FALLENClient;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 import paul.fallen.utils.render.UIUtils;
 
 import java.awt.*;
@@ -55,10 +55,10 @@ public class HUD extends Module {
 	public void onRenderHUD(RenderGameOverlayEvent.Post event) {
 		try {
 			if (event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
-				if (watermark.bval) {
-					drawText("Fallen", 2, 2, new Color(FALLENClient.INSTANCE.getClickgui().textRGB), 2);
+				if (watermark.getValBoolean()) {
+					drawText("Fallen", 2, 2, new Color(255, 255, 255), 2);
 				}
-				if (arrayList.bval) {
+				if (arrayList.getValBoolean()) {
 					ArrayList<Module> moduleArrayList = FALLENClient.INSTANCE.getModuleManager().getModulesForArrayList();
 					moduleArrayList.sort(new NameLengthComparator().reversed());
 
@@ -83,21 +83,21 @@ public class HUD extends Module {
 					}
 				}
 
-				if (coords.bval) {
+				if (coords.getValBoolean()) {
 					int screenWidth = mc.getMainWindow().getScaledWidth();
 					int screenHeight = mc.getMainWindow().getScaledHeight();
 					if (mc.world.getDimensionKey() == World.OVERWORLD || mc.world.getDimensionKey() == World.THE_END) {
 						double netherX = Math.round(mc.player.getPosX() / 8);
 						double netherZ = Math.round(mc.player.getPosZ() / 8);
-						drawText(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + netherX + "] " + " [" + netherZ + "]", screenWidth - 5 - mc.fontRenderer.getStringWidth(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + netherX + "] " + " [" + netherZ + "]"), screenHeight - 10, new Color(FALLENClient.INSTANCE.getClickgui().textRGB));
+						drawText(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + netherX + "] " + " [" + netherZ + "]", screenWidth - 5 - mc.fontRenderer.getStringWidth(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + netherX + "] " + " [" + netherZ + "]"), screenHeight - 10, new Color(255, 255, 255));
 					} else if (mc.world.getDimensionKey() == World.THE_NETHER) {
 						double overworldX = Math.round(mc.player.getPosX() * 8);
 						double overworldZ = Math.round(mc.player.getPosZ() * 8);
-						drawText(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + overworldX + "] " + " [" + overworldZ + "]", screenWidth - 5 - mc.fontRenderer.getStringWidth(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + overworldX + "] " + " [" + overworldZ + "]"), screenHeight - 10, new Color(FALLENClient.INSTANCE.getClickgui().textRGB));
+						drawText(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + overworldX + "] " + " [" + overworldZ + "]", screenWidth - 5 - mc.fontRenderer.getStringWidth(Math.round(mc.player.getPosX()) + " " + Math.round(mc.player.getPosY()) + " " + Math.round(mc.player.getPosZ()) + " [" + overworldX + "] " + " [" + overworldZ + "]"), screenHeight - 10, new Color(255, 255, 255));
 					}
 				}
 
-				if (radar.bval) {
+				if (radar.getValBoolean()) {
 					Minecraft mc = Minecraft.getInstance();
 					int screenWidth = mc.getMainWindow().getScaledWidth();
 
@@ -196,7 +196,7 @@ public class HUD extends Module {
 					int textWidth = mc.fontRenderer.getStringWidth(yawText);
 					int textX = arrowX - textWidth / 2;
 					int textY = lineY + markLength + 5; // Below the line marks
-					UIUtils.drawTextOnScreen(yawText, textX, textY, new Color(FALLENClient.INSTANCE.getClickgui().textRGB).getRGB());
+					UIUtils.drawTextOnScreen(yawText, textX, textY, new Color(255, 255, 255).getRGB());
 				}
 			}
 		} catch (Exception ignored) {

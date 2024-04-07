@@ -15,8 +15,8 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +30,7 @@ public class AutoEat extends Module {
     public AutoEat(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        mode = new Setting("mode", "Mode", this, "packet", new ArrayList<>(Arrays.asList("packet", "legit")));
+        mode = new Setting("Mode", this, "packet", new ArrayList<>(Arrays.asList("packet", "legit")));
         addSetting(mode);
 
         this.oldSlot = -1;
@@ -83,7 +83,7 @@ public class AutoEat extends Module {
                     return;
                 }
 
-                if (mode.sval == "legit") {
+                if (mode.getValString() == "legit") {
                     mc.player.inventory.currentItem = this.bestSlot;
                     mc.gameSettings.keyBindUseItem.setPressed(true);
                 } else {
@@ -114,7 +114,7 @@ public class AutoEat extends Module {
 
     private void stop() {
         try {
-            if (mode.sval == "legit") {
+            if (mode.getValString() == "legit") {
                 mc.gameSettings.keyBindUseItem.setPressed(false);
                 mc.player.inventory.currentItem = this.oldSlot;
             } else {

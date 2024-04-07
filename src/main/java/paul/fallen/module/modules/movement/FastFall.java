@@ -12,8 +12,8 @@ import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 import paul.fallen.utils.entity.EntityUtils;
 
 import java.util.ArrayList;
@@ -30,20 +30,20 @@ public final class FastFall extends Module {
         mode = new Setting("mode", this, "normal", new ArrayList<>(Arrays.asList("normal", "ncp")));
         addSetting(mode);
 
-        speed = new Setting("speed", "Speed", this, 0.1f, 0.05f, 10);
+        speed = new Setting("Speed", this, 0.1f, 0.05f, 10, false);
         addSetting(speed);
     }
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
-            if (mode.sval == "normal") {
+            if (mode.getValString() == "normal") {
                 assert mc.player != null;
                 if (mc.player.fallDistance > 1) {
-                    EntityUtils.setMotionY(-speed.dval);
+                    EntityUtils.setMotionY(-speed.getValDouble());
                 }
             }
-            if (mode.sval == "ncp") {
+            if (mode.getValString() == "ncp") {
                 assert mc.player != null;
                 if (mc.player.fallDistance > 1) {
                     assert mc.world != null;

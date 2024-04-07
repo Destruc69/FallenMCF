@@ -6,6 +6,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import paul.fallen.ClientSupport;
 import paul.fallen.FALLENClient;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
 import paul.fallen.utils.client.Logger;
 import paul.fallen.utils.client.Logger.LogState;
@@ -73,15 +74,12 @@ public class SettingManager implements ClientSupport {
                 map.put("isCheck", s.isCheck());
                 map.put("isSlider", s.isSlider());
                 map.put("isCombo", s.isCombo());
-                map.put("isColorPalette", s.isColorPalette());
                 if (s.isCombo()) {
                     map.put("value", s.getValString());
                 } else if (s.isCheck()) {
                     map.put("value", s.getValBoolean());
                 } else if (s.isSlider()) {
                     map.put("value", s.getValDouble());
-                } else if (s.isColorPalette()) {
-                    map.put("value", s.dval);
                 }
                 gson.toJson(map, writer);
                 Logger.log(LogState.Normal, "Wrote Json file!");

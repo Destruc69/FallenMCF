@@ -1,9 +1,9 @@
 package paul.fallen.command.impl.client;
 
 import paul.fallen.FALLENClient;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.command.Command;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 import paul.fallen.utils.client.ClientUtils;
 
 public class SettingCommand extends Command {

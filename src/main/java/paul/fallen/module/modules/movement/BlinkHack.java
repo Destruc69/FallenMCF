@@ -10,9 +10,9 @@ package paul.fallen.module.modules.movement;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
 import paul.fallen.packetevent.PacketEvent;
-import paul.fallen.setting.Setting;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -25,7 +25,7 @@ public final class BlinkHack extends Module {
 
     public BlinkHack(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        limit = new Setting("Limit", "Limit", this, 100, 20, 500);
+        limit = new Setting("Limit", this, 100, 20, 500, true);
         addSetting(limit);
     }
 
@@ -37,10 +37,10 @@ public final class BlinkHack extends Module {
 
     @SubscribeEvent
     public void onUpdate(TickEvent.ClientTickEvent event) {
-        if (limit.dval == 0)
+        if (limit.getValDouble() == 0)
             return;
 
-        if (packets.size() >= (int) limit.dval) {
+        if (packets.size() >= (int) limit.getValDouble()) {
             setState(false);
         }
     }

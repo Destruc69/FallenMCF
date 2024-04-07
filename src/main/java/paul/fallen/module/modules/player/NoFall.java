@@ -11,30 +11,18 @@ import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 
 public final class NoFall extends Module {
 
-    Setting alternative;
-
     public NoFall(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-
-        alternative = new Setting("Alternative", this, false);
-        addSetting(alternative);
     }
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
-            if (!alternative.bval) {
-                if (mc.player.fallDistance > 3) {
-                    mc.player.connection.sendPacket(new CPlayerPacket(true));
-                }
-            } else {
-                if (mc.player.fallDistance > 3) {
-                    mc.player.setOnGround(true);
-                }
+            if (mc.player.fallDistance > 3) {
+                mc.player.connection.sendPacket(new CPlayerPacket(true));
             }
         } catch (Exception ignored) {
         }

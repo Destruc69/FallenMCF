@@ -2,11 +2,8 @@ package paul.fallen.module.modules.render;
 
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class BodySpin extends Module {
 
@@ -24,7 +21,7 @@ public class BodySpin extends Module {
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         try {
-            if (!backward.bval) {
+            if (!backward.getValBoolean()) {
                 mc.player.renderYawOffset = yaw;
                 if (yaw + 1 <= 360) {
                     yaw++;

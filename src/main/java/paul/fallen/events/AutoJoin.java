@@ -59,7 +59,7 @@ public class AutoJoin {
                 int y = 10;
 
                 // Assuming UIUtils.drawTextOnScreen is defined elsewhere
-                UIUtils.drawTextOnScreen("Join selected server at hour: " + parsedHour, x, y, new Color(FALLENClient.INSTANCE.getClickgui().textRGB).getRGB());
+                UIUtils.drawTextOnScreen("Join selected server at hour: " + parsedHour, x, y, new Color(255, 255, 255).getRGB());
             }
         }
     }

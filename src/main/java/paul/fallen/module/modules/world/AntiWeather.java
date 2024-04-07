@@ -9,8 +9,8 @@ package paul.fallen.module.modules.world;
 
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 
 public final class AntiWeather extends Module {
 
@@ -26,7 +26,7 @@ public final class AntiWeather extends Module {
     @Override
     public void onDisable() {
         try {
-            if (opposite.bval) {
+            if (opposite.getValBoolean()) {
                 assert mc.world != null;
                 mc.world.rainingStrength = 0f;
                 mc.world.prevRainingStrength = 0f;
@@ -40,7 +40,7 @@ public final class AntiWeather extends Module {
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
-            if (!opposite.bval) {
+            if (!opposite.getValBoolean()) {
                 assert mc.world != null;
                 mc.world.rainingStrength = 0f;
                 mc.world.prevRainingStrength = 0f;

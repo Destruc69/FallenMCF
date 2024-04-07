@@ -18,8 +18,8 @@ import net.minecraft.item.SwordItem;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 
 public final class AutoTool extends Module {
     Setting useSwords;
@@ -40,8 +40,8 @@ public final class AutoTool extends Module {
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
-            equipBestTool(new BlockPos(mc.objectMouseOver.getHitVec().x, mc.objectMouseOver.getHitVec().y, mc.objectMouseOver.getHitVec().z), useSwords.bval,
-                    useHands.bval, repairMode.bval);
+            equipBestTool(new BlockPos(mc.objectMouseOver.getHitVec().x, mc.objectMouseOver.getHitVec().y, mc.objectMouseOver.getHitVec().z), useSwords.getValBoolean(),
+                    useHands.getValBoolean(), repairMode.getValBoolean());
         } catch (Exception ignored) {
         }
     }

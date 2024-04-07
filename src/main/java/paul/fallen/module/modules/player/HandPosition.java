@@ -10,9 +10,8 @@ package paul.fallen.module.modules.player;
 import net.minecraft.util.Hand;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import org.lwjgl.opengl.GL11;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 
 public final class HandPosition extends Module {
 
@@ -25,12 +24,12 @@ public final class HandPosition extends Module {
 
     public HandPosition(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        this.rightHandX = new Setting("rightHandX", "Right Hand X offset", this, 0.0f, -2.0f, 2.0f);
-        this.rightHandY = new Setting("rightHandY", "Right Hand Y offset", this, 0.0f, -2.0f, 2.0f);
-        this.rightHandZ = new Setting("rightHandZ", "Right Hand Z offset", this, 0.0f, -2.0f, 2.0f);
-        this.leftHandX = new Setting("leftHandX", "Left Hand X offset", this, 0.0f, -2.0f, 2.0f);
-        this.leftHandY = new Setting("leftHandY", "Left Hand Y offset", this, 0.0f, -2.0f, 2.0f);
-        this.leftHandZ = new Setting("leftHandZ", "Left Hand Z offset", this, 0.0f, -2.0f, 2.0f);
+        this.rightHandX = new Setting("Right Hand X offset", this, 0.0f, -2.0f, 2.0f, true);
+        this.rightHandY = new Setting("Right Hand Y offset", this, 0.0f, -2.0f, 2.0f, true);
+        this.rightHandZ = new Setting("Right Hand Z offset", this, 0.0f, -2.0f, 2.0f, true);
+        this.leftHandX = new Setting("Left Hand X offset", this, 0.0f, -2.0f, 2.0f, true);
+        this.leftHandY = new Setting("Left Hand Y offset", this, 0.0f, -2.0f, 2.0f, true);
+        this.leftHandZ = new Setting("Left Hand Z offset", this, 0.0f, -2.0f, 2.0f, true);
         addSetting(this.rightHandX);
         addSetting(this.rightHandY);
         addSetting(this.rightHandZ);
@@ -42,11 +41,11 @@ public final class HandPosition extends Module {
     @SubscribeEvent
     public void onRenderHand(RenderHandEvent event) {
         if (event.getHand() == Hand.MAIN_HAND) {
-            event.getMatrixStack().translate(rightHandX.dval, rightHandY.dval, rightHandZ.dval);
+            event.getMatrixStack().translate(rightHandX.getValDouble(), rightHandY.getValDouble(), rightHandZ.getValDouble());
         }
 
         if (event.getHand() == Hand.OFF_HAND) {
-            event.getMatrixStack().translate(leftHandX.dval, leftHandY.dval, leftHandZ.dval);
+            event.getMatrixStack().translate(leftHandX.getValDouble(), leftHandY.getValDouble(), leftHandZ.getValDouble());
         }
     }
 }

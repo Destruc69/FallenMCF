@@ -10,8 +10,8 @@ package paul.fallen.module.modules.movement;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +40,7 @@ public final class AutoSwimHack extends Module {
     }
 
     private double getUpwardsMotion() {
-        switch (mode.sval) {
+        switch (mode.getValString()) {
             case "Dolphin":
                 return 0.04;
             case "Fish":

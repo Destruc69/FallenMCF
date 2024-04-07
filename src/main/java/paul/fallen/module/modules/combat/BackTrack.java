@@ -8,9 +8,9 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
 import paul.fallen.packetevent.PacketEvent;
-import paul.fallen.setting.Setting;
 import paul.fallen.utils.render.RenderUtils;
 
 import java.util.ArrayDeque;
@@ -34,8 +34,8 @@ public class BackTrack extends Module {
     public BackTrack(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        amount = new Setting("Amount", this, 20, 1, 100);
-        forward = new Setting("Forward", this, 20, 1, 100);
+        amount = new Setting("Amount", this, 20, 1, 100, true);
+        forward = new Setting("Forward", this, 20, 1, 100, true);
         addSetting(amount);
         addSetting(forward);
     }
@@ -65,12 +65,12 @@ public class BackTrack extends Module {
 
             forwardPositions.clear();
             int i = 0;
-            while (forward.dval > forwardPositions.size()) {
+            while (forward.getValDouble() > forwardPositions.size()) {
                 i++;
                 forwardPositions.add(new Vector3d(target.getPosX() + deltaX * i, target.getPosY(), target.getPosZ() + deltaZ * i));
             }
 
-            while (pastPositions.size() > (int) amount.dval) {
+            while (pastPositions.size() > (int) amount.getValDouble()) {
                 pastPositions.remove(0);
             }
 
@@ -110,7 +110,7 @@ public class BackTrack extends Module {
             packets.add(p);
             event.setCanceled(true);
 
-            if ((int) amount.dval <= pastPositions.size()) {
+            if ((int) amount.getValDouble() <= pastPositions.size()) {
 
                 for (final IPacket thisPacket : packets) mc.player.connection.sendPacket(thisPacket);
 

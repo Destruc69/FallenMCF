@@ -7,16 +7,12 @@
  */
 package paul.fallen.module.modules.combat;
 
-import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.network.play.client.CUseEntityPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
 import paul.fallen.packetevent.PacketEvent;
-import paul.fallen.setting.Setting;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public final class Criticals extends Module {
 
@@ -30,7 +26,7 @@ public final class Criticals extends Module {
     }
 
     public void doCrits() {
-        if (neww.bval) {
+        if (neww.getValBoolean()) {
             mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX(), mc.player.getPosY() + 0.05000000074505806, mc.player.getPosZ(), false));
             mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX(), mc.player.getPosY(), mc.player.getPosZ(), false));
             mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX(), mc.player.getPosY() + 0.012511000037193298, mc.player.getPosZ(), false));

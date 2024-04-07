@@ -10,8 +10,8 @@ package paul.fallen.module.modules.movement;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityMountEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 
 import java.util.Objects;
 
@@ -24,8 +24,8 @@ public final class EntityFlight extends Module {
 
     public EntityFlight(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        upSpeed = new Setting("UpSpeed", "UpSpeed", this, 0.1f, 0.05f, 10);
-        downSpeed = new Setting("DownSpeed", "DownSpeed", this, 0.1f, 0.05f, 10);
+        upSpeed = new Setting("UpSpeed", this, 0.1f, 0.05f, 10, false);
+        downSpeed = new Setting("DownSpeed", this, 0.1f, 0.05f, 10, false);
         bypass = new Setting("Bypass", this, false);
         velocity = new Setting("Velocity", this, false);
         addSetting(upSpeed);
@@ -40,20 +40,20 @@ public final class EntityFlight extends Module {
             assert mc.player != null;
             if (mc.player.getRidingEntity() != null) {
                 if (Objects.requireNonNull(mc.player.getRidingEntity()).isAlive()) {
-                    if (!bypass.bval) {
+                    if (!bypass.getValBoolean()) {
                         assert mc.player.getRidingEntity() != null;
                         if (mc.gameSettings.keyBindJump.isKeyDown()) {
-                            Objects.requireNonNull(mc.player.getRidingEntity()).setMotion(Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().x, Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().y + upSpeed.dval, Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().z);
+                            Objects.requireNonNull(mc.player.getRidingEntity()).setMotion(Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().x, Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().y + upSpeed.getValDouble(), Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().z);
                         } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
-                            Objects.requireNonNull(mc.player.getRidingEntity()).setMotion(Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().x, Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().y - downSpeed.dval, Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().z);
+                            Objects.requireNonNull(mc.player.getRidingEntity()).setMotion(Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().x, Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().y - downSpeed.getValDouble(), Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().z);
                         }
                     } else {
                         if (mc.player.ticksExisted % 5 == 0) {
                             assert mc.player.getRidingEntity() != null;
                             if (mc.gameSettings.keyBindJump.isKeyDown()) {
-                                Objects.requireNonNull(mc.player.getRidingEntity()).setMotion(Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().x, Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().y + upSpeed.dval, Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().z);
+                                Objects.requireNonNull(mc.player.getRidingEntity()).setMotion(Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().x, Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().y + upSpeed.getValDouble(), Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().z);
                             } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
-                                Objects.requireNonNull(mc.player.getRidingEntity()).setMotion(Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().x, Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().y - downSpeed.dval, Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().z);
+                                Objects.requireNonNull(mc.player.getRidingEntity()).setMotion(Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().x, Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().y - downSpeed.getValDouble(), Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().z);
                             }
                         } else {
                             if (mc.gameSettings.keyBindJump.isKeyDown()) {
@@ -61,7 +61,7 @@ public final class EntityFlight extends Module {
                             }
                         }
                     }
-                    if (velocity.bval) {
+                    if (velocity.getValBoolean()) {
                         if (!mc.gameSettings.keyBindJump.isKeyDown() && !mc.gameSettings.keyBindSneak.isKeyDown()) {
                             mc.player.getRidingEntity().setMotion(mc.player.getRidingEntity().getMotion().x, 0.04, mc.player.getRidingEntity().getMotion().z);
                         }

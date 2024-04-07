@@ -110,11 +110,11 @@ public class AStarCustomPathFinder {
         BlockPos block1 = new BlockPos(x, y, z);
         BlockPos block2 = new BlockPos(x, y + 1, z);
         BlockPos block3 = new BlockPos(x, y - 1, z);
-        if (FALLENClient.INSTANCE.getModuleManager().pathfinder.type.sval == "ground") {
+        //if (FALLENClient.INSTANCE.getModuleManager().pathfinder.type.sval == "ground") {
             return !isBlockSolid(block1) && !isBlockSolid(block2) && (isBlockSolid(block3) || !checkGround) && isSafeToWalkOn(block3);
-        } else {
-            return !isBlockSolid(block1) && !isBlockSolid(block2) && !isBlockSolid(block3);
-        }
+        //} else {
+        //    return !isBlockSolid(block1) && !isBlockSolid(block2) && !isBlockSolid(block3);
+        //}
     }
 
     private static boolean isBlockSolid(BlockPos block) {
@@ -336,7 +336,7 @@ public class AStarCustomPathFinder {
     public void move() {
         Minecraft mc = Minecraft.getInstance();
         double[] m = calculateMotion(this.getPath(), Math.toRadians(mc.player.rotationYaw), mc.player.isSprinting() ? 0.26 : 0.2);
-        if (FALLENClient.INSTANCE.getModuleManager().pathfinder.type.sval == "ground") {
+        //if (FALLENClient.INSTANCE.getModuleManager().pathfinder.type.sval == "ground") {
             mc.player.setMotion(m[0], mc.player.getMotion().y, m[1]);
 
             if (getTargetPosition(this.getPath()).y > mc.player.getPosY()) {
@@ -344,14 +344,14 @@ public class AStarCustomPathFinder {
                     mc.player.jump();
                 }
             }
-        } else {
-            if (getTargetPosition(this.getPath()).y > mc.player.getPosY()) {
-                mc.player.setMotion(mc.player.getMotion().x, 1, mc.player.getMotion().z);
-            } else if (getTargetPosition(this.getPath()).y < mc.player.getPosY()) {
-                mc.player.setMotion(mc.player.getMotion().x, -1, mc.player.getMotion().z);
-            } else {
-                mc.player.setMotion(m[0], 0, m[1]);
-            }
-        }
+        //} else {
+        //    if (getTargetPosition(this.getPath()).y > mc.player.getPosY()) {
+        //        mc.player.setMotion(mc.player.getMotion().x, 1, mc.player.getMotion().z);
+        //    } else if (getTargetPosition(this.getPath()).y < mc.player.getPosY()) {
+        //        mc.player.setMotion(mc.player.getMotion().x, -1, mc.player.getMotion().z);
+        //    } else {
+        //       mc.player.setMotion(m[0], 0, m[1]);
+        //    }
+        //}
     }
 }

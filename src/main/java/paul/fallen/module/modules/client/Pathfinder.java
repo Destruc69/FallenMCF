@@ -1,7 +1,7 @@
 package paul.fallen.module.modules.client;
 
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -11,8 +11,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.Hand;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 
 public final class AutoMount extends Module {
 
@@ -22,8 +22,8 @@ public final class AutoMount extends Module {
     public AutoMount(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        maxDistance = new Setting("MaxDistance", this, 4, 2, 6);
-        delay = new Setting("Delay", this, 10, 2, 10);
+        maxDistance = new Setting("MaxDistance", this, 4, 2, 6, true);
+        delay = new Setting("Delay", this, 10, 2, 10, true);
         addSetting(maxDistance);
         addSetting(delay);
     }
@@ -36,8 +36,8 @@ public final class AutoMount extends Module {
                 assert mc.world != null;
                 for (Entity entity : mc.world.getAllEntities()) {
                     if (entity != null && entity != mc.player && entity.isAlive()) {
-                        if (mc.player.getDistance(entity) <= maxDistance.dval) {
-                            if (mc.player.ticksExisted % delay.dval == 0) {
+                        if (mc.player.getDistance(entity) <= maxDistance.getValDouble()) {
+                            if (mc.player.ticksExisted % delay.getValDouble() == 0) {
                                 assert mc.playerController != null;
                                 mc.playerController.interactWithEntity(mc.player, entity, Hand.MAIN_HAND);
                                 mc.player.swingArm(Hand.MAIN_HAND);

@@ -10,8 +10,8 @@ package paul.fallen.module.modules.movement;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 import paul.fallen.utils.client.MathUtils;
 import paul.fallen.utils.entity.EntityUtils;
 
@@ -24,7 +24,7 @@ public final class EntitySpeed extends Module {
 
     public EntitySpeed(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        speed = new Setting("Speed", "Speed",  this, 0.1f, 0.05f, 10);
+        speed = new Setting("Speed",  this, 0.1f, 0.05f, 10, false);
         bypass = new Setting("Bypass", this, false);
         addSetting(speed);
         addSetting(bypass);
@@ -36,14 +36,14 @@ public final class EntitySpeed extends Module {
             assert mc.player != null;
             if (mc.player.getRidingEntity() != null) {
                 if (Objects.requireNonNull(mc.player.getRidingEntity()).isAlive()) {
-                    if (!bypass.bval) {
-                        double[] dir = MathUtils.directionSpeed(speed.dval);
+                    if (!bypass.getValBoolean()) {
+                        double[] dir = MathUtils.directionSpeed(speed.getValDouble());
                         assert mc.player.getRidingEntity() != null;
                         EntityUtils.setEMotionX(mc.player.getRidingEntity(), dir[0]);
                         EntityUtils.setEMotionZ(mc.player.getRidingEntity(), dir[1]);
                     } else {
                         if (mc.player.ticksExisted % 5 == 0) {
-                            double[] dir = MathUtils.directionSpeed(speed.dval - Math.random() * 0.02);
+                            double[] dir = MathUtils.directionSpeed(speed.getValDouble() - Math.random() * 0.02);
                             assert mc.player.getRidingEntity() != null;
                             EntityUtils.setEMotionX(mc.player.getRidingEntity(), dir[0]);
                             EntityUtils.setEMotionZ(mc.player.getRidingEntity(), dir[1]);

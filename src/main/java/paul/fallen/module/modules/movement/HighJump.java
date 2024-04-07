@@ -9,8 +9,8 @@ package paul.fallen.module.modules.movement;
 
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 import paul.fallen.utils.entity.EntityUtils;
 
 public final class HighJump extends Module {
@@ -21,7 +21,7 @@ public final class HighJump extends Module {
     public HighJump(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        speed = new Setting("speed", "Speed", this, 0.2f, 0.1f, 5.0f);
+        speed = new Setting("Speed", this, 0.2f, 0.1f, 5.0f, false);
         addSetting(speed);
     }
 
@@ -31,7 +31,7 @@ public final class HighJump extends Module {
             assert mc.player != null;
             if (mc.player.getMotion().y > 0) {
                 if (!a) {
-                    EntityUtils.setMotionY(speed.dval);
+                    EntityUtils.setMotionY(speed.getValDouble());
                     a = true;
                 }
             } else {

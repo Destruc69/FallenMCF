@@ -120,7 +120,6 @@ public class ModuleManager implements ClientSupport {
 		addModule(new PlayerEspHack(0, "PlayerESP", "PlayerESP", Category.Render));
 		addModule(new WaypointModule(0, "Waypoint", "Waypoint", Category.Render));
 		addModule(new HeadRoll(0, "HeadRoll", "HeadRoll", Category.Render));
-		addModule(new Chams(0, "Chams", "Chams", Category.Render));
 		addModule(new BodySpin(0, "BodySpin", "BodySpin", Category.Render));
 
 		addModule(new FakePlayer(0, "FakePlayer", "FakePlayer", Category.World));
@@ -133,36 +132,6 @@ public class ModuleManager implements ClientSupport {
 		addModule(new AutoHighway(0, "AutoHighway", "AutoHighway", Category.World));
 		addModule(new OverKill(0, "OverKill", "OverKill", Category.World));
 		addModule(new FastBreak(0, "FastBreak", "FastBreak", Category.World));
-	}
-
-	@SubscribeEvent
-	public void onTickEvent(TickEvent event) {
-
-		//
-		//  For ClickGUI
-		//
-
-		try {
-			FALLENClient.INSTANCE.getClickgui().primary = (int) FALLENClient.INSTANCE.getModuleManager().clickGuiHack.primary.dval;
-			FALLENClient.INSTANCE.getClickgui().secondary = (int) FALLENClient.INSTANCE.getModuleManager().clickGuiHack.secondary.dval;
-			FALLENClient.INSTANCE.getClickgui().textRGB = (int) FALLENClient.INSTANCE.getModuleManager().clickGuiHack.text.dval;
-			FALLENClient.INSTANCE.getClickgui().gradient = FALLENClient.INSTANCE.getModuleManager().clickGuiHack.gradient.bval;
-			FALLENClient.INSTANCE.getClickgui().primaryG = (int) FALLENClient.INSTANCE.getModuleManager().clickGuiHack.primaryG.dval;
-			FALLENClient.INSTANCE.getClickgui().secondaryG = (int) FALLENClient.INSTANCE.getModuleManager().clickGuiHack.secondaryG.dval;
-			FALLENClient.INSTANCE.getClickgui().lineNetwork = FALLENClient.INSTANCE.getModuleManager().clickGuiHack.networkLines.bval;
-			FALLENClient.INSTANCE.getCommandManager().prefix = FALLENClient.INSTANCE.getModuleManager().clickGuiHack.prefix.sval == "minus" ? "-" : ".";
-
-			// Set to default
-			if (FALLENClient.INSTANCE.getClickgui().primary == FALLENClient.INSTANCE.getClickgui().secondary) {
-				//FALLENClient.INSTANCE.getSettingManager().getSettingByName("primary", FALLENClient.INSTANCE.getModuleManager().clickGuiHack).setValDouble(new Color(100, 0, 255).getRGB());
-				//FALLENClient.INSTANCE.getSettingManager().getSettingByName("secondary", FALLENClient.INSTANCE.getModuleManager().clickGuiHack).setValDouble(new Color(45, 0, 255).getRGB());
-
-				FALLENClient.INSTANCE.getModuleManager().clickGuiHack.primary.setValDouble(new Color(100, 0, 255).getRGB());
-				FALLENClient.INSTANCE.getModuleManager().clickGuiHack.secondary.setValDouble(new Color(45, 0, 255).getRGB());
-
-			}
-		} catch (Exception ignored) {
-		}
 	}
 
 	public ArrayList<Module> getModules() {
@@ -254,10 +223,12 @@ public class ModuleManager implements ClientSupport {
 
 	@SubscribeEvent
 	public void onKeyPress(InputEvent.KeyInputEvent event) {
-		if (event.getAction() == GLFW.GLFW_PRESS) { // Check if the key is pressed, not released
-			for (Module m : this.modules) {
-				if (event.getKey() == m.getBind() && !(mc.currentScreen instanceof ChatScreen)) {
-					m.setState(!m.getState());
+		if (mc.currentScreen != FALLENClient.INSTANCE.getClickgui()) {
+			if (event.getAction() == GLFW.GLFW_PRESS) { // Check if the key is pressed, not released
+				for (Module m : this.modules) {
+					if (event.getKey() == m.getBind() && !(mc.currentScreen instanceof ChatScreen)) {
+						m.setState(!m.getState());
+					}
 				}
 			}
 		}

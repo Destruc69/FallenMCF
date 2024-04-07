@@ -15,8 +15,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 import paul.fallen.utils.entity.PlayerUtils;
 
 import java.util.List;
@@ -33,12 +33,12 @@ public class CrystalAuraReWrite extends Module {
     public CrystalAuraReWrite(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        breakTicks = new Setting("BreakTicks", this, 10, 1, 20);
-        placeTicks = new Setting("PlaceTicks", this, 10, 1, 20);
+        breakTicks = new Setting("BreakTicks", this, 10, 1, 20, true);
+        placeTicks = new Setting("PlaceTicks", this, 10, 1, 20, true);
 
-        maxDistance = new Setting("MaxDistance", this, 5, 3, 6);
-        minDamage = new Setting("MinDamage", this, 2, 10, 0);
-        maxDamageSelf = new Setting("MaxDamageSelf", this, 6, 0, 10);
+        maxDistance = new Setting("MaxDistance", this, 5, 3, 6, true);
+        minDamage = new Setting("MinDamage", this, 2, 10, 0, true);
+        maxDamageSelf = new Setting("MaxDamageSelf", this, 6, 0, 10, true);
 
         addSetting(breakTicks);
         addSetting(placeTicks);
@@ -51,10 +51,10 @@ public class CrystalAuraReWrite extends Module {
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
-            if (mc.player.ticksExisted % placeTicks.dval == 0) {
+            if (mc.player.ticksExisted % placeTicks.getValDouble() == 0) {
                 placeCrystal();
             }
-            if (mc.player.ticksExisted % breakTicks.dval == 0) {
+            if (mc.player.ticksExisted % breakTicks.getValDouble() == 0) {
                 breakCrystal();
             }
         } catch (Exception ignored) {
@@ -67,17 +67,17 @@ public class CrystalAuraReWrite extends Module {
         for(Entity e: mc.world.getAllEntities()) {
             if(!(e instanceof EnderCrystalEntity)) continue;
             EnderCrystalEntity c = (EnderCrystalEntity) e;
-            if(mc.player.getDistance(e) > maxDistance.dval) continue;
+            if(mc.player.getDistance(e) > maxDistance.getValDouble()) continue;
             if(!c.isAlive()) continue;
             for(Entity e2: mc.world.getAllEntities()) {
                 if(!(e2 instanceof PlayerEntity) || e2 == mc.player) continue;
                 PlayerEntity pe = (PlayerEntity) e2;
-                if(mc.player.getDistance(pe) > maxDistance.dval) continue;
+                if(mc.player.getDistance(pe) > maxDistance.getValDouble()) continue;
                 if(!pe.isAlive() || pe.getHealth() <= 0) continue;
                 double targetDamage = PlayerUtils.calculateCrystalDamage(c, pe);
-                if(targetDamage < minDamage.dval) continue;
+                if(targetDamage < minDamage.getValDouble()) continue;
                 double selfDamage = PlayerUtils.calculateCrystalDamage(c, mc.player);
-                if(selfDamage > maxDamageSelf.dval) continue;
+                if(selfDamage > maxDamageSelf.getValDouble()) continue;
                 if(targetDamage > bestDamage) {
                     bestDamage = targetDamage;
                     bestCrystal = c;
@@ -90,16 +90,16 @@ public class CrystalAuraReWrite extends Module {
     public BlockPos getBestBlock() {
         double bestDamage = 0;
         BlockPos bestBlock = null;
-        List<BlockPos> blocks = PlayerUtils.possiblePlacePositions((float) maxDistance.dval, true, true);
+        List<BlockPos> blocks = PlayerUtils.possiblePlacePositions((float) maxDistance.getValDouble(), true, true);
         for(Entity e: mc.world.getAllEntities()) {
             if(!(e instanceof PlayerEntity) || e == mc.player) continue;
             PlayerEntity pe = (PlayerEntity) e;
             for(BlockPos block: blocks) {
-                if(pe.getDistance(mc.player) > maxDistance.dval) continue;
+                if(pe.getDistance(mc.player) > maxDistance.getValDouble()) continue;
                 double targetDamage = PlayerUtils.calculateCrystalDamage(block.getX() + 0.5, block.getY() + 1, block.getZ() + 0.5, pe);
-                if(targetDamage < minDamage.dval) continue;
+                if(targetDamage < minDamage.getValDouble()) continue;
                 double selfDamage = PlayerUtils.calculateCrystalDamage(block.getX() + 0.5, block.getY() + 1, block.getZ() + 0.5, mc.player);
-                if(selfDamage > maxDamageSelf.dval) continue;
+                if(selfDamage > maxDamageSelf.getValDouble()) continue;
                 if(targetDamage > bestDamage) {
                     bestDamage = targetDamage;
                     bestBlock = block;

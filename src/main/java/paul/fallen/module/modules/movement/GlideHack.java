@@ -9,8 +9,8 @@ package paul.fallen.module.modules.movement;
 
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 import paul.fallen.utils.entity.EntityUtils;
 
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ public final class GlideHack extends Module {
     public GlideHack(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        mode = new Setting("mode", "Mode", this, "normal",
+        mode = new Setting("Mode", this, "normal",
                 new ArrayList<>(Arrays.asList("normal", "aac", "vulcan")));
         addSetting(mode);
     }
@@ -30,13 +30,13 @@ public final class GlideHack extends Module {
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
-            if (mode.sval == "normal") {
+            if (mode.getValString() == "normal") {
                 assert mc.player != null;
                 if (mc.player.fallDistance > 1) {
                     EntityUtils.setMotionY(-mc.player.getMotion().y / -1.35);
                 }
             }
-            if (mode.sval == "aac") {
+            if (mode.getValString() == "aac") {
                 assert mc.player != null;
                 if (mc.player.getMotion().y > 0) {
                     EntityUtils.setMotionY(mc.player.getMotion().y / 0.9800000190734863);
@@ -45,7 +45,7 @@ public final class GlideHack extends Module {
                     mc.player.jumpMovementFactor = 0.03625f;
                 }
             }
-            if (mode.sval == "vulcan") {
+            if (mode.getValString() == "vulcan") {
                 assert mc.player != null;
                 if (mc.player.getMotion().y <= -0.10) {
                     if (mc.player.ticksExisted % 2 == 0) {

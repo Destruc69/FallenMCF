@@ -21,9 +21,9 @@ import net.minecraft.network.play.client.CClickWindowPacket;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
 import paul.fallen.packetevent.PacketEvent;
-import paul.fallen.setting.Setting;
 import paul.fallen.utils.entity.PlayerControllerUtils;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public final class AutoArmorHack extends Module {
 
         useEnchantements = new Setting("UseEnchantements", this, true);
         swapWhileMoving = new Setting("SwapWhileMoving", this, true);
-        delay = new Setting("Delay", "Delay", this, 10, 2, 50);
+        delay = new Setting("Delay", this, 10, 2, 50, true);
 
         addSetting(useEnchantements);
         addSetting(swapWhileMoving);
@@ -70,7 +70,7 @@ public final class AutoArmorHack extends Module {
             PlayerEntity player = mc.player;
             PlayerInventory inventory = player.inventory;
 
-            if (!swapWhileMoving.bval
+            if (!swapWhileMoving.getValBoolean()
                     && (player.moveForward != 0
                     || player.moveStrafing != 0))
                 return;
@@ -144,7 +144,7 @@ public final class AutoArmorHack extends Module {
     @SubscribeEvent
     public void onPacketOutput(PacketEvent event) {
         if (event.getPacket() instanceof CClickWindowPacket)
-            timer = (int) delay.dval;
+            timer = (int) delay.getValDouble();
     }
 
     private int getArmorValue(ArmorItem item, ItemStack stack) {
@@ -154,7 +154,7 @@ public final class AutoArmorHack extends Module {
         int armorType = item.getArmorMaterial()
                 .getDamageReductionAmount(EquipmentSlotType.LEGS);
 
-        if (useEnchantements.bval) {
+        if (useEnchantements.getValBoolean()) {
             Enchantment protection = Enchantments.PROTECTION;
             int prtLvl =
                     EnchantmentHelper.getEnchantmentLevel(protection, stack);

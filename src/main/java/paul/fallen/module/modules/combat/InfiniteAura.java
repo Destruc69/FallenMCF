@@ -10,10 +10,10 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
 import paul.fallen.packetevent.PacketEvent;
 import paul.fallen.pathfinder.AStarCustomPathFinder;
-import paul.fallen.setting.Setting;
 import paul.fallen.utils.entity.RotationUtils;
 import paul.fallen.utils.render.RenderUtils;
 
@@ -98,7 +98,7 @@ public class InfiniteAura extends Module {
     @SubscribeEvent
     public void onPacket(PacketEvent event) {
         try {
-            if (antiTP.bval) {
+            if (antiTP.getValBoolean()) {
                 if (event.getPacket() instanceof SPlayerPositionLookPacket) {
                     event.setCanceled(true);
                 }

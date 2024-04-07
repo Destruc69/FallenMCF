@@ -10,9 +10,9 @@ package paul.fallen.module.modules.movement;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
 import paul.fallen.packetevent.PacketEvent;
-import paul.fallen.setting.Setting;
 import paul.fallen.utils.client.MathUtils;
 
 public final class AntiHunger extends Module {
@@ -29,7 +29,7 @@ public final class AntiHunger extends Module {
 
     @Override
     public void onEnable() {
-        if (cancelSprintPacket.bval) {
+        if (cancelSprintPacket.getValBoolean()) {
             try {
                 assert mc.player != null;
                 if (mc.player.isSprinting()) {
@@ -42,14 +42,14 @@ public final class AntiHunger extends Module {
 
     @SubscribeEvent
     public void onPacketOut(PacketEvent event) {
-        if (cancelSprintPacket.bval && event.getPacket() instanceof CEntityActionPacket) {
+        if (cancelSprintPacket.getValBoolean() && event.getPacket() instanceof CEntityActionPacket) {
             CEntityActionPacket cPacketEntityAction = (CEntityActionPacket) event.getPacket();
             if (cPacketEntityAction.getAction().equals(CEntityActionPacket.Action.START_SPRINTING) || cPacketEntityAction.getAction().equals(CEntityActionPacket.Action.STOP_SPRINTING)) {
                 event.setCanceled(true);
             }
         }
 
-        if (groundSpoof.bval && event.getPacket() instanceof CPlayerPacket) {
+        if (groundSpoof.getValBoolean() && event.getPacket() instanceof CPlayerPacket) {
             CPlayerPacket oldPacket = (CPlayerPacket) event.getPacket();
 
             double x = oldPacket.getX(-1);

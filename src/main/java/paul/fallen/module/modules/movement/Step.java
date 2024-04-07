@@ -6,8 +6,8 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,9 +62,9 @@ public final class Step extends Module {
 
             if (mc.player.collidedHorizontally && mc.player.isOnGround() && mc.player.fallDistance == 0.0f && !mc.player.isOnLadder() && !mc.player.movementInput.jump) {
                 if (!b) {
-                    if (mode.sval == "ncp") {
+                    if (mode.getValString() == "ncp") {
                         ncpStep(stepHeight);
-                    } else if (mode.sval == "aac") {
+                    } else if (mode.getValString() == "aac") {
                         aacStep(stepHeight);
                     }
                     b = true;

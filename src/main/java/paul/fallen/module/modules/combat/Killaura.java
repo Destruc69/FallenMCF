@@ -14,8 +14,8 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 import paul.fallen.utils.entity.RotationUtils;
 
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public final class Killaura extends Module {
         super(bind, name, displayName, category);
 
         strictRotation = new Setting("StrictRotation", this, false);
-        distancee = new Setting("Distance", this, 4, 1, 6);
+        distancee = new Setting("Distance", this, 4, 1, 6, true);
         addSetting(strictRotation);
         addSetting(distancee);
     }
@@ -54,8 +54,8 @@ public final class Killaura extends Module {
             if (entity != null) {
                 float[] rot = RotationUtils.getYawAndPitch(entity.getBoundingBox().getCenter());
                 assert mc.player != null;
-                if (!strictRotation.bval) {
-                    if (mc.player.ticksExisted % 10 == 0) {
+                if (!strictRotation.getValBoolean()) {
+                    if (mc.player.ticksExisted % 10 + Math.round(Math.random() * 2) - Math.round(Math.random() * 2) == 0) {
                         mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
                         mc.playerController.attackEntity(mc.player, entity);
                         mc.player.swingArm(Hand.MAIN_HAND);
@@ -63,7 +63,7 @@ public final class Killaura extends Module {
                         mc.player.rotationYawHead = rot[0];
                         mc.player.renderYawOffset = rot[0];
                     }
-                } else if (strictRotation.bval) {
+                } else if (strictRotation.getValBoolean()) {
                     interpolateRotation(rot[0], rot[1]);
                     mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(currentStrictYaw, currentStrictPitch, mc.player.isOnGround()));
 
@@ -71,7 +71,7 @@ public final class Killaura extends Module {
                     mc.player.renderYawOffset = currentStrictYaw;
 
                     if (Math.round(currentStrictYaw) == Math.round(rot[0]) && Math.round(currentStrictPitch) == Math.round(rot[1])) {
-                        if (mc.player.ticksExisted % 10 == 0) {
+                        if (mc.player.ticksExisted % 10 + Math.round(Math.random() * 2) - Math.round(Math.random() * 2) == 0) {
                             mc.playerController.attackEntity(mc.player, entity);
                             mc.player.swingArm(Hand.MAIN_HAND);
                         }
@@ -111,7 +111,7 @@ public final class Killaura extends Module {
             }
         }
         if (closestEntity != null && mc.player != null) { // Removed assertion for closestEntity not being null
-            if (mc.player.getDistance(closestEntity) <= distancee.dval) {
+            if (mc.player.getDistance(closestEntity) <= distancee.getValDouble()) {
                 return closestEntity;
             }
         }

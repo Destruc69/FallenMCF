@@ -1,13 +1,9 @@
 package paul.fallen.module.modules.movement;
 
-import net.minecraft.client.renderer.debug.CollisionBoxDebugRenderer;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
-import paul.fallen.utils.client.ClientUtils;
 import paul.fallen.utils.client.MathUtils;
 
 public final class Speed extends Module {
@@ -39,7 +35,7 @@ public final class Speed extends Module {
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
             mc.gameSettings.keyBindSprint.setPressed(true);
-            if (ncp.bval) {
+            if (ncp.getValBoolean()) {
                 if (mc.player.collidedHorizontally) {
                     collided = true;
                 }

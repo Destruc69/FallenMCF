@@ -2,8 +2,8 @@ package paul.fallen.module.modules.render;
 
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +23,7 @@ public class HeadRoll extends Module {
     @SubscribeEvent
     public void onCamera(EntityViewRenderEvent.CameraSetup event) {
         i++;
-        if (mode.sval == "roll") {
+        if (mode.getValString() == "roll") {
             event.setRoll(event.getRoll() + i);
         } else {
             event.setRoll(180);

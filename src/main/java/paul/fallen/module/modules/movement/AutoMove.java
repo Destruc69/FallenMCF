@@ -10,8 +10,8 @@ package paul.fallen.module.modules.movement;
 import net.minecraftforge.client.event.InputUpdateEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 
 import java.util.Objects;
 
@@ -44,17 +44,17 @@ public final class AutoMove extends Module {
         try {
             assert mc.player != null;
             if (mc.player.getRidingEntity() != null) {
-                if (lockX.bval) {
+                if (lockX.getValBoolean()) {
                     mc.player.setMotion(0, mc.player.getMotion().y, mc.player.getMotion().z);
                 }
-                if (lockZ.bval) {
+                if (lockZ.getValBoolean()) {
                     mc.player.setMotion(mc.player.getMotion().x, mc.player.getMotion().y, 0);
                 }
             } else {
-                if (lockX.bval) {
+                if (lockX.getValBoolean()) {
                     Objects.requireNonNull(mc.player.getRidingEntity()).setMotion(0, Objects.requireNonNull(mc.player.getRidingEntity()).getPosX(), Objects.requireNonNull(mc.player.getRidingEntity()).getPosZ());
                 }
-                if (lockZ.bval) {
+                if (lockZ.getValBoolean()) {
                     Objects.requireNonNull(mc.player.getRidingEntity()).setMotion(Objects.requireNonNull(mc.player.getRidingEntity()).getPosX(), Objects.requireNonNull(mc.player.getRidingEntity()).getPosY(), 0);
                 }
             }
@@ -64,19 +64,19 @@ public final class AutoMove extends Module {
 
     @SubscribeEvent
     public void onInput(InputUpdateEvent event) {
-        if (forward.bval) {
+        if (forward.getValBoolean()) {
             event.getMovementInput().moveForward++;
             event.getMovementInput().forwardKeyDown = true;
         }
-        if (right.bval) {
+        if (right.getValBoolean()) {
             event.getMovementInput().moveStrafe--;
             event.getMovementInput().rightKeyDown = true;
         }
-        if (left.bval) {
+        if (left.getValBoolean()) {
             event.getMovementInput().moveStrafe++;
             event.getMovementInput().leftKeyDown = true;
         }
-        if (back.bval) {
+        if (back.getValBoolean()) {
             event.getMovementInput().moveForward--;
             event.getMovementInput().backKeyDown = true;
         }

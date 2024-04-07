@@ -3,9 +3,9 @@ package paul.fallen.module.modules.player;
 import net.minecraft.network.IPacket;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
 import paul.fallen.packetevent.PacketEvent;
-import paul.fallen.setting.Setting;
 
 import java.util.ArrayList;
 
@@ -25,7 +25,7 @@ public final class Freeze extends Module {
 
     public void onDisable() {
         try {
-            if (!inputPackets.bval) {
+            if (!inputPackets.getValBoolean()) {
                 for (IPacket packet : packets) {
                     assert mc.player != null;
                     mc.player.connection.sendPacket(packet);
@@ -38,7 +38,7 @@ public final class Freeze extends Module {
 
     @SubscribeEvent
     public void onPacketOut(PacketEvent event) {
-        if (!inputPackets.bval) {
+        if (!inputPackets.getValBoolean()) {
             packets.add(event.getPacket());
             event.setCanceled(true);
         }
@@ -46,7 +46,7 @@ public final class Freeze extends Module {
 
     @SubscribeEvent
     public void onPacketIn(PacketEvent event) {
-        if (inputPackets.bval) {
+        if (inputPackets.getValBoolean()) {
             event.setCanceled(true);
         }
     }

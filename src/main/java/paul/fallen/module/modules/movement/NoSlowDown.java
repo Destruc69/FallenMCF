@@ -13,8 +13,8 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.event.InputUpdateEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 
 public final class NoSlowDown extends Module {
 
@@ -24,8 +24,8 @@ public final class NoSlowDown extends Module {
     public NoSlowDown(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        ncp = new Setting("NCP", "ncp", this, false);
-        other = new Setting("Other", "other", this, true);
+        ncp = new Setting("ncp", this, false);
+        other = new Setting("other", this, true);
         addSetting(ncp);
         addSetting(other);
     }
@@ -37,10 +37,10 @@ public final class NoSlowDown extends Module {
             if (mc.player.isHandActive() && mc.player.getHeldItemMainhand().getItem().isFood()) {
                 event.getMovementInput().moveForward *= 5;
                 event.getMovementInput().moveStrafe *= 5;
-                if (ncp.bval) {
+                if (ncp.getValBoolean()) {
                     mc.player.connection.sendPacket(new CPlayerDiggingPacket(CPlayerDiggingPacket.Action.ABORT_DESTROY_BLOCK, new BlockPos(mc.player.getPosX(), mc.player.getPosY() - 1.0, mc.player.getPosZ()), Direction.DOWN));
                 }
-                if (other.bval) {
+                if (other.getValBoolean()) {
                     mc.player.connection.sendPacket(new CHeldItemChangePacket(getHandSlot()));
                 }
             }

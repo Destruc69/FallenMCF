@@ -11,8 +11,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.setting.Setting;
 import paul.fallen.utils.entity.PlayerControllerUtils;
 import paul.fallen.utils.entity.RotationUtils;
 
@@ -27,7 +27,7 @@ public final class Arson extends Module {
     public Arson(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        mode = new Setting("mode", "Mode", this, "packet", new ArrayList<>(Arrays.asList("packet", "legit")));
+        mode = new Setting("Mode", this, "packet", new ArrayList<>(Arrays.asList("packet", "legit")));
 
         addSetting(mode);
     }
@@ -50,7 +50,7 @@ public final class Arson extends Module {
                             mc.player.swingArm(Hand.MAIN_HAND);
 
                             float[] rot = RotationUtils.getYawAndPitch(new Vector3d(posToLight.getX() + 0.5, posToLight.getY(), posToLight.getZ() + 0.5));
-                            if (mode.sval == "packet") {
+                            if (mode.getValString() == "packet") {
                                 //mc.player.connection.sendPacket(new CPacketPlayer.Rotation(rot[0], rot[1], mc.player.onGround));
                                 mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
                             } else {
