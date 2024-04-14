@@ -26,7 +26,7 @@ public final class Cheststealer extends Module {
         if (mc.currentScreen instanceof ContainerScreen) {
             assert mc.player != null;
             if (mc.player.ticksExisted % 5 == 0) {
-                if (slot + 1 < 27) {
+                if (slot + 1 <= 27) {
                     slot = slot + 1;
                 }
             }

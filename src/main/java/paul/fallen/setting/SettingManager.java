@@ -37,7 +37,7 @@ public class SettingManager implements ClientSupport {
                     s.setValDouble(Float.parseFloat(map.get("value").toString()));
                 } else if ((boolean) map.get("isCombo")) {
                     s.setValString((String) map.get("value"));
-                } else if ((boolean) map.get("isColorPalette")) {
+                } else if ((boolean) map.get("isColorSlider")) {
                     s.setValDouble(Float.parseFloat(map.get("value").toString()));
                 }
                 Logger.log(LogState.Normal, "Loaded module settings " + s.getParentMod().getName() + ": " + s.getName() + " from Json!");
@@ -74,11 +74,14 @@ public class SettingManager implements ClientSupport {
                 map.put("isCheck", s.isCheck());
                 map.put("isSlider", s.isSlider());
                 map.put("isCombo", s.isCombo());
+                map.put("isColorSlider", s.isColorSlider());
                 if (s.isCombo()) {
                     map.put("value", s.getValString());
                 } else if (s.isCheck()) {
                     map.put("value", s.getValBoolean());
                 } else if (s.isSlider()) {
+                    map.put("value", s.getValDouble());
+                } else if (s.isColorSlider()) {
                     map.put("value", s.getValDouble());
                 }
                 gson.toJson(map, writer);

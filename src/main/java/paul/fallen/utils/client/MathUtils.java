@@ -159,4 +159,10 @@ public final class MathUtils {
 
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
+
+    public static int getFps() {
+        String debugString = Minecraft.getInstance().debug;
+        String[] splits = debugString.split(" ");
+        return Integer.parseInt(splits[0]);
+    }
 }

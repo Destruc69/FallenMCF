@@ -17,6 +17,8 @@ public final class Speed extends Module {
     private boolean lessSlow;
     private double speed;
 
+    private boolean a = false;
+
     public Speed(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
@@ -86,7 +88,17 @@ public final class Speed extends Module {
                     ++stage;
                 }
             } else {
-
+                if (mc.player.moveForward != 0 || mc.player.moveStrafing != 0) {
+                    if (mc.player.isOnGround()) {
+                        if (!a) {
+                            mc.player.jump();
+                            a = true;
+                        }
+                    } else {
+                        a = false;
+                    }
+                    mc.gameSettings.keyBindSprint.setPressed(true);
+                }
             }
         } catch (Exception ignored) {
         }

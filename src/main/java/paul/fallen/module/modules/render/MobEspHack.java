@@ -9,6 +9,7 @@ package paul.fallen.module.modules.render;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MobEntity;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.clickgui.settings.Setting;
@@ -40,7 +41,7 @@ public final class MobEspHack extends Module {
 
             for (Entity entity : entityStream.collect(Collectors.toList())) {
                 if (mode.getValString() == "box") {
-                    RenderUtils.drawOutlinedBox(entity.getPosition(), 1, 1, 0, event);
+                    RenderUtils.drawOutlinedBox(entity.getPosition(), 0, 1, 0, event);
                     entity.setGlowing(false);
                 } else {
                     entity.setGlowing(true);

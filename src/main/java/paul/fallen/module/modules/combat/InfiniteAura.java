@@ -6,6 +6,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.network.play.server.SPlayerPositionLookPacket;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
@@ -13,7 +14,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
 import paul.fallen.packetevent.PacketEvent;
-import paul.fallen.pathfinder.AStarCustomPathFinder;
+import paul.fallen.pathfinding.AStarCustomPathFinder;
 import paul.fallen.utils.entity.RotationUtils;
 import paul.fallen.utils.render.RenderUtils;
 
@@ -58,7 +59,7 @@ public class InfiniteAura extends Module {
                 k.setPressed(false);
 
             // Move to entity
-            aStarCustomPathFinder = new AStarCustomPathFinder(mc.player.getPositionVec(), entity.getPositionVec());
+            aStarCustomPathFinder = new AStarCustomPathFinder(mc.player.getPosition(), entity.getPosition());
             aStarCustomPathFinder.compute();
 
             this.entity = entity;
@@ -66,12 +67,12 @@ public class InfiniteAura extends Module {
             // Move forward
             int pathSize = aStarCustomPathFinder.getPath().size(); // Store the size of the path
             for (int a = 0; a < pathSize; a++) {
-                Vector3d v = aStarCustomPathFinder.getPath().get(a);
-                mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(v.x, v.y, v.z, true));
+                BlockPos v = aStarCustomPathFinder.getPath().get(a);
+                mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(v.getX(), v.getY(), v.getZ(), true));
             }
 
             // Look at entity
-            float[] rot = RotationUtils.getYawAndPitch(aStarCustomPathFinder.getPath().get(pathSize - 1), entity.getBoundingBox().getCenter());
+            float[] rot = RotationUtils.getYawAndPitch(new Vector3d(aStarCustomPathFinder.getPath().get(pathSize - 1).getX(), aStarCustomPathFinder.getPath().get(pathSize - 1).getY(), aStarCustomPathFinder.getPath().get(pathSize - 1).getZ()), entity.getBoundingBox().getCenter());
             mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], true));
 
             // Attack entity
@@ -79,7 +80,7 @@ public class InfiniteAura extends Module {
             mc.player.swingArm(Hand.MAIN_HAND);
 
             // Reverse path
-            ArrayList<Vector3d> vector3ds = new ArrayList<>();
+            ArrayList<BlockPos> vector3ds = new ArrayList<>();
 
             vector3ds.addAll(aStarCustomPathFinder.getPath());
 
@@ -88,8 +89,8 @@ public class InfiniteAura extends Module {
             // Move back
             pathSize = vector3ds.size(); // Update the size of the path
             for (int b = 0; b < pathSize; b++) {
-                Vector3d v = vector3ds.get(b);
-                mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(v.x, v.y, v.z, true));
+                BlockPos v = vector3ds.get(b);
+                mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(v.getX(), v.getY(), v.getZ(), true));
             }
         } catch (Exception ignored) {
         }

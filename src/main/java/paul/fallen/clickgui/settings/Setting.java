@@ -52,6 +52,13 @@ public class Setting {
 		this.onlyint = onlyint;
 		this.mode = "Slider";
 	}
+
+	public Setting(String name, Module parent, double dval){
+		this.name = name;
+		this.parent = parent;
+		this.dval = dval;
+		this.mode = "ColorSlider";
+	}
 	
 	public String getName(){
 		return name;
@@ -110,6 +117,10 @@ public class Setting {
 	
 	public boolean isSlider(){
 		return this.mode.equalsIgnoreCase("Slider") ? true : false;
+	}
+
+	public boolean isColorSlider(){
+		return this.mode.equalsIgnoreCase("ColorSlider") ? true : false;
 	}
 	
 	public boolean onlyInt(){

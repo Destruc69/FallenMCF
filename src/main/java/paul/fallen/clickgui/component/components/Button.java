@@ -3,10 +3,7 @@ package paul.fallen.clickgui.component.components;
 import paul.fallen.FALLENClient;
 import paul.fallen.clickgui.component.Component;
 import paul.fallen.clickgui.component.Frame;
-import paul.fallen.clickgui.component.components.sub.Checkbox;
-import paul.fallen.clickgui.component.components.sub.Keybind;
-import paul.fallen.clickgui.component.components.sub.ModeButton;
-import paul.fallen.clickgui.component.components.sub.Slider;
+import paul.fallen.clickgui.component.components.sub.*;
 import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
 import paul.fallen.utils.render.UIUtils;
@@ -52,6 +49,10 @@ public class Button extends Component {
 				}
 				if(s.isCheck()){
 					this.subcomponents.add(new Checkbox(s, this, opY));
+					opY += 12;
+				}
+				if (s.isColorSlider()) {
+					this.subcomponents.add(new ColorSlider(s, this, opY));
 					opY += 12;
 				}
 			}

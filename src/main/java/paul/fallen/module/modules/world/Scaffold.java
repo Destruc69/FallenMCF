@@ -13,8 +13,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.lwjgl.glfw.GLFW;
 import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
 import paul.fallen.utils.entity.EntityUtils;
@@ -31,6 +33,9 @@ public final class Scaffold extends Module {
     Setting swing;
     Setting tower;
 
+    private float yaw = 0;
+    private boolean a = false;
+
     public Scaffold(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
@@ -42,6 +47,26 @@ public final class Scaffold extends Module {
         addSetting(tower);
     }
 
+    @Override
+    public void onEnable() {
+        super.onEnable();
+
+        roundYaw();
+        yaw = mc.player.rotationYaw;
+    }
+
+    @Override
+    public void onDisable() {
+        super.onDisable();
+
+        mc.gameSettings.keyBindSneak.setPressed(false);
+        mc.gameSettings.keyBindUseItem.setPressed(false);
+        mc.gameSettings.keyBindForward.setPressed(false);
+        mc.gameSettings.keyBindBack.setPressed(false);
+        mc.gameSettings.keyBindSneak.setPressed(false);
+        mc.gameSettings.keyBindSprint.setPressed(false);
+    }
+
     private static boolean isValidBlock(BlockPos blockPos) {
         assert mc.world != null;
         return !(mc.world.isAirBlock(blockPos));
@@ -50,9 +75,7 @@ public final class Scaffold extends Module {
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
-            if (Objects.equals(mode.getValString(), "legit")) {
-                mc.gameSettings.keyBindSneak.setPressed(mc.player.isOnGround() && mc.world.getBlockState(mc.player.getPosition().down()).getBlock().equals(Blocks.AIR));
-            } else {
+            if (mode.getValString().equals("blatant")) {
                 Minecraft mc = Minecraft.getInstance();
                 assert mc.player != null;
                 BlockPos playerBlock = new BlockPos(mc.player.getPosX(), mc.player.getBoundingBox().minY, mc.player.getPosZ());
@@ -102,6 +125,46 @@ public final class Scaffold extends Module {
                 }
 
                 mc.gameSettings.keyBindSneak.setPressed(mc.player.isOnGround() && mc.world.isAirBlock(mc.player.getPosition().down()));
+            } else if (mode.getValString().equals("legit")) {
+                if (mc.player.isOnGround() && mc.world.getBlockState(mc.player.getPosition().down()).getBlock().getBlock().equals(Blocks.AIR)) {
+                    mc.player.rotationYaw = yaw + 180;
+                    mc.player.rotationPitch = 78;
+                    mc.gameSettings.keyBindSneak.setPressed(true);
+                    mc.gameSettings.keyBindUseItem.setPressed(true);
+                    mc.gameSettings.keyBindForward.setPressed(false);
+                    mc.gameSettings.keyBindBack.setPressed(true);
+                    mc.gameSettings.keyBindSneak.setPressed(true);
+                    mc.gameSettings.keyBindSprint.setPressed(false);
+                } else {
+                    mc.player.rotationYaw = yaw;
+                    mc.player.rotationPitch = 0;
+                    mc.gameSettings.keyBindSneak.setPressed(false);
+                    mc.gameSettings.keyBindUseItem.setPressed(false);
+                    mc.gameSettings.keyBindForward.setPressed(true);
+                    mc.gameSettings.keyBindBack.setPressed(false);
+                    mc.gameSettings.keyBindSneak.setPressed(false);
+                    mc.gameSettings.keyBindSprint.setPressed(true);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    @SubscribeEvent
+    public void onInput(InputEvent.KeyInputEvent event) {
+        try {
+            if (event.getKey() == GLFW.GLFW_KEY_RIGHT) {
+                if (!a) {
+                    yaw = yaw + 90;
+                    a = true;
+                }
+            } else if (event.getKey() == GLFW.GLFW_KEY_LEFT) {
+                if (!a) {
+                    yaw = yaw - 90;
+                    a = true;
+                }
+            } else {
+                a = false;
             }
         } catch (Exception ignored) {
         }
@@ -169,5 +232,9 @@ public final class Scaffold extends Module {
         }
 
         mc.player.renderYawOffset = mc.player.rotationYaw + 180;
+    }
+
+    private float roundYaw() {
+        return (float) (Math.floor((mc.player.rotationYaw + 45) / 90) * 90);
     }
 }

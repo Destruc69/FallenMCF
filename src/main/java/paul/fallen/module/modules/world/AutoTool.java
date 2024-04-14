@@ -17,6 +17,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
@@ -38,12 +39,9 @@ public final class AutoTool extends Module {
     }
 
     @SubscribeEvent
-    public void onTick(TickEvent.PlayerTickEvent event) {
-        try {
-            equipBestTool(new BlockPos(mc.objectMouseOver.getHitVec().x, mc.objectMouseOver.getHitVec().y, mc.objectMouseOver.getHitVec().z), useSwords.getValBoolean(),
-                    useHands.getValBoolean(), repairMode.getValBoolean());
-        } catch (Exception ignored) {
-        }
+    public void onTick(BlockEvent event) {
+        equipBestTool(event.getPos(), useSwords.getValBoolean(),
+                useHands.getValBoolean(), repairMode.getValBoolean());
     }
 
     public void equipBestTool(BlockPos pos, boolean useSwords, boolean useHands,
@@ -59,7 +57,7 @@ public final class AutoTool extends Module {
         int bestSlot = -1;
 
         int fallbackSlot = -1;
-        PlayerInventory inventory = player.inventory;
+        PlayerInventory inventory = mc.player.inventory;
 
         for (int slot = 0; slot < 9; slot++) {
             if (slot == inventory.currentItem)

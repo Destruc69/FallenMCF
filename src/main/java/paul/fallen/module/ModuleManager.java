@@ -16,7 +16,6 @@ import paul.fallen.module.Module.Category;
 import paul.fallen.module.modules.client.*;
 import paul.fallen.module.modules.combat.*;
 import paul.fallen.module.modules.movement.*;
-import paul.fallen.module.modules.pathing.AutoMine;
 import paul.fallen.module.modules.pathing.AutoPilot;
 import paul.fallen.module.modules.player.*;
 import paul.fallen.module.modules.render.*;
@@ -62,7 +61,6 @@ public class ModuleManager implements ClientSupport {
 		addModule(new CrystalAuraReWrite(0, "CrystalAuraReWrite", "CrystalAuraReWrite", Category.Combat));
 
 		addModule(new AutoPilot(0, "AutoPilot", "AutoPilot", Category.Pathing));
-		addModule(new AutoMine(0, "AutoMine", "AutoMine", Category.Pathing));
 
 		addModule(new FallenLanguage(0, "FallenLanguage", "FallenLanguage", Category.Client));
 		clickGuiHack = new ClickGuiHack(KeyEvent.VK_P, "ClickGUI", "ClickGUI", Category.Client);
@@ -106,6 +104,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new HideMyAss(0, "HideMyAss", "HideMyAss", Category.Player));
 		addModule(new MoreInv(0, "MoreInv", "MoreInv", Category.Player));
 		addModule(new NoFall(0, "NoFall", "NoFall", Category.Player));
+		addModule(new FakeHackers(0, "FakeHackers", "FakeHackers", Category.Player));
 
 		addModule(new AntiForge(0, "AntiForge", "AntiForge", Category.Player));
 		addModule(new ServerCrasher(0, "ServerCrasher", "ServerCrasher", Category.Player));
