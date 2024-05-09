@@ -25,15 +25,9 @@ public class WTap extends Module {
                 CUseEntityPacket cPacketUseEntity = (CUseEntityPacket) event.getPacket();
 
                 if (cPacketUseEntity.getAction().equals(CUseEntityPacket.Action.ATTACK)) {
-                    assert mc.world != null;
-                    if (cPacketUseEntity.getEntityFromWorld(mc.world) != null) {
-                        assert mc.player != null;
-                        if (mc.player.isOnGround() && !mc.gameSettings.keyBindJump.isKeyDown()) {
-                            for (int i = 0; i < strength.getValDouble(); i++) {
-                                mc.player.connection.sendPacket(new CEntityActionPacket(mc.player, CEntityActionPacket.Action.STOP_SPRINTING));
-                                mc.player.connection.sendPacket(new CEntityActionPacket(mc.player, CEntityActionPacket.Action.START_SPRINTING));
-                            }
-                        }
+                    for (int i = 0; i < strength.getValDouble(); i++) {
+                        mc.player.connection.sendPacket(new CEntityActionPacket(mc.player, CEntityActionPacket.Action.STOP_SPRINTING));
+                        mc.player.connection.sendPacket(new CEntityActionPacket(mc.player, CEntityActionPacket.Action.START_SPRINTING));
                     }
                 }
             }

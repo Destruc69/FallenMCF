@@ -6,6 +6,7 @@ import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
+import paul.fallen.packetevent.PacketEvent;
 
 public class ComboAttack extends Module {
 
@@ -19,10 +20,16 @@ public class ComboAttack extends Module {
     }
 
     @SubscribeEvent
-    public void onAttack(AttackEntityEvent event) {
+    public void onPacketOut(PacketEvent event) {
         try {
-            for (int i = 0; i < strength.getValDouble(); i++) {
-                mc.player.connection.sendPacket(new CUseEntityPacket(event.getEntity(), Hand.MAIN_HAND, mc.objectMouseOver.getHitVec(), mc.gameSettings.keyBindSneak.isKeyDown() || mc.player.isSneaking()));
+            if (event.getPacket() instanceof CUseEntityPacket) {
+                CUseEntityPacket cPacketUseEntity = (CUseEntityPacket) event.getPacket();
+
+                if (cPacketUseEntity.getAction().equals(CUseEntityPacket.Action.ATTACK)) {
+                    for (int i = 0; i < strength.getValDouble(); i++) {
+                        mc.player.connection.sendPacket(new CUseEntityPacket(cPacketUseEntity.getEntityFromWorld(mc.world), Hand.MAIN_HAND, mc.objectMouseOver.getHitVec(), mc.gameSettings.keyBindSneak.isKeyDown() || mc.player.isSneaking()));
+                    }
+                }
             }
         } catch (Exception ignored) {
         }

@@ -127,34 +127,44 @@ public final class Scaffold extends Module {
 
                 mc.gameSettings.keyBindSneak.setPressed(mc.player.isOnGround() && mc.world.isAirBlock(mc.player.getPosition().down()));
             } else if (mode.getValString().equals("legit")) {
-                if (mc.player.isOnGround() && mc.world.getBlockState(mc.player.getPosition().down()).getBlock().getBlock().equals(Blocks.AIR)) {
+                if (mc.player.isOnGround() && mc.world.getBlockState(mc.player.getPosition().down()).getBlock().equals(Blocks.AIR)) {
                     mc.player.rotationYaw = currentYaw;
                     mc.player.rotationPitch = currentPitch;
 
                     interpolateRotation(yaw + 180, 78);
 
-                    if (Math.round(mc.player.rotationYaw) == Math.round(yaw + 180) && Math.round(mc.player.rotationPitch) == Math.round(78)) {
-                        mc.gameSettings.keyBindSneak.setPressed(true);
+                    // Check if the player has fully turned before initiating movement
+                    if (Math.abs(mc.player.rotationYaw - (yaw + 180)) < 1 && Math.abs(mc.player.rotationPitch - 78) < 1) {
                         mc.gameSettings.keyBindUseItem.setPressed(true);
                         mc.gameSettings.keyBindForward.setPressed(false);
                         mc.gameSettings.keyBindBack.setPressed(true);
-                        mc.gameSettings.keyBindSneak.setPressed(true);
-                        mc.gameSettings.keyBindSprint.setPressed(false);
+                    } else {
+                        // Player hasn't finished turning, stop movement
+                        mc.gameSettings.keyBindUseItem.setPressed(false);
+                        mc.gameSettings.keyBindForward.setPressed(false);
+                        mc.gameSettings.keyBindBack.setPressed(false);
                     }
+                    mc.gameSettings.keyBindSneak.setPressed(true);
                 } else {
                     mc.player.rotationYaw = currentYaw;
                     mc.player.rotationPitch = currentPitch;
 
                     interpolateRotation(yaw, 0);
 
-                    if (Math.round(mc.player.rotationYaw) == Math.round(yaw) && Math.round(mc.player.rotationPitch) == Math.round(0)) {
-                        mc.gameSettings.keyBindSneak.setPressed(false);
-                        mc.gameSettings.keyBindUseItem.setPressed(false);
+                    // Check if the player has fully turned before initiating movement
+                    if (Math.abs(mc.player.rotationYaw - yaw) < 1 && Math.abs(mc.player.rotationPitch) < 1) {
                         mc.gameSettings.keyBindForward.setPressed(true);
-                        mc.gameSettings.keyBindBack.setPressed(false);
-                        mc.gameSettings.keyBindSneak.setPressed(false);
                         mc.gameSettings.keyBindSprint.setPressed(true);
+                        mc.gameSettings.keyBindBack.setPressed(false);
+                        mc.gameSettings.keyBindUseItem.setPressed(false);
+                    } else {
+                        // Player hasn't finished turning, stop movement
+                        mc.gameSettings.keyBindForward.setPressed(false);
+                        mc.gameSettings.keyBindSprint.setPressed(false);
+                        mc.gameSettings.keyBindBack.setPressed(false);
+                        mc.gameSettings.keyBindUseItem.setPressed(false);
                     }
+                    mc.gameSettings.keyBindSneak.setPressed(false);
                 }
             }
         } catch (Exception ignored) {
