@@ -7,15 +7,18 @@ import com.google.gson.reflect.TypeToken;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.glfw.GLFW;
 import paul.fallen.ClientSupport;
 import paul.fallen.FALLENClient;
 import paul.fallen.module.Module.Category;
-import paul.fallen.module.modules.client.*;
+import paul.fallen.module.modules.client.ClickGuiHack;
+import paul.fallen.module.modules.client.FallenLanguage;
+import paul.fallen.module.modules.client.Pathfinder;
+import paul.fallen.module.modules.client.Tones;
 import paul.fallen.module.modules.combat.*;
 import paul.fallen.module.modules.movement.*;
+import paul.fallen.module.modules.pathing.AutoMine;
 import paul.fallen.module.modules.pathing.AutoPilot;
 import paul.fallen.module.modules.player.*;
 import paul.fallen.module.modules.render.*;
@@ -23,7 +26,6 @@ import paul.fallen.module.modules.world.*;
 import paul.fallen.utils.client.Logger;
 import paul.fallen.utils.client.Logger.LogState;
 
-import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.*;
 import java.util.ArrayList;
@@ -61,6 +63,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new CrystalAuraReWrite(0, "CrystalAuraReWrite", "CrystalAuraReWrite", Category.Combat));
 
 		addModule(new AutoPilot(0, "AutoPilot", "AutoPilot", Category.Pathing));
+		addModule(new AutoMine(0, "AutoMine", "AutoMine", Category.Pathing));
 
 		addModule(new FallenLanguage(0, "FallenLanguage", "FallenLanguage", Category.Client));
 		clickGuiHack = new ClickGuiHack(KeyEvent.VK_P, "ClickGUI", "ClickGUI", Category.Client);

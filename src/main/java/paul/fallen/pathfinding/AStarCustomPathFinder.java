@@ -10,13 +10,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 public class AStarCustomPathFinder {
-    private BlockPos startBlockPos;
-    private BlockPos endBlockPos;
+    private final BlockPos startBlockPos;
+    private final BlockPos endBlockPos;
     private ArrayList<BlockPos> path = new ArrayList<>();
-    private ArrayList<Hub> hubs = new ArrayList<>();
-    private ArrayList<Hub> hubsToWork = new ArrayList<>();
-    private double minDistanceSquared = 9;
-    private boolean nearest = true;
+    private final ArrayList<Hub> hubs = new ArrayList<>();
+    private final ArrayList<Hub> hubsToWork = new ArrayList<>();
+    private final double minDistanceSquared = 9;
+    private final boolean nearest = true;
 
     private static final BlockPos[] flatCardinalDirections = {
             new BlockPos(1, 0, 0),
@@ -319,48 +319,50 @@ public class AStarCustomPathFinder {
     }
 
     public void move() {
-        if (FALLENClient.INSTANCE.getModuleManager().pathfinder.type.getValString().equals("air") || FALLENClient.INSTANCE.getModuleManager().pathfinder.type.getValString().equals("elytra") ) {
-            if (!getPath().isEmpty()) {
+        if (FALLENClient.INSTANCE.getModuleManager().pathfinder.mode.getValString().equals("move")) {
+            if (FALLENClient.INSTANCE.getModuleManager().pathfinder.type.getValString().equals("air") || FALLENClient.INSTANCE.getModuleManager().pathfinder.type.getValString().equals("elytra")) {
+                if (!getPath().isEmpty()) {
+                    BlockPos nextPos = getTargetPositionInPathArray(getPath());
+
+                    // Move towards the next position
+                    double speed = FALLENClient.INSTANCE.getModuleManager().pathfinder.airSpeed.getValDouble(); // Adjust speed as needed
+                    double dx = nextPos.getX() + 0.5 - Minecraft.getInstance().player.getPosX();
+                    double dy = nextPos.getY() + 0.5 - Minecraft.getInstance().player.getPosY();
+                    double dz = nextPos.getZ() + 0.5 - Minecraft.getInstance().player.getPosZ();
+                    double dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+                    double motionX = dx / dist * speed;
+                    double motionY = dy / dist * speed;
+                    double motionZ = dz / dist * speed;
+
+                    // Apply movement
+                    Minecraft.getInstance().player.setVelocity(motionX, motionY, motionZ);
+                }
+            } else if (FALLENClient.INSTANCE.getModuleManager().pathfinder.type.getValString().equals("ground")) {
                 BlockPos nextPos = getTargetPositionInPathArray(getPath());
 
                 // Move towards the next position
-                double speed = FALLENClient.INSTANCE.getModuleManager().pathfinder.airSpeed.getValDouble(); // Adjust speed as needed
+                double speed = Minecraft.getInstance().player.isSprinting() ? 0.26 : 0.2; // Adjust speed as needed
                 double dx = nextPos.getX() + 0.5 - Minecraft.getInstance().player.getPosX();
-                double dy = nextPos.getY() + 0.5 - Minecraft.getInstance().player.getPosY();
+                //double dy = nextPos.getY() + 0.5 - Minecraft.getInstance().player.getPosY();
                 double dz = nextPos.getZ() + 0.5 - Minecraft.getInstance().player.getPosZ();
-                double dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                double dist = Math.sqrt(dx * dx + dz * dz);
 
                 double motionX = dx / dist * speed;
-                double motionY = dy / dist * speed;
+                //double motionY = dy / dist * speed;
                 double motionZ = dz / dist * speed;
 
                 // Apply movement
-                Minecraft.getInstance().player.setVelocity(motionX, motionY, motionZ);
-            }
-        } else  if (FALLENClient.INSTANCE.getModuleManager().pathfinder.type.getValString().equals("ground")) {
-            BlockPos nextPos = getTargetPositionInPathArray(getPath());
+                Minecraft.getInstance().player.setVelocity(motionX, Minecraft.getInstance().player.getMotion().y, motionZ);
 
-            // Move towards the next position
-            double speed = Minecraft.getInstance().player.isSprinting() ? 0.26 : 0.2; // Adjust speed as needed
-            double dx = nextPos.getX() + 0.5 - Minecraft.getInstance().player.getPosX();
-            //double dy = nextPos.getY() + 0.5 - Minecraft.getInstance().player.getPosY();
-            double dz = nextPos.getZ() + 0.5 - Minecraft.getInstance().player.getPosZ();
-            double dist = Math.sqrt(dx * dx + dz * dz);
-
-            double motionX = dx / dist * speed;
-            //double motionY = dy / dist * speed;
-            double motionZ = dz / dist * speed;
-
-            // Apply movement
-            Minecraft.getInstance().player.setVelocity(motionX, Minecraft.getInstance().player.getMotion().y, motionZ);
-
-            if (nextPos.getY() > Minecraft.getInstance().player.getPosY()) {
-                if (Minecraft.getInstance().player.isOnGround()) {
-                    Minecraft.getInstance().player.jump();
+                if (nextPos.getY() > Minecraft.getInstance().player.getPosY()) {
+                    if (Minecraft.getInstance().player.isOnGround()) {
+                        Minecraft.getInstance().player.jump();
+                    }
                 }
-            }
-            if (Minecraft.getInstance().player.isInWater()) {
-                Minecraft.getInstance().player.setMotion(Minecraft.getInstance().player.getMotion().x, 0.01, Minecraft.getInstance().player.getMotion().z);
+                if (Minecraft.getInstance().player.isInWater()) {
+                    Minecraft.getInstance().player.setMotion(Minecraft.getInstance().player.getMotion().x, 0.01, Minecraft.getInstance().player.getMotion().z);
+                }
             }
         }
     }

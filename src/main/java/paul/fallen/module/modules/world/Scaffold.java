@@ -24,8 +24,6 @@ import paul.fallen.utils.entity.PlayerControllerUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Objects;
-import java.util.Set;
 
 public final class Scaffold extends Module {
 
@@ -35,6 +33,9 @@ public final class Scaffold extends Module {
 
     private float yaw = 0;
     private boolean a = false;
+
+    private float currentYaw = 0;
+    private float currentPitch = 0;
 
     public Scaffold(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
@@ -126,24 +127,29 @@ public final class Scaffold extends Module {
 
                 mc.gameSettings.keyBindSneak.setPressed(mc.player.isOnGround() && mc.world.isAirBlock(mc.player.getPosition().down()));
             } else if (mode.getValString().equals("legit")) {
-                if (mc.player.isOnGround() && mc.world.getBlockState(mc.player.getPosition().down()).getBlock().getBlock().equals(Blocks.AIR)) {
-                    mc.player.rotationYaw = yaw + 180;
-                    mc.player.rotationPitch = 78;
-                    mc.gameSettings.keyBindSneak.setPressed(true);
-                    mc.gameSettings.keyBindUseItem.setPressed(true);
+                boolean isOnEdge = !mc.player.isOnGround() || !mc.world.getBlockState(mc.player.getPosition().down()).getBlock().getBlock().equals(Blocks.AIR);
+
+                if (isOnEdge) {
+                    // Stop movement before turning
                     mc.gameSettings.keyBindForward.setPressed(false);
-                    mc.gameSettings.keyBindBack.setPressed(true);
                     mc.gameSettings.keyBindSneak.setPressed(true);
-                    mc.gameSettings.keyBindSprint.setPressed(false);
+
+                    interpolateRotation(yaw + 180, 78);
+
+                    // Place block only after complete turn
+                    if (Math.round(mc.player.rotationYaw) == Math.round(yaw + 180) && Math.round(mc.player.rotationPitch) == Math.round(78)) {
+                        mc.gameSettings.keyBindUseItem.setPressed(true);
+                    }
                 } else {
-                    mc.player.rotationYaw = yaw;
-                    mc.player.rotationPitch = 0;
-                    mc.gameSettings.keyBindSneak.setPressed(false);
+                    interpolateRotation(yaw, 0);
+
                     mc.gameSettings.keyBindUseItem.setPressed(false);
-                    mc.gameSettings.keyBindForward.setPressed(true);
-                    mc.gameSettings.keyBindBack.setPressed(false);
-                    mc.gameSettings.keyBindSneak.setPressed(false);
-                    mc.gameSettings.keyBindSprint.setPressed(true);
+
+                    // Start moving only after complete turn
+                    if (Math.round(mc.player.rotationYaw) == Math.round(yaw) && Math.round(mc.player.rotationPitch) == Math.round(0)) {
+                        mc.gameSettings.keyBindForward.setPressed(true);
+                        mc.gameSettings.keyBindSneak.setPressed(false);
+                    }
                 }
             }
         } catch (Exception ignored) {
@@ -236,5 +242,15 @@ public final class Scaffold extends Module {
 
     private float roundYaw() {
         return (float) (Math.floor((mc.player.rotationYaw + 45) / 90) * 90);
+    }
+
+    private void interpolateRotation(float targetYaw, float targetPitch) {
+        float diffYaw = MathHelper.wrapDegrees(targetYaw - currentYaw);
+        float diffPitch = targetPitch - currentPitch;
+        float stepYaw = Math.signum(diffYaw) * Math.min(5.0f, Math.abs(diffYaw));
+        float stepPitch = Math.signum(diffPitch) * Math.min(5.0f, Math.abs(diffPitch));
+
+        currentYaw = MathHelper.wrapDegrees(currentYaw + stepYaw);
+        currentPitch += stepPitch;
     }
 }

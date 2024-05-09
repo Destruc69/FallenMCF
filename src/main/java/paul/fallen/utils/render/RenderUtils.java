@@ -4,9 +4,11 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.VoxelShape;
@@ -21,7 +23,28 @@ import java.util.ArrayList;
 
 public class RenderUtils implements ClientSupport {
 
-    public static void drawOutlinedBox(BlockPos pos, int red, int green, int blue, RenderWorldLastEvent event) {
+    public static void renderBox(AxisAlignedBB bb, float red, float green, float blue, int width, float alpha, RenderWorldLastEvent event) {
+        RenderSystem.lineWidth(width);
+        IRenderTypeBuffer.Impl buffer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
+        if (buffer == null)
+            return;
+        IVertexBuilder builder = buffer.getBuffer(RenderType.getLines());
+        MatrixStack matrixStack = event.getMatrixStack();
+        ClientPlayerEntity player = Minecraft.getInstance().player;
+        double x = player.lastTickPosX + (player.getPosX() - player.lastTickPosX) * event.getPartialTicks();
+        double y = player.lastTickPosY + (player.getPosY() - player.lastTickPosY) * event.getPartialTicks();
+        double z = player.lastTickPosZ + (player.getPosZ() - player.lastTickPosZ) * event.getPartialTicks();
+
+        matrixStack.push();
+        matrixStack.translate(-x, -y, -z);
+        RenderSystem.disableDepthTest(); // Disable depth testing to render through blocks
+        WorldRenderer.drawBoundingBox(matrixStack, builder, bb.minX, bb.minY, bb.minZ, bb.maxX, bb.maxY, bb.maxZ, red, green, blue, alpha);
+        matrixStack.pop();
+        RenderSystem.enableDepthTest(); // Re-enable depth testing after rendering
+        buffer.finish(RenderType.getLines());
+    }
+
+    public static void drawOutlinedBox(BlockPos pos, float red, float green, float blue, RenderWorldLastEvent event) {
         final GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
         gameRenderer.resetProjectionMatrix(event.getProjectionMatrix());
 
@@ -83,6 +106,16 @@ public class RenderUtils implements ClientSupport {
             for (int i = 0; i < path.size() - 1; i++) {
                 if (path.get(i + 1) != null) {
                     RenderUtils.drawLine(new BlockPos(path.get(i).x + 0.5, path.get(i).y, path.get(i).z + 0.5), new BlockPos(path.get(i + 1).x + 0.5, path.get(i + 1).y, path.get(i + 1).z + 0.5), 0, 1, 0, event);
+                }
+            }
+        }
+    }
+
+    public static void renderPathB(ArrayList<BlockPos> path, RenderWorldLastEvent event) {
+        if (path.size() > 0) {
+            for (int i = 0; i < path.size() - 1; i++) {
+                if (path.get(i + 1) != null) {
+                    RenderUtils.drawLine(new BlockPos(path.get(i).getX() + 0.5, path.get(i).getY(), path.get(i).getZ() + 0.5), new BlockPos(path.get(i + 1).getX() + 0.5, path.get(i + 1).getY(), path.get(i + 1).getZ() + 0.5), 0, 1, 0, event);
                 }
             }
         }

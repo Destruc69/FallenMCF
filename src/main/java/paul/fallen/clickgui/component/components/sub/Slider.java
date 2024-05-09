@@ -8,6 +8,7 @@ import paul.fallen.utils.render.UIUtils;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 
 /**
  *  Made by Pandus1337
@@ -21,8 +22,8 @@ public class Slider extends Component {
 
 	private boolean hovered;
 
-	private Setting set;
-	private Button parent;
+	private final Setting set;
+	private final Button parent;
 	private int offset;
 	private int x;
 	private int y;
@@ -46,7 +47,12 @@ public class Slider extends Component {
 		//Gui.drawRect(parent.parent.getX() + 2, parent.parent.getY() + offset, parent.parent.getX() + (int) renderWidth, parent.parent.getY() + offset + 12, new Color(150, 150, 150, 128).getRGB());
 		UIUtils.drawRect(parent.parent.getX(), parent.parent.getY() + offset, 2, 12, new Color(0, 0, 0, 191).getRGB());
 		//Gui.drawRect(parent.parent.getX(), parent.parent.getY() + offset, parent.parent.getX() + 2, parent.parent.getY() + offset + 12, new Color(0, 0, 0, 191).getRGB());
-		UIUtils.drawTextOnScreen(this.set.getName() + ": " + this.set.getValDouble(), (parent.parent.getX() + 6), (parent.parent.getY() + offset) + 3, new Color(255, 255, 255, 255).getRGB());
+		// Format the slider value to display up to 3 decimal places
+		DecimalFormat decimalFormat = new DecimalFormat();
+		String formattedValue = decimalFormat.format(this.set.getValDouble());
+
+		// Draw the formatted value
+		UIUtils.drawTextOnScreen(this.set.getName() + ": " + formattedValue, (parent.parent.getX() + 6), (parent.parent.getY() + offset) + 3, new Color(255, 255, 255, 255).getRGB());
 		//Fonts.REGULAR.REGULAR_18.REGULAR_18.drawString(EnumChatFormatting.WHITE + this.set.getName() + ": " + EnumChatFormatting.RESET + this.set.getValDouble() , (parent.parent.getX() + 6), (parent.parent.getY() + offset) + 3, new Color(255, 255, 255, 255).getRGB(), true);
 	}
 

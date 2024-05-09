@@ -6,14 +6,8 @@ import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.WaterMobEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.AabbHelper;
-import net.minecraft.util.BlockVoxelShape;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -21,13 +15,10 @@ import org.lwjgl.opengl.GL11;
 import paul.fallen.FALLENClient;
 import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.utils.client.MathUtils;
-import paul.fallen.utils.render.RenderUtils;
 import paul.fallen.utils.render.UIUtils;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 
 public class HUD extends Module {
@@ -77,7 +68,7 @@ public class HUD extends Module {
 
 					int y = 22;
 					for (Module module : moduleArrayList) {
-						UIUtils.drawTextOnScreen(module.getDisplayName(), 2, y, new Color(255, 255, 255).getRGB());
+						UIUtils.drawTextOnScreenWithShadow(module.getDisplayName(), 2, y, new Color(255, 255, 255).getRGB());
 						y += 12;
 					}
 				}
@@ -195,7 +186,7 @@ public class HUD extends Module {
 					int textWidth = mc.fontRenderer.getStringWidth(yawText);
 					int textX = arrowX - textWidth / 2;
 					int textY = lineY + markLength + 5; // Below the line marks
-					UIUtils.drawTextOnScreen(yawText, textX, textY, new Color(255, 255, 255).getRGB());
+					UIUtils.drawTextOnScreenWithShadow(yawText, textX, textY, new Color(255, 255, 255).getRGB());
 				}
 			}
 		} catch (Exception ignored) {
@@ -217,14 +208,16 @@ public class HUD extends Module {
 	private void drawText(String text, int x, int y, Color color) {
 		GL11.glPushMatrix();
 		GL11.glScaled(1, 1, 1);
-		UIUtils.drawTextOnScreen(text, x, y, color.getRGB());
+		//UIUtils.drawTextOnScreen(text, x, y, color.getRGB());
+		UIUtils.drawTextOnScreenWithShadow(text, x, y, color.getRGB());
 		GL11.glPopMatrix();
 	}
 
 	private void drawText(String text, int x, int y, Color color, int scale) {
 		GL11.glPushMatrix();
 		GL11.glScaled(scale, scale, 1);
-		UIUtils.drawTextOnScreen(text, x, y, color.getRGB());
+		//UIUtils.drawTextOnScreen(text, x, y, color.getRGB());
+		UIUtils.drawTextOnScreenWithShadow(text, x, y, color.getRGB());
 		GL11.glPopMatrix();
 	}
 }

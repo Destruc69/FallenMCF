@@ -1,27 +1,22 @@
 package paul.fallen.module.modules.movement;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.packetevent.PacketEvent;
-
-import java.util.HashMap;
 
 public class Jesus extends Module {
 
-    private Setting grim;
+    private final Setting ground;
 
     public Jesus(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        grim = new Setting("GrimAC", this, false);
-        addSetting(grim);
+        ground = new Setting("Ground", this, false);
+        addSetting(ground);
     }
 
     @SubscribeEvent
@@ -30,7 +25,7 @@ public class Jesus extends Module {
             PlayerEntity player = event.player;
             BlockPos blockPos = new BlockPos(player.getPosX(), player.getPosY() - 0.000000000000000000000000000000000000000001, player.getPosZ());
 
-            if (!grim.getValBoolean()) {
+            if (!ground.getValBoolean()) {
                 if (player.world.getBlockState(blockPos).getBlock().equals(Blocks.WATER)) {
                     if (player.world.getBlockState(blockPos.up()).isAir()) {
                         player.setMotion(player.getMotion().x, 0.0, player.getMotion().z);

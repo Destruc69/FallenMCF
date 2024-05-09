@@ -21,6 +21,12 @@ public class UIUtils implements ClientSupport {
         fontRenderer.drawString(new MatrixStack(), text, x, y, color);
     }
 
+    // Method to draw text on the screen with shadow
+    public static void drawTextOnScreenWithShadow(String text, int x, int y, int color) {
+        FontRenderer fontRenderer = Minecraft.getInstance().fontRenderer;
+        fontRenderer.drawStringWithShadow(new MatrixStack(), text, x, y, color);
+    }
+
     // Method to draw a line between two points using rectangles
     public static void drawLine(int x1, int y1, int x2, int y2, int color) {
         int dx = Math.abs(x2 - x1);
@@ -51,6 +57,27 @@ public class UIUtils implements ClientSupport {
                 }
             }
         }
+    }
+
+    public static void drawEllipse(int centerX, int centerY, int ellipseWidth, int ellipseHeight, int color) {
+        int radiusX = ellipseWidth / 2;
+        int radiusY = ellipseHeight / 2;
+
+        for (int x = centerX - radiusX; x <= centerX + radiusX; x++) {
+            for (int y = centerY - radiusY; y <= centerY + radiusY; y++) {
+                if (isPointInEllipse(x, y, centerX, centerY, radiusX, radiusY)) {
+                    drawRect(x, y, 1, 1, color);
+                }
+            }
+        }
+    }
+
+    private static boolean isPointInEllipse(int x, int y, int centerX, int centerY, int radiusX, int radiusY) {
+        // Formula to check if (x, y) is inside or on the boundary of the ellipse
+        double normalizedX = (double) (x - centerX) / radiusX;
+        double normalizedY = (double) (y - centerY) / radiusY;
+
+        return (normalizedX * normalizedX + normalizedY * normalizedY) <= 1;
     }
 
     // Method to draw a filled rectangle on the screen
