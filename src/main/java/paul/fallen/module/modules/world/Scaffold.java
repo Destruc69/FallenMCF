@@ -127,28 +127,33 @@ public final class Scaffold extends Module {
 
                 mc.gameSettings.keyBindSneak.setPressed(mc.player.isOnGround() && mc.world.isAirBlock(mc.player.getPosition().down()));
             } else if (mode.getValString().equals("legit")) {
-                boolean isOnEdge = !mc.player.isOnGround() || !mc.world.getBlockState(mc.player.getPosition().down()).getBlock().getBlock().equals(Blocks.AIR);
-
-                if (isOnEdge) {
-                    // Stop movement before turning
-                    mc.gameSettings.keyBindForward.setPressed(false);
-                    mc.gameSettings.keyBindSneak.setPressed(true);
+                if (mc.player.isOnGround() && mc.world.getBlockState(mc.player.getPosition().down()).getBlock().getBlock().equals(Blocks.AIR)) {
+                    mc.player.rotationYaw = currentYaw;
+                    mc.player.rotationPitch = currentPitch;
 
                     interpolateRotation(yaw + 180, 78);
 
-                    // Place block only after complete turn
                     if (Math.round(mc.player.rotationYaw) == Math.round(yaw + 180) && Math.round(mc.player.rotationPitch) == Math.round(78)) {
+                        mc.gameSettings.keyBindSneak.setPressed(true);
                         mc.gameSettings.keyBindUseItem.setPressed(true);
+                        mc.gameSettings.keyBindForward.setPressed(false);
+                        mc.gameSettings.keyBindBack.setPressed(true);
+                        mc.gameSettings.keyBindSneak.setPressed(true);
+                        mc.gameSettings.keyBindSprint.setPressed(false);
                     }
                 } else {
+                    mc.player.rotationYaw = currentYaw;
+                    mc.player.rotationPitch = currentPitch;
+
                     interpolateRotation(yaw, 0);
 
-                    mc.gameSettings.keyBindUseItem.setPressed(false);
-
-                    // Start moving only after complete turn
                     if (Math.round(mc.player.rotationYaw) == Math.round(yaw) && Math.round(mc.player.rotationPitch) == Math.round(0)) {
-                        mc.gameSettings.keyBindForward.setPressed(true);
                         mc.gameSettings.keyBindSneak.setPressed(false);
+                        mc.gameSettings.keyBindUseItem.setPressed(false);
+                        mc.gameSettings.keyBindForward.setPressed(true);
+                        mc.gameSettings.keyBindBack.setPressed(false);
+                        mc.gameSettings.keyBindSneak.setPressed(false);
+                        mc.gameSettings.keyBindSprint.setPressed(true);
                     }
                 }
             }
