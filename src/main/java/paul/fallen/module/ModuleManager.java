@@ -61,6 +61,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new BackTrack(0, "BackTrack", "BackTrack", Category.Combat));
 		addModule(new LegitFightBot(0, "LegitFightBot", "LegitFightBot", Category.Combat));
 		addModule(new CrystalAuraReWrite(0, "CrystalAuraReWrite", "CrystalAuraReWrite", Category.Combat));
+		addModule(new TriggerBot(0, "TriggerBot", "TriggerBot", Category.Combat));
 
 		addModule(new AutoPilot(0, "AutoPilot", "AutoPilot", Category.Pathing));
 		addModule(new AutoMine(0, "AutoMine", "AutoMine", Category.Pathing));

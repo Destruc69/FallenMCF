@@ -18,15 +18,14 @@ import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
 import paul.fallen.utils.entity.RotationUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 public final class Killaura extends Module {
 
     private final Setting strictRotation;
     private float currentStrictYaw = 0;
     private float currentStrictPitch = 0;
     private final Setting distancee;
+
+    private boolean a = true;
 
     public Killaura(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
@@ -57,11 +56,17 @@ public final class Killaura extends Module {
                 if (!strictRotation.getValBoolean()) {
                     if (mc.player.ticksExisted % 10 + Math.round(Math.random() * 2) - Math.round(Math.random() * 2) == 0) {
                         mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
-                        mc.playerController.attackEntity(mc.player, entity);
-                        mc.player.swingArm(Hand.MAIN_HAND);
+
+                        if (a) {
+                            mc.playerController.attackEntity(mc.player, entity);
+                            mc.player.swingArm(Hand.MAIN_HAND);
+                            a = false;
+                        }
 
                         mc.player.rotationYawHead = rot[0];
                         mc.player.renderYawOffset = rot[0];
+                    } else {
+                        a = true;
                     }
                 } else if (strictRotation.getValBoolean()) {
                     interpolateRotation(rot[0], rot[1]);
@@ -72,8 +77,14 @@ public final class Killaura extends Module {
 
                     if (Math.round(currentStrictYaw) == Math.round(rot[0]) && Math.round(currentStrictPitch) == Math.round(rot[1])) {
                         if (mc.player.ticksExisted % 10 + Math.round(Math.random() * 2) - Math.round(Math.random() * 2) == 0) {
-                            mc.playerController.attackEntity(mc.player, entity);
-                            mc.player.swingArm(Hand.MAIN_HAND);
+
+                            if (a) {
+                                mc.playerController.attackEntity(mc.player, entity);
+                                mc.player.swingArm(Hand.MAIN_HAND);
+                                a = false;
+                            }
+                        } else {
+                            a = true;
                         }
                     }
                 }
