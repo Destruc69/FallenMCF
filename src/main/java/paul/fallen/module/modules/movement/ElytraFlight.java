@@ -23,7 +23,6 @@ public final class ElytraFlight extends Module {
     private final Setting upSpeed;
     private final Setting baseSpeed;
     private final Setting downSpeed;
-    private final Setting ncpInterpolate;
     private final Setting easyTakeoff;
 
     private boolean a = false;
@@ -35,13 +34,11 @@ public final class ElytraFlight extends Module {
         upSpeed = new Setting("Up-Speed", this, 0.05F, (float) 0.005, 10, false);
         baseSpeed = new Setting("Base-Speed", this, 0.05, 0.02, 10, false);
         downSpeed = new Setting( "Down-Speed", this, 0.0F, 0.002, 10, false);
-        ncpInterpolate = new Setting("NCP-Interpolate", this, false);
         easyTakeoff = new Setting("EasyTakeOff", this,false);
         addSetting(ncp);
         addSetting(upSpeed);
         addSetting(baseSpeed);
         addSetting(downSpeed);
-        addSetting(ncpInterpolate);
         addSetting(easyTakeoff);
     }
 
@@ -66,74 +63,37 @@ public final class ElytraFlight extends Module {
                         mc.player.setMotion(0, mc.player.getMotion().y, 0);
                     }
                 } else {
-                    if (!ncpInterpolate.getValBoolean()) {
-                        Vector3d vector3d = mc.player.getMotion();
+                    Vector3d vector3d = mc.player.getMotion();
 
-                        if (mc.gameSettings.keyBindForward.isKeyDown()) {
-                            double[] dir = MathUtils.directionSpeed(baseSpeed.getValDouble());
-                            vector3d = mc.player.getMotion().add(dir[0], 0, dir[1]);
-                        }
-
-                        Vector3d vector3d1 = mc.player.getLookVec();
-                        double d0 = 0.08D;
-                        float f = mc.player.rotationPitch * ((float) Math.PI / 180F);
-                        double d1 = Math.sqrt(vector3d1.x * vector3d1.x + vector3d1.z * vector3d1.z);
-                        double d3 = Math.sqrt(Entity.horizontalMag(vector3d));
-                        double d4 = vector3d1.length();
-                        float f1 = MathHelper.cos(f);
-                        f1 = (float) ((double) f1 * (double) f1 * Math.min(1.0D, d4 / 0.4D));
-                        vector3d = mc.player.getMotion().add(0.0D, d0 * (-1.0D + (double) f1 * 0.75D), 0.0D);
-                        if (vector3d.y < 0.0D && d1 > 0.0D) {
-                            double d5 = vector3d.y * -0.1D * (double) f1;
-                            vector3d = vector3d.add(vector3d1.x * d5 / d1, d5, vector3d1.z * d5 / d1);
-                        }
-
-                        if (f < 0.0F && d1 > 0.0D) {
-                            double d9 = d3 * (double) (-MathHelper.sin(f)) * 0.04D;
-                            vector3d = vector3d.add(-vector3d1.x * d9 / d1, d9 * 3.2D, -vector3d1.z * d9 / d1);
-                        }
-
-                        if (d1 > 0.0D) {
-                            vector3d = vector3d.add((vector3d1.x / d1 * d3 - vector3d.x) * 0.1D, 0.0D, (vector3d1.z / d1 * d3 - vector3d.z) * 0.1D);
-                        }
-
-                        mc.player.setMotion(vector3d.mul((double) 0.99F, (double) 0.98F, (double) 0.99F));
-                    } else {
-                        Vector3d currentMotion = mc.player.getMotion();
-                        Vector3d interpolatedMotion = new Vector3d(currentMotion.x, currentMotion.y, currentMotion.z);
-
-                        // Interpolate forward motion
-                        if (mc.gameSettings.keyBindForward.isKeyDown()) {
-                            double[] dir = MathUtils.directionSpeed(baseSpeed.getValDouble());
-                            Vector3d forwardMotion = new Vector3d(dir[0], 0, dir[1]);
-                            interpolatedMotion = interpolateMotion(interpolatedMotion, forwardMotion);
-                        }
-
-                        Vector3d lookVector = mc.player.getLookVec();
-                        double acceleration = 0.08D;
-                        float pitch = mc.player.rotationPitch * ((float) Math.PI / 180F);
-                        double horizontalMotionMagnitude = Math.sqrt(Entity.horizontalMag(interpolatedMotion));
-                        double lookVectorLength = lookVector.length();
-                        float f1 = MathHelper.cos(pitch);
-                        f1 = (float) ((double) f1 * (double) f1 * Math.min(1.0D, lookVectorLength / 0.4D));
-                        interpolatedMotion = interpolatedMotion.add(0.0D, acceleration * (-1.0D + (double) f1 * 0.75D), 0.0D);
-
-                        if (interpolatedMotion.y < 0.0D && lookVectorLength > 0.0D) {
-                            double factor = interpolatedMotion.y * -0.1D * (double) f1;
-                            interpolatedMotion = interpolatedMotion.add(lookVector.x * factor / lookVectorLength, factor, lookVector.z * factor / lookVectorLength);
-                        }
-
-                        if (pitch < 0.0F && lookVectorLength > 0.0D) {
-                            double factor = horizontalMotionMagnitude * (double) (-MathHelper.sin(pitch)) * 0.04D;
-                            interpolatedMotion = interpolatedMotion.add(-lookVector.x * factor / lookVectorLength, factor * 3.2D, -lookVector.z * factor / lookVectorLength);
-                        }
-
-                        if (lookVectorLength > 0.0D) {
-                            interpolatedMotion = interpolatedMotion.add((lookVector.x / lookVectorLength * horizontalMotionMagnitude - interpolatedMotion.x) * 0.1D, 0.0D, (lookVector.z / lookVectorLength * horizontalMotionMagnitude - interpolatedMotion.z) * 0.1D);
-                        }
-
-                        mc.player.setMotion(interpolatedMotion.mul((double) 0.99F, (double) 0.98F, (double) 0.99F));
+                    if (mc.gameSettings.keyBindForward.isKeyDown()) {
+                        double[] dir = MathUtils.directionSpeed(baseSpeed.getValDouble());
+                        vector3d = mc.player.getMotion().add(dir[0], 0, dir[1]);
                     }
+
+                    Vector3d vector3d1 = mc.player.getLookVec();
+                    double d0 = 0.08D;
+                    float f = mc.player.rotationPitch * ((float) Math.PI / 180F);
+                    double d1 = Math.sqrt(vector3d1.x * vector3d1.x + vector3d1.z * vector3d1.z);
+                    double d3 = Math.sqrt(Entity.horizontalMag(vector3d));
+                    double d4 = vector3d1.length();
+                    float f1 = MathHelper.cos(f);
+                    f1 = (float) ((double) f1 * (double) f1 * Math.min(1.0D, d4 / 0.4D));
+                    vector3d = mc.player.getMotion().add(0.0D, d0 * (-1.0D + (double) f1 * 0.75D), 0.0D);
+                    if (vector3d.y < 0.0D && d1 > 0.0D) {
+                        double d5 = vector3d.y * -0.1D * (double) f1;
+                        vector3d = vector3d.add(vector3d1.x * d5 / d1, d5, vector3d1.z * d5 / d1);
+                    }
+
+                    if (f < 0.0F && d1 > 0.0D) {
+                        double d9 = d3 * (double) (-MathHelper.sin(f)) * 0.04D;
+                        vector3d = vector3d.add(-vector3d1.x * d9 / d1, d9 * 3.2D, -vector3d1.z * d9 / d1);
+                    }
+
+                    if (d1 > 0.0D) {
+                        vector3d = vector3d.add((vector3d1.x / d1 * d3 - vector3d.x) * 0.1D, 0.0D, (vector3d1.z / d1 * d3 - vector3d.z) * 0.1D);
+                    }
+
+                    mc.player.setMotion(vector3d.mul((double) 0.99F, (double) 0.98F, (double) 0.99F));
                 }
             } else {
                 if (easyTakeoff.getValBoolean()) {
@@ -150,14 +110,5 @@ public final class ElytraFlight extends Module {
             }
         } catch (Exception ignored) {
         }
-    }
-
-    // Interpolation function
-    private Vector3d interpolateMotion(Vector3d current, Vector3d target) {
-        double interpolationFactor = 0.002; // Adjust as needed
-        double interpolatedX = current.x + (target.x - current.x) * interpolationFactor;
-        double interpolatedY = current.y + (target.y - current.y) * interpolationFactor;
-        double interpolatedZ = current.z + (target.z - current.z) * interpolationFactor;
-        return new Vector3d(interpolatedX, interpolatedY, interpolatedZ);
     }
 }

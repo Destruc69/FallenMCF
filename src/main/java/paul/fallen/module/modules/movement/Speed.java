@@ -104,6 +104,7 @@ public final class Speed extends Module {
         }
     }
 
+
     private double getHypixelSpeed(int stage) {
         double value = 0.26 / 15;
         double firstValue = 0.4145 / 12.5;
