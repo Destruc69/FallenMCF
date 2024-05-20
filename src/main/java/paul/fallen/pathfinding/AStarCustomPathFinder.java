@@ -2,6 +2,7 @@ package paul.fallen.pathfinding;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import paul.fallen.FALLENClient;
 import paul.fallen.utils.render.RenderUtils;
@@ -279,7 +280,7 @@ public class AStarCustomPathFinder {
     public void renderPath(RenderWorldLastEvent event) {
         for (int i = 0; i < getPath().size(); i++) {
             if (i + 1 <= getPath().size()) {
-                RenderUtils.drawLine(getPath().get(i).add(-0.5, 1, -0.5), getPath().get(i + 1).add(-0.5, 1, -0.5), 0, 1, 0, event);
+                RenderUtils.drawLine(getPath().get(i), getPath().get(i + 1), 0, 1, 0, event);
             }
         }
     }
@@ -326,40 +327,31 @@ public class AStarCustomPathFinder {
 
                     // Move towards the next position
                     double speed = FALLENClient.INSTANCE.getModuleManager().pathfinder.airSpeed.getValDouble(); // Adjust speed as needed
-                    double dx = nextPos.getX() + 0.5 - Minecraft.getInstance().player.getPosX();
-                    double dy = nextPos.getY() + 0.5 - Minecraft.getInstance().player.getPosY();
-                    double dz = nextPos.getZ() + 0.5 - Minecraft.getInstance().player.getPosZ();
-                    double dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-                    double motionX = dx / dist * speed;
-                    double motionY = dy / dist * speed;
-                    double motionZ = dz / dist * speed;
+                    Vector3d target = new Vector3d(nextPos.getX() + 0.5, nextPos.getY() + 0.5, nextPos.getZ() + 0.5);
+                    Vector3d playerPos = Minecraft.getInstance().player.getPositionVec();
+                    Vector3d motion = target.subtract(playerPos).normalize().scale(speed);
 
                     // Apply movement
-                    Minecraft.getInstance().player.setVelocity(motionX, motionY, motionZ);
+                    Minecraft.getInstance().player.setMotion(motion.x, motion.y, motion.z);
                 }
             } else if (FALLENClient.INSTANCE.getModuleManager().pathfinder.type.getValString().equals("ground")) {
                 BlockPos nextPos = getTargetPositionInPathArray(getPath());
 
                 // Move towards the next position
                 double speed = Minecraft.getInstance().player.isSprinting() ? 0.26 : 0.2; // Adjust speed as needed
-                double dx = nextPos.getX() + 0.5 - Minecraft.getInstance().player.getPosX();
-                //double dy = nextPos.getY() + 0.5 - Minecraft.getInstance().player.getPosY();
-                double dz = nextPos.getZ() + 0.5 - Minecraft.getInstance().player.getPosZ();
-                double dist = Math.sqrt(dx * dx + dz * dz);
-
-                double motionX = dx / dist * speed;
-                //double motionY = dy / dist * speed;
-                double motionZ = dz / dist * speed;
+                Vector3d target = new Vector3d(nextPos.getX() + 0.5, Minecraft.getInstance().player.getPosY(), nextPos.getZ() + 0.5);
+                Vector3d playerPos = Minecraft.getInstance().player.getPositionVec();
+                Vector3d motion = target.subtract(playerPos).normalize().scale(speed);
 
                 // Apply movement
-                Minecraft.getInstance().player.setVelocity(motionX, Minecraft.getInstance().player.getMotion().y, motionZ);
+                Minecraft.getInstance().player.setMotion(motion.x, Minecraft.getInstance().player.getMotion().y, motion.z);
 
-                if (nextPos.getY() > Minecraft.getInstance().player.getPosY()) {
-                    if (Minecraft.getInstance().player.isOnGround()) {
-                        Minecraft.getInstance().player.jump();
-                    }
+                // Jump if necessary
+                if (nextPos.getY() > Minecraft.getInstance().player.getPosY() && Minecraft.getInstance().player.isOnGround()) {
+                    Minecraft.getInstance().player.jump();
                 }
+
+                // Adjust for water movement
                 if (Minecraft.getInstance().player.isInWater()) {
                     Minecraft.getInstance().player.setMotion(Minecraft.getInstance().player.getMotion().x, 0.01, Minecraft.getInstance().player.getMotion().z);
                 }

@@ -19,8 +19,8 @@ import paul.fallen.utils.entity.RotationUtils;
 
 public final class Killaura extends Module {
 
-    private Setting delay;
-    private Setting rotate;
+    private final Setting delay;
+    private final Setting rotate;
     private final Setting distancee;
 
     private boolean a = true;
@@ -40,28 +40,31 @@ public final class Killaura extends Module {
 
     @SubscribeEvent
     public void onUpdate(TickEvent.PlayerTickEvent event) {
-        try {
-            Entity entity = findClosestEntity();
-            if (entity != null) {
-                float[] rot = RotationUtils.getYawAndPitch(entity.getBoundingBox().getCenter());
-                assert mc.player != null;
-                if (mc.player.ticksExisted % delay.getValDouble() + Math.round(Math.random() * 2) - Math.round(Math.random() * 2) == 0) {
-                    if (rotate.getValBoolean()) {
-                        mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
-                    }
+        if (event.phase == TickEvent.Phase.START) {
+            try {
+                Entity entity = findClosestEntity();
+                if (entity != null) {
+                    float[] rot = RotationUtils.getYawAndPitch(entity.getBoundingBox().getCenter().add(mc.player.ticksExisted % 2 == 0 ? Math.random() * 2 : -(Math.random() * 2), mc.player.ticksExisted % 2 == 0 ? Math.random() * 2 : -(Math.random() * 2), mc.player.ticksExisted % 2 == 0 ? Math.random() * 2 : -(Math.random() * 2)));
+                    assert mc.player != null;
+                    if (mc.player.ticksExisted % delay.getValDouble() == 0) {
+                        if (rotate.getValBoolean()) {
+                            mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
+                        }
 
-                    if (a) {
-                        mc.playerController.attackEntity(mc.player, entity);
-                        mc.player.swingArm(Hand.MAIN_HAND);
-                        a = false;
+                        if (a) {
+                            mc.playerController.attackEntity(mc.player, entity);
+                            mc.player.swingArm(Hand.MAIN_HAND);
+                            a = false;
+                        }
+                    } else {
+                        a = true;
                     }
-                } else {
-                    a = true;
                 }
+            } catch (Exception ignored) {
             }
-        } catch (Exception ignored) {
         }
     }
+
 
     private Entity findClosestEntity() {
         Entity closestEntity = null;
