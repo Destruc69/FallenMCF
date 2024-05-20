@@ -138,7 +138,6 @@ public final class Scaffold extends Module {
                         mc.gameSettings.keyBindUseItem.setPressed(false);
                     }
                     mc.player.rotationPitch = 80;
-                    mc.player.rotationYaw = yaw + 180;
                     mc.gameSettings.keyBindBack.setPressed(true);
                 }
             }
