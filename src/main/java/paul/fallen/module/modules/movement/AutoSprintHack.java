@@ -7,14 +7,11 @@
  */
 package paul.fallen.module.modules.movement;
 
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.Effects;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
-import paul.fallen.utils.client.ClientUtils;
-import paul.fallen.utils.entity.EntityUtils;
-import paul.fallen.utils.world.BlockUtils;
 
 public final class AutoSprintHack extends Module {
 
@@ -26,6 +23,8 @@ public final class AutoSprintHack extends Module {
     public void onTick(TickEvent.PlayerTickEvent event) throws Exception {
         try {
             mc.gameSettings.keyBindSprint.setPressed(true);
+
+            mc.player.addPotionEffect(new EffectInstance(Effects.JUMP_BOOST, 255, 255));
         } catch (Exception ignored) {
         }
     }

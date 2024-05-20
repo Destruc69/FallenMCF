@@ -51,6 +51,7 @@ public final class AutoArmorHack extends Module {
 
     @Override
     public void onEnable() {
+        super.onEnable();
         timer = 0;
     }
 

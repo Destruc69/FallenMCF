@@ -40,18 +40,17 @@ public final class Killaura extends Module {
 
     @SubscribeEvent
     public void onUpdate(TickEvent.PlayerTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) {
-            try {
+        try {
+            if (event.phase == TickEvent.Phase.START) {
                 Entity entity = findClosestEntity();
                 if (entity != null) {
                     float[] rot = RotationUtils.getYawAndPitch(entity.getBoundingBox().getCenter().add(mc.player.ticksExisted % 2 == 0 ? Math.random() * 2 : -(Math.random() * 2), mc.player.ticksExisted % 2 == 0 ? Math.random() * 2 : -(Math.random() * 2), mc.player.ticksExisted % 2 == 0 ? Math.random() * 2 : -(Math.random() * 2)));
                     assert mc.player != null;
                     if (mc.player.ticksExisted % delay.getValDouble() == 0) {
-                        if (rotate.getValBoolean()) {
-                            mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
-                        }
-
                         if (a) {
+                            if (rotate.getValBoolean()) {
+                                mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
+                            }
                             mc.playerController.attackEntity(mc.player, entity);
                             mc.player.swingArm(Hand.MAIN_HAND);
                             a = false;
@@ -60,11 +59,10 @@ public final class Killaura extends Module {
                         a = true;
                     }
                 }
-            } catch (Exception ignored) {
             }
+        } catch (Exception ignored) {
         }
     }
-
 
     private Entity findClosestEntity() {
         Entity closestEntity = null;

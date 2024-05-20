@@ -7,6 +7,8 @@
  */
 package paul.fallen.module.modules.movement;
 
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.Effects;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.clickgui.settings.Setting;
@@ -15,27 +17,43 @@ import paul.fallen.utils.entity.EntityUtils;
 
 public final class HighJump extends Module {
 
+    private final Setting effect;
     private final Setting speed;
     private boolean a;
 
     public HighJump(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        speed = new Setting("Speed", this, 0.2f, 0.1f, 5.0f, false);
+        effect = new Setting("Effect", this, false);
+        speed = new Setting("Speed", this, 0.2f, 0.1f, 20.0f, true);
+        addSetting(effect);
         addSetting(speed);
+    }
+
+    @Override
+    public void onDisable() {
+        super.onDisable();
+
+        if (effect.getValBoolean()) {
+            mc.player.clearActivePotions();
+        }
     }
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
             assert mc.player != null;
-            if (mc.player.getMotion().y > 0) {
-                if (!a) {
-                    EntityUtils.setMotionY(speed.getValDouble());
-                    a = true;
+            if (!effect.getValBoolean()) {
+                if (mc.player.getMotion().y > 0) {
+                    if (!a) {
+                        EntityUtils.setMotionY(speed.getValDouble());
+                        a = true;
+                    }
+                } else {
+                    a = false;
                 }
             } else {
-                a = false;
+                mc.player.addPotionEffect(new EffectInstance(Effects.JUMP_BOOST, 255, (int) speed.getValDouble(), true, true, true));
             }
         } catch (Exception ignored) {
         }

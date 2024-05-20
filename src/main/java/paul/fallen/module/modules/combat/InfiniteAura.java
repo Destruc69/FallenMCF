@@ -40,57 +40,59 @@ public class InfiniteAura extends Module {
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         try {
-            Entity entity = findClosestEntity();
+            if (event.phase == TickEvent.Phase.START) {
+                Entity entity = findClosestEntity();
 
-            // Skip if less than 1 second has passed since the last action
-            if (System.currentTimeMillis() - lastActionTime < 500) {
-                return;
-            }
+                // Skip if less than 1 second has passed since the last action
+                if (System.currentTimeMillis() - lastActionTime < 500) {
+                    return;
+                }
 
-            // Set the last action time to the current time
-            lastActionTime = System.currentTimeMillis();
+                // Set the last action time to the current time
+                lastActionTime = System.currentTimeMillis();
 
-            if (entity == null)
-                return;
+                if (entity == null)
+                    return;
 
-            // Stop all movement
-            mc.player.setMotion(0, 0, 0);
-            for (KeyBinding k : new ArrayList<>(Arrays.asList(mc.gameSettings.keyBindForward, mc.gameSettings.keyBindRight, mc.gameSettings.keyBindBack, mc.gameSettings.keyBindLeft, mc.gameSettings.keyBindJump, mc.gameSettings.keyBindSneak)))
-                k.setPressed(false);
+                // Stop all movement
+                mc.player.setMotion(0, 0, 0);
+                for (KeyBinding k : new ArrayList<>(Arrays.asList(mc.gameSettings.keyBindForward, mc.gameSettings.keyBindRight, mc.gameSettings.keyBindBack, mc.gameSettings.keyBindLeft, mc.gameSettings.keyBindJump, mc.gameSettings.keyBindSneak)))
+                    k.setPressed(false);
 
-            // Move to entity
-            aStarCustomPathFinder = new AStarCustomPathFinder(mc.player.getPosition(), entity.getPosition());
-            aStarCustomPathFinder.compute();
+                // Move to entity
+                aStarCustomPathFinder = new AStarCustomPathFinder(mc.player.getPosition(), entity.getPosition());
+                aStarCustomPathFinder.compute();
 
-            this.entity = entity;
+                this.entity = entity;
 
-            // Move forward
-            int pathSize = aStarCustomPathFinder.getPath().size(); // Store the size of the path
-            for (int a = 0; a < pathSize; a++) {
-                BlockPos v = aStarCustomPathFinder.getPath().get(a);
-                mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(v.getX(), v.getY(), v.getZ(), true));
-            }
+                // Move forward
+                int pathSize = aStarCustomPathFinder.getPath().size(); // Store the size of the path
+                for (int a = 0; a < pathSize; a++) {
+                    BlockPos v = aStarCustomPathFinder.getPath().get(a);
+                    mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(v.getX(), v.getY(), v.getZ(), true));
+                }
 
-            // Look at entity
-            float[] rot = RotationUtils.getYawAndPitch(new Vector3d(aStarCustomPathFinder.getPath().get(pathSize - 1).getX(), aStarCustomPathFinder.getPath().get(pathSize - 1).getY(), aStarCustomPathFinder.getPath().get(pathSize - 1).getZ()), entity.getBoundingBox().getCenter());
-            mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], true));
+                // Look at entity
+                float[] rot = RotationUtils.getYawAndPitch(new Vector3d(aStarCustomPathFinder.getPath().get(pathSize - 1).getX(), aStarCustomPathFinder.getPath().get(pathSize - 1).getY(), aStarCustomPathFinder.getPath().get(pathSize - 1).getZ()), entity.getBoundingBox().getCenter());
+                mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], true));
 
-            // Attack entity
-            mc.playerController.attackEntity(mc.player, entity);
-            mc.player.swingArm(Hand.MAIN_HAND);
+                // Attack entity
+                mc.playerController.attackEntity(mc.player, entity);
+                mc.player.swingArm(Hand.MAIN_HAND);
 
-            // Reverse path
-            ArrayList<BlockPos> vector3ds = new ArrayList<>();
+                // Reverse path
+                ArrayList<BlockPos> vector3ds = new ArrayList<>();
 
-            vector3ds.addAll(aStarCustomPathFinder.getPath());
+                vector3ds.addAll(aStarCustomPathFinder.getPath());
 
-            Collections.reverse(vector3ds);
+                Collections.reverse(vector3ds);
 
-            // Move back
-            pathSize = vector3ds.size(); // Update the size of the path
-            for (int b = 0; b < pathSize; b++) {
-                BlockPos v = vector3ds.get(b);
-                mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(v.getX(), v.getY(), v.getZ(), true));
+                // Move back
+                pathSize = vector3ds.size(); // Update the size of the path
+                for (int b = 0; b < pathSize; b++) {
+                    BlockPos v = vector3ds.get(b);
+                    mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(v.getX(), v.getY(), v.getZ(), true));
+                }
             }
         } catch (Exception ignored) {
         }
