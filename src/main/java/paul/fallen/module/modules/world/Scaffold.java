@@ -53,7 +53,6 @@ public final class Scaffold extends Module {
         super.onEnable();
 
         try {
-            mc.player.rotationYaw = roundYaw();
             yaw = mc.player.rotationYaw;
         } catch (Exception ignored) {
         }
@@ -69,10 +68,6 @@ public final class Scaffold extends Module {
         mc.gameSettings.keyBindBack.setPressed(false);
         mc.gameSettings.keyBindSneak.setPressed(false);
         mc.gameSettings.keyBindSprint.setPressed(false);
-
-        if (mode.getValString().equals("legit")) {
-            mc.player.rotationYaw = yaw;
-        }
     }
 
     private static boolean isValidBlock(BlockPos blockPos) {
