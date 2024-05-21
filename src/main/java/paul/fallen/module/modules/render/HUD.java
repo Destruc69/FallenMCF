@@ -6,7 +6,6 @@ import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.WaterMobEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -27,7 +26,6 @@ public class HUD extends Module {
 	private final Setting arrayList;
 	private final Setting coords;
 	private static final int RADAR_SIZE = 110; // Size of the radar square
-	private static final ResourceLocation RADAR_TEXTURE = new ResourceLocation("textures/map/map_background.png"); // Radar texture
 	private final Setting radar;
 
 	public HUD(int bind, String name, Category category) {
@@ -95,7 +93,6 @@ public class HUD extends Module {
 					float playerYaw = mc.player.rotationYaw;
 
 					// Draw radar texture
-					mc.getTextureManager().bindTexture(RADAR_TEXTURE);
 					int radarX = screenWidth - 80 - RADAR_SIZE / 2;
 					int radarY = 2;
 					//UIUtils.drawCustomSizedTexture(RADAR_TEXTURE, radarX, radarY, 0, 0, RADAR_SIZE, RADAR_SIZE, RADAR_SIZE, RADAR_SIZE);
