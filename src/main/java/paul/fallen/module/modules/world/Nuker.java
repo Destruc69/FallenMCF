@@ -1,10 +1,9 @@
 package paul.fallen.module.modules.world;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
@@ -16,10 +15,10 @@ import paul.fallen.utils.world.BlockUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 
 public class Nuker extends Module {
 
+    Setting legit;
     Setting x;
     Setting yMax;
     Setting yMin;
@@ -30,11 +29,13 @@ public class Nuker extends Module {
     public Nuker(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
+        legit = new Setting("Legit", this, false);
         x = new Setting("X", this, 2, 0, 5, true);
         yMax = new Setting("Y-Max", this, 2, 0, 5, true);
         yMin = new Setting("Y-Min", this, 0, 0, 5, true);
         z = new Setting("Z", this, 2, 0, 5, true);
 
+        addSetting(legit);
         addSetting(x);
         addSetting(yMax);
         addSetting(yMin);
@@ -44,10 +45,22 @@ public class Nuker extends Module {
     @SubscribeEvent
     public void onClientTick(TickEvent.PlayerTickEvent event) {
         try {
-            if (targetPosition == null || mc.world.getBlockState(targetPosition).getBlock().equals(Blocks.AIR)) {
-                targetPosition = getTargetPosition();
-            } else {
-                BlockUtils.breakBlock(targetPosition, mc.player.inventory.currentItem, true, true);
+            if (event.phase == TickEvent.Phase.START) {
+                if (targetPosition == null || mc.world.getBlockState(targetPosition).getBlock().equals(Blocks.AIR)) {
+                    targetPosition = getTargetPosition();
+                    if (legit.getValBoolean()) {
+                        mc.gameSettings.keyBindAttack.setPressed(false);
+                    }
+                } else {
+                    if (!legit.getValBoolean()) {
+                        BlockUtils.breakBlock(targetPosition, mc.player.inventory.currentItem, true, true);
+                    } else {
+                        float[] rot = getRotationsBlock(targetPosition, mc.player.getHorizontalFacing());
+                        mc.player.rotationYaw = rot[0];
+                        mc.player.rotationPitch = rot[1];
+                        mc.gameSettings.keyBindAttack.setPressed(true);
+                    }
+                }
             }
         } catch (Exception ignored) {
         }
@@ -100,5 +113,20 @@ public class Nuker extends Module {
         } else {
             return new BlockPos(0, 0, 0);
         }
+    }
+
+    private float[] getRotationsBlock(BlockPos block, Direction face) {
+        assert mc.player != null;
+        double x = (double) block.getX() + 0.5 - mc.player.getPosX() + (double) face.getXOffset() / 2.0;
+        double z = (double) block.getZ() + 0.5 - mc.player.getPosZ() + (double) face.getZOffset() / 2.0;
+        double y = (double) block.getY() + 0.5;
+        double d1 = mc.player.getPosY() + (double) mc.player.getEyeHeight() - y;
+        double d3 = MathHelper.sqrt(x * x + z * z);
+        float yaw = (float) (Math.atan2(z, x) * 180.0 / 3.141592653589793) - 90.0f;
+        float pitch = (float) (Math.atan2(d1, d3) * 180.0 / 3.141592653589793);
+        if (yaw < 0.0f) {
+            yaw += 360.0f;
+        }
+        return new float[]{yaw, pitch};
     }
 }

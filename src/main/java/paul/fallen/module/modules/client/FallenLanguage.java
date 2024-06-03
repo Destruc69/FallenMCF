@@ -15,12 +15,12 @@ public class FallenLanguage extends Module {
 
     public FallenLanguage(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        onEnable();
     }
 
     @Override
     public void onEnable() {
         try {
+            super.onEnable();
             ClientUtils.addChatMessage("You are now using the Fallen language, a fictional collection of words and letters believed to originate from ancient North Korea.");
             ClientUtils.addChatMessage("All text messages sent will be converted to Fallen language, while all messages received will be converted from Fallen language to English. This means that only players with this module enabled will understand the messages. Therefore, messages received will only make sense if the player who sent them also had this module enabled.");
             ClientUtils.addChatMessage("For those who don't have the module enabled, they will see the message as Fallen language and will not understand it. If they inquire about its meaning, simply ignore them.");

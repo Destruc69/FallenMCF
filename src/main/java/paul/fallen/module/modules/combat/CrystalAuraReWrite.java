@@ -23,12 +23,12 @@ import java.util.List;
 
 public class CrystalAuraReWrite extends Module {
 
-    private Setting breakTicks;
-    private Setting placeTicks;
+    private final Setting breakTicks;
+    private final Setting placeTicks;
 
-    private Setting maxDistance;
-    private Setting minDamage;
-    private Setting maxDamageSelf;
+    private final Setting maxDistance;
+    private final Setting minDamage;
+    private final Setting maxDamageSelf;
 
     public CrystalAuraReWrite(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
@@ -51,11 +51,13 @@ public class CrystalAuraReWrite extends Module {
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
-            if (mc.player.ticksExisted % placeTicks.getValDouble() == 0) {
-                placeCrystal();
-            }
-            if (mc.player.ticksExisted % breakTicks.getValDouble() == 0) {
-                breakCrystal();
+            if (event.phase == TickEvent.Phase.START) {
+                if (mc.player.ticksExisted % placeTicks.getValDouble() == 0) {
+                    placeCrystal();
+                }
+                if (mc.player.ticksExisted % breakTicks.getValDouble() == 0) {
+                    breakCrystal();
+                }
             }
         } catch (Exception ignored) {
         }

@@ -3,12 +3,13 @@ package paul.fallen.clickgui.component.components;
 import paul.fallen.FALLENClient;
 import paul.fallen.clickgui.component.Component;
 import paul.fallen.clickgui.component.Frame;
+import paul.fallen.clickgui.component.components.sub.Checkbox;
 import paul.fallen.clickgui.component.components.sub.*;
 import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
 import paul.fallen.utils.render.UIUtils;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.ArrayList;
 
 /**
@@ -25,9 +26,9 @@ public class Button extends Component {
 	public Frame parent;
 	public int offset;
 	private boolean isHovered;
-	private ArrayList<Component> subcomponents;
+	private final ArrayList<Component> subcomponents;
 	public boolean open;
-	private int height;
+	private final int height;
 	
 	public Button(Module mod, Frame parent, int offset) {
 		this.mod = mod;
@@ -76,12 +77,13 @@ public class Button extends Component {
 		//Gui.drawRect(parent.getX(), this.parent.getY() + this.offset, parent.getX() + parent.getWidth(), this.parent.getY() + 12 + this.offset, this.isHovered ? (this.mod.isToggled() ? new Color(255, 0, 255, 191).darker().getRGB() : new Color(15, 15, 15, 191).getRGB()) : (this.mod.isToggled() ? new Color(255, 0, 255, 191).getRGB() : new Color(30, 30, 30, 191).getRGB()));
 		UIUtils.drawTextOnScreen(this.mod.getName(), (parent.getX() + 2) + 2, (parent.getY() + offset + 2) + 1, new Color(255, 255, 255).getRGB());
 		//Fonts.ARIAL.ARIAL_18.ARIAL_18.drawString(this.mod.getName(), (parent.getX() + 2) + 2, (parent.getY() + offset + 2) + 1, new Color(255, 255, 255).getRGB(), true);
-		if(this.subcomponents.size() > 2)
+		//if(this.subcomponents.size() > 2)
+		if (this.subcomponents.size() > 0)
 			UIUtils.drawTextOnScreen(this.open ? "-" : "+", (parent.getX() + parent.getWidth() - 10), (parent.getY() + offset) + 4, new Color(255, 255, 255, 255).getRGB());
-			//Fonts.ARIAL.ARIAL_18.ARIAL_18.drawString(this.open ? "-" : "+", (parent.getX() + parent.getWidth() - 10), (parent.getY() + offset) + 4, new Color(255, 255, 255, 255).getRGB(), true);
-		if(this.open) {
-			if(!this.subcomponents.isEmpty()) {
-				for(Component comp : this.subcomponents) {
+		//Fonts.ARIAL.ARIAL_18.ARIAL_18.drawString(this.open ? "-" : "+", (parent.getX() + parent.getWidth() - 10), (parent.getY() + offset) + 4, new Color(255, 255, 255, 255).getRGB(), true);
+		if (this.open) {
+			if (!this.subcomponents.isEmpty()) {
+				for (Component comp : this.subcomponents) {
 					comp.renderComponent();
 				}
 				UIUtils.drawRect(parent.getX() + 2, parent.getY() + this.offset + 12, 3, ((this.subcomponents.size() + 1) * 12), new Color(255, 0, 255, 191).getRGB());

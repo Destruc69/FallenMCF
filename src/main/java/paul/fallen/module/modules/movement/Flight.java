@@ -57,90 +57,92 @@ public final class Flight extends Module {
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
-            if (Objects.equals(mode.getValString(), "vanilla")) {
-                if (mc.gameSettings.keyBindJump.isKeyDown()) {
-                    mc.player.setMotion(mc.player.getMotion().x, upSpeed.getValDouble(), mc.player.getMotion().z);
-                } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
-                    mc.player.setMotion(mc.player.getMotion().x, -downSpeed.getValDouble(), mc.player.getMotion().z);
-                } else {
-                    mc.player.setMotion(mc.player.getMotion().x, 0, mc.player.getMotion().z);
-                }
-                if (mc.gameSettings.keyBindForward.isKeyDown() ||
-                        mc.gameSettings.keyBindRight.isKeyDown() ||
-                        mc.gameSettings.keyBindBack.isKeyDown() ||
-                        mc.gameSettings.keyBindLeft.isKeyDown()) {
+            if (event.phase == TickEvent.Phase.START) {
+                if (Objects.equals(mode.getValString(), "vanilla")) {
+                    if (mc.gameSettings.keyBindJump.isKeyDown()) {
+                        mc.player.setMotion(mc.player.getMotion().x, upSpeed.getValDouble(), mc.player.getMotion().z);
+                    } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
+                        mc.player.setMotion(mc.player.getMotion().x, -downSpeed.getValDouble(), mc.player.getMotion().z);
+                    } else {
+                        mc.player.setMotion(mc.player.getMotion().x, 0, mc.player.getMotion().z);
+                    }
+                    if (mc.gameSettings.keyBindForward.isKeyDown() ||
+                            mc.gameSettings.keyBindRight.isKeyDown() ||
+                            mc.gameSettings.keyBindBack.isKeyDown() ||
+                            mc.gameSettings.keyBindLeft.isKeyDown()) {
+                        MathUtils.setSpeed(baseSpeed.getValDouble());
+                    } else {
+                        mc.player.setMotion(0, mc.player.getMotion().y, 0);
+                    }
                     MathUtils.setSpeed(baseSpeed.getValDouble());
-                } else {
-                    mc.player.setMotion(0, mc.player.getMotion().y, 0);
-                }
-                MathUtils.setSpeed(baseSpeed.getValDouble());
-                if (antiKick.getValBoolean()) {
-                    handleVanillaKickBypass();
-                }
-            } else if (Objects.equals(mode.getValString(), "ncp")) {
-                if (mc.gameSettings.keyBindJump.isKeyDown()) {
-                    mc.player.setMotion(mc.player.getMotion().x, upSpeed.getValDouble(), mc.player.getMotion().z);
-                } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
-                    mc.player.setMotion(mc.player.getMotion().x, -downSpeed.getValDouble(), mc.player.getMotion().z);
-                } else {
-                    mc.player.setMotion(mc.player.getMotion().x, 0, mc.player.getMotion().z);
-                }
-                if (mc.gameSettings.keyBindForward.isKeyDown() ||
-                mc.gameSettings.keyBindRight.isKeyDown() ||
-                mc.gameSettings.keyBindBack.isKeyDown() ||
-                mc.gameSettings.keyBindLeft.isKeyDown()) {
-                    MathUtils.setSpeed(baseSpeed.getValDouble());
-                } else {
-                    mc.player.setMotion(0, mc.player.getMotion().y, 0);
-                }
+                    if (antiKick.getValBoolean()) {
+                        handleVanillaKickBypass();
+                    }
+                } else if (Objects.equals(mode.getValString(), "ncp")) {
+                    if (mc.gameSettings.keyBindJump.isKeyDown()) {
+                        mc.player.setMotion(mc.player.getMotion().x, upSpeed.getValDouble(), mc.player.getMotion().z);
+                    } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
+                        mc.player.setMotion(mc.player.getMotion().x, -downSpeed.getValDouble(), mc.player.getMotion().z);
+                    } else {
+                        mc.player.setMotion(mc.player.getMotion().x, 0, mc.player.getMotion().z);
+                    }
+                    if (mc.gameSettings.keyBindForward.isKeyDown() ||
+                            mc.gameSettings.keyBindRight.isKeyDown() ||
+                            mc.gameSettings.keyBindBack.isKeyDown() ||
+                            mc.gameSettings.keyBindLeft.isKeyDown()) {
+                        MathUtils.setSpeed(baseSpeed.getValDouble());
+                    } else {
+                        mc.player.setMotion(0, mc.player.getMotion().y, 0);
+                    }
 
-                if (mc.player.ticksExisted % 2 == 0) {
-                    mc.player.fallDistance = 50000 + Math.round(Math.random() * 50000);
-                } else {
-                    mc.player.fallDistance = 50000 - Math.round(Math.random() * 50000);
-                }
+                    if (mc.player.ticksExisted % 2 == 0) {
+                        mc.player.fallDistance = 50000 + Math.round(Math.random() * 50000);
+                    } else {
+                        mc.player.fallDistance = 50000 - Math.round(Math.random() * 50000);
+                    }
 
-                mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX() + mc.player.getMotion().x, mc.player.getPosY() + mc.player.getMotion().y, mc.player.getPosZ() + mc.player.getMotion().z, false));
-                mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX() + mc.player.getMotion().x, MathUtils.generateRandomNumber(0, 1) == 0 ? mc.player.getMotion().y + Integer.MAX_VALUE : mc.player.getMotion().y - Integer.MAX_VALUE, mc.player.getPosZ() + mc.player.getMotion().z, true));
-            } else if (Objects.equals(mode.getValString(), "blink")) {
-                if (mc.gameSettings.keyBindJump.isKeyDown()) {
-                    mc.player.setMotion(mc.player.getMotion().x, upSpeed.getValDouble(), mc.player.getMotion().z);
-                } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
-                    mc.player.setMotion(mc.player.getMotion().x, -downSpeed.getValDouble(), mc.player.getMotion().z);
-                } else {
-                    mc.player.setMotion(mc.player.getMotion().x, 0, mc.player.getMotion().z);
-                }
-                if (mc.gameSettings.keyBindForward.isKeyDown() ||
-                        mc.gameSettings.keyBindRight.isKeyDown() ||
-                        mc.gameSettings.keyBindBack.isKeyDown() ||
-                        mc.gameSettings.keyBindLeft.isKeyDown()) {
+                    mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX() + mc.player.getMotion().x, mc.player.getPosY() + mc.player.getMotion().y, mc.player.getPosZ() + mc.player.getMotion().z, false));
+                    mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX() + mc.player.getMotion().x, MathUtils.generateRandomNumber(0, 1) == 0 ? mc.player.getMotion().y + Integer.MAX_VALUE : mc.player.getMotion().y - Integer.MAX_VALUE, mc.player.getPosZ() + mc.player.getMotion().z, true));
+                } else if (Objects.equals(mode.getValString(), "blink")) {
+                    if (mc.gameSettings.keyBindJump.isKeyDown()) {
+                        mc.player.setMotion(mc.player.getMotion().x, upSpeed.getValDouble(), mc.player.getMotion().z);
+                    } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
+                        mc.player.setMotion(mc.player.getMotion().x, -downSpeed.getValDouble(), mc.player.getMotion().z);
+                    } else {
+                        mc.player.setMotion(mc.player.getMotion().x, 0, mc.player.getMotion().z);
+                    }
+                    if (mc.gameSettings.keyBindForward.isKeyDown() ||
+                            mc.gameSettings.keyBindRight.isKeyDown() ||
+                            mc.gameSettings.keyBindBack.isKeyDown() ||
+                            mc.gameSettings.keyBindLeft.isKeyDown()) {
+                        MathUtils.setSpeed(baseSpeed.getValDouble());
+                    } else {
+                        mc.player.setMotion(0, mc.player.getMotion().y, 0);
+                    }
                     MathUtils.setSpeed(baseSpeed.getValDouble());
-                } else {
-                    mc.player.setMotion(0, mc.player.getMotion().y, 0);
-                }
-                MathUtils.setSpeed(baseSpeed.getValDouble());
-                if (antiKick.getValBoolean()) {
-                    handleVanillaKickBypass();
-                }
-            } else if (Objects.equals(mode.getValString(), "ground")) {
-                if (mc.gameSettings.keyBindJump.isKeyDown()) {
-                    mc.player.setMotion(mc.player.getMotion().x, upSpeed.getValDouble(), mc.player.getMotion().z);
-                } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
-                    mc.player.setMotion(mc.player.getMotion().x, -downSpeed.getValDouble(), mc.player.getMotion().z);
-                } else {
-                    mc.player.setMotion(mc.player.getMotion().x, 0, mc.player.getMotion().z);
-                }
-                if (mc.gameSettings.keyBindForward.isKeyDown() ||
-                        mc.gameSettings.keyBindRight.isKeyDown() ||
-                        mc.gameSettings.keyBindBack.isKeyDown() ||
-                        mc.gameSettings.keyBindLeft.isKeyDown()) {
+                    if (antiKick.getValBoolean()) {
+                        handleVanillaKickBypass();
+                    }
+                } else if (Objects.equals(mode.getValString(), "ground")) {
+                    if (mc.gameSettings.keyBindJump.isKeyDown()) {
+                        mc.player.setMotion(mc.player.getMotion().x, upSpeed.getValDouble(), mc.player.getMotion().z);
+                    } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
+                        mc.player.setMotion(mc.player.getMotion().x, -downSpeed.getValDouble(), mc.player.getMotion().z);
+                    } else {
+                        mc.player.setMotion(mc.player.getMotion().x, 0, mc.player.getMotion().z);
+                    }
+                    if (mc.gameSettings.keyBindForward.isKeyDown() ||
+                            mc.gameSettings.keyBindRight.isKeyDown() ||
+                            mc.gameSettings.keyBindBack.isKeyDown() ||
+                            mc.gameSettings.keyBindLeft.isKeyDown()) {
+                        MathUtils.setSpeed(baseSpeed.getValDouble());
+                    } else {
+                        mc.player.setMotion(0, mc.player.getMotion().y, 0);
+                    }
                     MathUtils.setSpeed(baseSpeed.getValDouble());
-                } else {
-                    mc.player.setMotion(0, mc.player.getMotion().y, 0);
-                }
-                MathUtils.setSpeed(baseSpeed.getValDouble());
 
-                mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX(), mc.player.getPosY() - EntityUtils.getFallDistance(mc.player) + 0.5, mc.player.getPosZ(), true));
+                    mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX(), mc.player.getPosY() - EntityUtils.getFallDistance(mc.player) + 0.5, mc.player.getPosZ(), true));
+                }
             }
         } catch (Exception ignored) {
         }

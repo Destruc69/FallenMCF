@@ -1,7 +1,6 @@
 package paul.fallen.module.modules.player;
 
 import net.minecraft.network.IPacket;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
@@ -19,7 +18,7 @@ public final class Freeze extends Module {
     }
 
     public void onEnable() {
-        MinecraftForge.EVENT_BUS.register(this);
+        super.onEnable();
         packets = new ArrayList<>();
     }
 

@@ -1,14 +1,11 @@
 package paul.fallen.clickgui.component.components.sub;
 
 
-import net.java.games.input.Keyboard;
-
-import net.minecraft.client.util.InputMappings;
 import paul.fallen.clickgui.component.Component;
 import paul.fallen.clickgui.component.components.Button;
 import paul.fallen.utils.render.UIUtils;
 
-import java.awt.Color;
+import java.awt.*;
 
 /**
  *  Made by Pandus1337
@@ -22,7 +19,7 @@ public class Keybind extends Component {
 
 	private boolean hovered;
 	private boolean binding;
-	private Button parent;
+	private final Button parent;
 	private int offset;
 	private int x;
 	private int y;

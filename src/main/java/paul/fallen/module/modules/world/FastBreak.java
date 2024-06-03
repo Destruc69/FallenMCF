@@ -1,6 +1,5 @@
 package paul.fallen.module.modules.world;
 
-import net.minecraft.network.play.client.CPlayerDiggingPacket;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.clickgui.settings.Setting;
@@ -8,29 +7,18 @@ import paul.fallen.module.Module;
 
 public class FastBreak extends Module {
 
-    private Setting addition;
-    private Setting bypass;
+    private final Setting multiplyBy;
 
     public FastBreak(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        addition = new Setting("Addition", this, 2, 1, 20, true);
-        bypass = new Setting("Bypass", this, false);
-        addSetting(addition);
-        addSetting(bypass);
+        multiplyBy = new Setting("MultiplyBy", this, 1.2, 1.1, 2, true);
     }
 
     @SubscribeEvent
     public void onTick(PlayerEvent.BreakSpeed event) {
         try {
-            if (bypass.getValBoolean()) {
-                mc.player.connection.sendPacket(new CPlayerDiggingPacket(
-                        CPlayerDiggingPacket.Action.START_DESTROY_BLOCK, event.getPos(), mc.player.getHorizontalFacing()));
-                mc.player.connection.sendPacket(new CPlayerDiggingPacket(CPlayerDiggingPacket.Action.STOP_DESTROY_BLOCK,
-                        event.getPos(),  mc.player.getHorizontalFacing()));
-            } else {
-                event.setNewSpeed((float) (mc.player.getActiveItemStack().getDestroySpeed(mc.world.getBlockState(event.getPos())) + addition.getValDouble()));
-            }
+            event.setNewSpeed((float) (event.getOriginalSpeed() * multiplyBy.getValDouble()));
         } catch (Exception ignored) {
         }
     }

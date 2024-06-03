@@ -16,7 +16,8 @@ public class CommandManager implements ClientSupport {
     private final SettingCommand settingCommand = new SettingCommand();
     private final UnknownCommand unknownCommand = new UnknownCommand();
 
-    public String prefix = null;
+    //public String prefix = null;
+    public String prefix = "-";
 
     public CommandManager() {
         MinecraftForge.EVENT_BUS.register(this);

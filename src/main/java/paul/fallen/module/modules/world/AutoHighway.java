@@ -38,32 +38,34 @@ public class AutoHighway extends Module {
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         try {
-            blockPosArrayList = getBlocksPositions();
+            if (event.phase == TickEvent.Phase.START) {
+                blockPosArrayList = getBlocksPositions();
 
-            mc.player.rotationYaw = roundYaw();
+                mc.player.rotationYaw = roundYaw();
 
-            mc.gameSettings.keyBindForward.setPressed(blockPosArrayList.stream().allMatch(actionBlockPos -> (actionBlockPos.getAction() == Action.PLACE) != mc.world.getBlockState(actionBlockPos.getBlockPos()).isAir()));
-            mc.gameSettings.keyBindSneak.setPressed(mc.player.isOnGround() && mc.world.getBlockState(mc.player.getPosition().down()).isAir());
+                mc.gameSettings.keyBindForward.setPressed(blockPosArrayList.stream().allMatch(actionBlockPos -> (actionBlockPos.getAction() == Action.PLACE) != mc.world.getBlockState(actionBlockPos.getBlockPos()).isAir()));
+                mc.gameSettings.keyBindSneak.setPressed(mc.player.isOnGround() && mc.world.getBlockState(mc.player.getPosition().down()).isAir());
 
-            // Skip if less than 1 second has passed since the last action
-            if (System.currentTimeMillis() - lastActionTime < delay.getValDouble()) {
-                return;
-            }
+                // Skip if less than 1 second has passed since the last action
+                if (System.currentTimeMillis() - lastActionTime < delay.getValDouble()) {
+                    return;
+                }
 
-            // Set the last action time to the current time
-            lastActionTime = System.currentTimeMillis();
+                // Set the last action time to the current time
+                lastActionTime = System.currentTimeMillis();
 
-            blockPosArrayList.removeIf(actionBlockPos ->
-                    (actionBlockPos.getAction() == Action.BREAK && mc.world.getBlockState(actionBlockPos.getBlockPos()).isAir()) ||
-                            (actionBlockPos.getAction() == Action.PLACE && !mc.world.getBlockState(actionBlockPos.getBlockPos()).isAir())
-            );
+                blockPosArrayList.removeIf(actionBlockPos ->
+                        (actionBlockPos.getAction() == Action.BREAK && mc.world.getBlockState(actionBlockPos.getBlockPos()).isAir()) ||
+                                (actionBlockPos.getAction() == Action.PLACE && !mc.world.getBlockState(actionBlockPos.getBlockPos()).isAir())
+                );
 
-            ActionBlockPos blockPos = blockPosArrayList.get(0);
+                ActionBlockPos blockPos = blockPosArrayList.get(0);
 
-            if (blockPos.action == Action.PLACE) {
-                place(blockPos.blockPos);
-            } else if (blockPos.action == Action.BREAK) {
-                breakPos(blockPos.blockPos);
+                if (blockPos.action == Action.PLACE) {
+                    place(blockPos.blockPos);
+                } else if (blockPos.action == Action.BREAK) {
+                    breakPos(blockPos.blockPos);
+                }
             }
         } catch (Exception ignored) {
         }
@@ -90,7 +92,11 @@ public class AutoHighway extends Module {
     @SubscribeEvent
     public void onRender(RenderWorldLastEvent event) {
         for (ActionBlockPos blockPos : getBlocksPositions()) {
-            RenderUtils.drawOutlinedBox(blockPos.blockPos, 0, 1, 0, event);
+            if (blockPos.action == Action.BREAK) {
+                RenderUtils.drawOutlinedBox(blockPos.blockPos, 0, 1, 0, event);
+            } else if (blockPos.action == Action.PLACE) {
+                RenderUtils.drawOutlinedBox(blockPos.blockPos, 1, 0, 0, event);
+            }
         }
     }
 
