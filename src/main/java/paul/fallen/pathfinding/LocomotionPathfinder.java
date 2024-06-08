@@ -4,13 +4,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import paul.fallen.FALLENClient;
 import paul.fallen.utils.render.RenderUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 
-public class AStarCustomPathFinder {
+public class LocomotionPathfinder {
     private final BlockPos startBlockPos;
     private final BlockPos endBlockPos;
     private ArrayList<BlockPos> path = new ArrayList<>();
@@ -36,10 +35,6 @@ public class AStarCustomPathFinder {
             new BlockPos(0, -1, -1),
 
 
-
-
-
-
             new BlockPos(1, 0, 1),
             new BlockPos(-1, 0, -1),
             new BlockPos(-1, 0, 1),
@@ -56,7 +51,7 @@ public class AStarCustomPathFinder {
             new BlockPos(-1, -1, 1)
     };
 
-    public AStarCustomPathFinder(BlockPos startBlockPos, BlockPos endBlockPos) {
+    public LocomotionPathfinder(BlockPos startBlockPos, BlockPos endBlockPos) {
         this.startBlockPos = startBlockPos;
         this.endBlockPos = endBlockPos;
     }
@@ -125,16 +120,7 @@ public class AStarCustomPathFinder {
         BlockPos block1 = loc;
         BlockPos block2 = loc.up();
         BlockPos block3 = loc.down();
-        switch (FALLENClient.INSTANCE.getModuleManager().pathfinder.type.getValString()) {
-            case "ground":
-                return !isBlockSolid(block1) && !isBlockSolid(block2) && (isBlockSolid(block3) || !checkGround) && isSafeToWalkOn(block3);
-            case "air":
-                return !isBlockSolid(block1) && !isBlockSolid(block2);
-            case "elytra":
-                return !isBlockSolid(block1) && !isBlockSolid(block2) && !isBlockSolid(block3);
-            default:
-                return false;
-        }
+        return !isBlockSolid(block1) && !isBlockSolid(block2) && (isBlockSolid(block3) || !checkGround) && isSafeToWalkOn(block3);
     }
 
     private static boolean isBlockSolid(BlockPos block) {
@@ -320,42 +306,25 @@ public class AStarCustomPathFinder {
     }
 
     public void move() {
-        if (FALLENClient.INSTANCE.getModuleManager().pathfinder.mode.getValString().equals("move")) {
-            if (FALLENClient.INSTANCE.getModuleManager().pathfinder.type.getValString().equals("air") || FALLENClient.INSTANCE.getModuleManager().pathfinder.type.getValString().equals("elytra")) {
-                if (!getPath().isEmpty()) {
-                    BlockPos nextPos = getTargetPositionInPathArray(getPath());
+        BlockPos nextPos = getTargetPositionInPathArray(getPath());
 
-                    // Move towards the next position
-                    double speed = FALLENClient.INSTANCE.getModuleManager().pathfinder.airSpeed.getValDouble(); // Adjust speed as needed
-                    Vector3d target = new Vector3d(nextPos.getX() + 0.5, nextPos.getY() + 0.5, nextPos.getZ() + 0.5);
-                    Vector3d playerPos = Minecraft.getInstance().player.getPositionVec();
-                    Vector3d motion = target.subtract(playerPos).normalize().scale(speed);
+        // Move towards the next position
+        double speed = Minecraft.getInstance().player.isSprinting() ? 0.26 : 0.2; // Adjust speed as needed
+        Vector3d target = new Vector3d(nextPos.getX() + 0.5, Minecraft.getInstance().player.getPosY(), nextPos.getZ() + 0.5);
+        Vector3d playerPos = Minecraft.getInstance().player.getPositionVec();
+        Vector3d motion = target.subtract(playerPos).normalize().scale(speed);
 
-                    // Apply movement
-                    Minecraft.getInstance().player.setMotion(motion.x, motion.y, motion.z);
-                }
-            } else if (FALLENClient.INSTANCE.getModuleManager().pathfinder.type.getValString().equals("ground")) {
-                BlockPos nextPos = getTargetPositionInPathArray(getPath());
+        // Apply movement
+        Minecraft.getInstance().player.setMotion(motion.x, Minecraft.getInstance().player.getMotion().y, motion.z);
 
-                // Move towards the next position
-                double speed = Minecraft.getInstance().player.isSprinting() ? 0.26 : 0.2; // Adjust speed as needed
-                Vector3d target = new Vector3d(nextPos.getX() + 0.5, Minecraft.getInstance().player.getPosY(), nextPos.getZ() + 0.5);
-                Vector3d playerPos = Minecraft.getInstance().player.getPositionVec();
-                Vector3d motion = target.subtract(playerPos).normalize().scale(speed);
+        // Jump if necessary
+        if (nextPos.getY() > Minecraft.getInstance().player.getPosY() && Minecraft.getInstance().player.isOnGround()) {
+            Minecraft.getInstance().player.jump();
+        }
 
-                // Apply movement
-                Minecraft.getInstance().player.setMotion(motion.x, Minecraft.getInstance().player.getMotion().y, motion.z);
-
-                // Jump if necessary
-                if (nextPos.getY() > Minecraft.getInstance().player.getPosY() && Minecraft.getInstance().player.isOnGround()) {
-                    Minecraft.getInstance().player.jump();
-                }
-
-                // Adjust for water movement
-                if (Minecraft.getInstance().player.isInWater()) {
-                    Minecraft.getInstance().player.setMotion(Minecraft.getInstance().player.getMotion().x, 0.01, Minecraft.getInstance().player.getMotion().z);
-                }
-            }
+        // Adjust for water movement
+        if (Minecraft.getInstance().player.isInWater()) {
+            Minecraft.getInstance().player.setMotion(Minecraft.getInstance().player.getMotion().x, 0.01, Minecraft.getInstance().player.getMotion().z);
         }
     }
 

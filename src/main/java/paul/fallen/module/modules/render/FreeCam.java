@@ -4,7 +4,6 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.client.entity.player.RemoteClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.play.client.CPlayerPacket;
-import net.minecraft.world.GameType;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
@@ -14,8 +13,6 @@ import paul.fallen.utils.entity.PlayerUtils;
 import java.util.UUID;
 
 public final class FreeCam extends Module {
-
-    private GameType gameType;
 
     public FreeCam(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);

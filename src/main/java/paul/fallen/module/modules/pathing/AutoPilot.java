@@ -1,17 +1,16 @@
 package paul.fallen.module.modules.pathing;
 
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.pathfinding.AStarCustomPathFinder;
+import paul.fallen.pathfinding.LocomotionPathfinder;
 
 public class AutoPilot extends Module {
 
-    private AStarCustomPathFinder aStarCustomPathFinder;
+    private LocomotionPathfinder aStarCustomPathFinder;
 
     Setting x;
     Setting y;
@@ -45,19 +44,19 @@ public class AutoPilot extends Module {
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
             if (initStart) {
-                aStarCustomPathFinder = new AStarCustomPathFinder(mc.player.getPosition(), new BlockPos(x.getValDouble(), y.getValDouble(), z.getValDouble()));
+                aStarCustomPathFinder = new LocomotionPathfinder(mc.player.getPosition(), new BlockPos(x.getValDouble(), y.getValDouble(), z.getValDouble()));
                 aStarCustomPathFinder.compute();
                 initStart = false;
             }
 
             if (aStarCustomPathFinder.getPath().size() <= 0) {
-                aStarCustomPathFinder = new AStarCustomPathFinder(mc.player.getPosition(), new BlockPos(x.getValDouble(), y.getValDouble(), z.getValDouble()));
+                aStarCustomPathFinder = new LocomotionPathfinder(mc.player.getPosition(), new BlockPos(x.getValDouble(), y.getValDouble(), z.getValDouble()));
                 aStarCustomPathFinder.compute();
             }
 
             if (aStarCustomPathFinder.getPath().size() > 0) {
                 aStarCustomPathFinder.dynamicRefresh();
-                aStarCustomPathFinder.move();
+                //aStarCustomPathFinder.move();
             }
         } catch (Exception ignored) {
         }

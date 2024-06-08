@@ -118,7 +118,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new FreeCam(0, "Freecam", "Freecam", Category.Render));
 		addModule(new Breadcrumbs(0, "Breadcrumbs", "Breadcrumbs", Category.Render));
 		addModule(new FullbrightHack(0, "Fullbright", "Fullbright", Category.Render));
-		addModule(new ItemEspHack(0,"ItemESP", "ItemESP", Category.Render));
+		addModule(new ItemEspHack(0, "ItemESP", "ItemESP", Category.Render));
 		addModule(new MobEspHack(0, "MobESP", "MobESP", Category.Render));
 		addModule(new PlayerEspHack(0, "PlayerESP", "PlayerESP", Category.Render));
 		addModule(new WaypointModule(0, "Waypoint", "Waypoint", Category.Render));
@@ -226,11 +226,13 @@ public class ModuleManager implements ClientSupport {
 
 	@SubscribeEvent
 	public void onKeyPress(InputEvent.KeyInputEvent event) {
-		if (mc.currentScreen != FALLENClient.INSTANCE.getClickgui()) {
-			if (event.getAction() == GLFW.GLFW_PRESS) { // Check if the key is pressed, not released
-				for (Module m : this.modules) {
-					if (event.getKey() == m.getBind() && !(mc.currentScreen instanceof ChatScreen)) {
-						m.setState(!m.getState());
+		if (mc.world != null && mc.player != null) {
+			if (mc.currentScreen != FALLENClient.INSTANCE.getClickgui()) {
+				if (event.getAction() == GLFW.GLFW_PRESS) { // Check if the key is pressed, not released
+					for (Module m : this.modules) {
+						if (event.getKey() == m.getBind() && !(mc.currentScreen instanceof ChatScreen)) {
+							m.setState(!m.getState());
+						}
 					}
 				}
 			}

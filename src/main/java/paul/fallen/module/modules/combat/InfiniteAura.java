@@ -14,7 +14,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
 import paul.fallen.packetevent.PacketEvent;
-import paul.fallen.pathfinding.AStarCustomPathFinder;
+import paul.fallen.pathfinding.LocomotionPathfinder;
 import paul.fallen.utils.entity.RotationUtils;
 import paul.fallen.utils.render.RenderUtils;
 
@@ -24,9 +24,9 @@ import java.util.Collections;
 
 public class InfiniteAura extends Module {
 
-    private Setting antiTP;
+    private final Setting antiTP;
 
-    private AStarCustomPathFinder aStarCustomPathFinder;
+    private LocomotionPathfinder aStarCustomPathFinder;
     private Entity entity;
     private long lastActionTime = 0L; // Variable to store the timestamp of the last action
 
@@ -60,7 +60,7 @@ public class InfiniteAura extends Module {
                     k.setPressed(false);
 
                 // Move to entity
-                aStarCustomPathFinder = new AStarCustomPathFinder(mc.player.getPosition(), entity.getPosition());
+                aStarCustomPathFinder = new LocomotionPathfinder(mc.player.getPosition(), entity.getPosition());
                 aStarCustomPathFinder.compute();
 
                 this.entity = entity;
