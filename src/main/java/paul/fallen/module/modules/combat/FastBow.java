@@ -7,10 +7,6 @@
  */
 package paul.fallen.module.modules.combat;
 
-import net.minecraft.network.play.client.CPlayerDiggingPacket;
-import net.minecraft.network.play.client.CPlayerPacket;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
@@ -24,11 +20,8 @@ public class FastBow extends Module {
     @SubscribeEvent
     public void onUpdate(TickEvent.PlayerTickEvent event) {
         try {
-            for (int i = 0; i < 20; i++) {
-                mc.player.connection.sendPacket(new CPlayerPacket(true));
-            }
-            mc.player.connection.sendPacket(new CPlayerDiggingPacket(CPlayerDiggingPacket.Action.RELEASE_USE_ITEM, BlockPos.ZERO, Direction.DOWN));
-            mc.playerController.onStoppedUsingItem(mc.player);
+            assert mc.player != null;
+            mc.gameSettings.keyBindUseItem.setPressed(mc.player.ticksExisted % 5 != 0);
         } catch (Exception ignored) {
         }
     }

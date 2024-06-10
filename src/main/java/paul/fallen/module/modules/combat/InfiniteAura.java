@@ -1,6 +1,5 @@
 package paul.fallen.module.modules.combat;
 
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.network.play.client.CPlayerPacket;
@@ -19,7 +18,6 @@ import paul.fallen.utils.entity.RotationUtils;
 import paul.fallen.utils.render.RenderUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 public class InfiniteAura extends Module {
@@ -53,11 +51,6 @@ public class InfiniteAura extends Module {
 
                 if (entity == null)
                     return;
-
-                // Stop all movement
-                mc.player.setMotion(0, 0, 0);
-                for (KeyBinding k : new ArrayList<>(Arrays.asList(mc.gameSettings.keyBindForward, mc.gameSettings.keyBindRight, mc.gameSettings.keyBindBack, mc.gameSettings.keyBindLeft, mc.gameSettings.keyBindJump, mc.gameSettings.keyBindSneak)))
-                    k.setPressed(false);
 
                 // Move to entity
                 aStarCustomPathFinder = new LocomotionPathfinder(mc.player.getPosition(), entity.getPosition());
@@ -103,6 +96,7 @@ public class InfiniteAura extends Module {
         try {
             if (antiTP.getValBoolean()) {
                 if (event.getPacket() instanceof SPlayerPositionLookPacket) {
+                    mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX(), mc.player.getPosY(), mc.player.getPosZ(), mc.player.isOnGround()));
                     event.setCanceled(true);
                 }
             }

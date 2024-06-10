@@ -56,7 +56,7 @@ public class AutoPilot extends Module {
 
             if (aStarCustomPathFinder.getPath().size() > 0) {
                 aStarCustomPathFinder.dynamicRefresh();
-                //aStarCustomPathFinder.move();
+                aStarCustomPathFinder.move();
             }
         } catch (Exception ignored) {
         }

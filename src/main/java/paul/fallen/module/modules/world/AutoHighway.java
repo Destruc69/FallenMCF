@@ -29,7 +29,6 @@ public class AutoHighway extends Module {
 
     public AutoHighway(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        onEnable();
 
         delay = new Setting("Delay", this, 100, 0, 1000, true);
         addSetting(delay);

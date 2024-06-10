@@ -4,8 +4,6 @@ import net.minecraft.network.IPacket;
 import net.minecraft.network.play.client.CConfirmTeleportPacket;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.network.play.server.SPlayerPositionLookPacket;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.clickgui.settings.Setting;
@@ -13,7 +11,6 @@ import paul.fallen.module.Module;
 import paul.fallen.packetevent.PacketEvent;
 import paul.fallen.utils.client.MathUtils;
 import paul.fallen.utils.entity.EntityUtils;
-import paul.fallen.utils.render.RenderUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +29,7 @@ public final class Flight extends Module {
     public Flight(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        mode = new Setting("Mode", this, "ncp", new ArrayList<>(Arrays.asList("ncp", "vanilla", "blink", "ground")));
+        mode = new Setting("Mode", this, "ncp", new ArrayList<>(Arrays.asList("ncp", "vanilla", "blink")));
         upSpeed = new Setting("Up-Speed", this, 1.0F, (float) 0.005, 10.0F, false);
         baseSpeed = new Setting("Base-Speed", this, 1.0F, (float) 0.005, 10.0F, false);
         downSpeed = new Setting("Down-Speed", this, 1.0F, (float) 0.005, 10.0F, false);
@@ -123,35 +120,9 @@ public final class Flight extends Module {
                     if (antiKick.getValBoolean()) {
                         handleVanillaKickBypass();
                     }
-                } else if (Objects.equals(mode.getValString(), "ground")) {
-                    if (mc.gameSettings.keyBindJump.isKeyDown()) {
-                        mc.player.setMotion(mc.player.getMotion().x, upSpeed.getValDouble(), mc.player.getMotion().z);
-                    } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
-                        mc.player.setMotion(mc.player.getMotion().x, -downSpeed.getValDouble(), mc.player.getMotion().z);
-                    } else {
-                        mc.player.setMotion(mc.player.getMotion().x, 0, mc.player.getMotion().z);
-                    }
-                    if (mc.gameSettings.keyBindForward.isKeyDown() ||
-                            mc.gameSettings.keyBindRight.isKeyDown() ||
-                            mc.gameSettings.keyBindBack.isKeyDown() ||
-                            mc.gameSettings.keyBindLeft.isKeyDown()) {
-                        MathUtils.setSpeed(baseSpeed.getValDouble());
-                    } else {
-                        mc.player.setMotion(0, mc.player.getMotion().y, 0);
-                    }
-                    MathUtils.setSpeed(baseSpeed.getValDouble());
-
-                    mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX(), mc.player.getPosY() - EntityUtils.getFallDistance(mc.player) + 0.5, mc.player.getPosZ(), true));
                 }
             }
         } catch (Exception ignored) {
-        }
-    }
-
-    @SubscribeEvent
-    public void onRender(RenderWorldLastEvent event) {
-        if (Objects.equals(mode.getValString(), "ground")) {
-            RenderUtils.drawOutlinedBox(new BlockPos(mc.player.getPosX(), mc.player.getPosY() - EntityUtils.getFallDistance(mc.player) + 0.5, mc.player.getPosZ()), 0, 1, 0, event);
         }
     }
 
