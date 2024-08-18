@@ -30,9 +30,9 @@ public final class Flight extends Module {
         super(bind, name, displayName, category);
 
         mode = new Setting("Mode", this, "ncp", new ArrayList<>(Arrays.asList("ncp", "vanilla", "blink")));
-        upSpeed = new Setting("Up-Speed", this, 1.0F, (float) 0.005, 10.0F, false);
-        baseSpeed = new Setting("Base-Speed", this, 1.0F, (float) 0.005, 10.0F, false);
-        downSpeed = new Setting("Down-Speed", this, 1.0F, (float) 0.005, 10.0F, false);
+        upSpeed = new Setting("Up-Speed", this, 1.0F, (float) 0.0005, 10.0F, false);
+        baseSpeed = new Setting("Base-Speed", this, 1.0F, (float) 0.0005, 10.0F, false);
+        downSpeed = new Setting("Down-Speed", this, 1.0F, (float) 0.0005, 10.0F, false);
         antiKick = new Setting("AntiKick", this, false);
         addSetting(mode);
         addSetting(upSpeed);

@@ -7,7 +7,6 @@
  */
 package paul.fallen.module.modules.player;
 
-import net.minecraft.network.IPacket;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -23,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class Disabler extends Module {
 
-    private final ConcurrentHashMap<IPacket, Long> packets = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<CPlayerPacket, Long> packets = new ConcurrentHashMap<>();
     private CPlayerPacket sentPacket = null;
 
     public Disabler(int bind, String name, String displayName, Category category) {
@@ -33,13 +32,14 @@ public final class Disabler extends Module {
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
-            for (final Iterator<Map.Entry<IPacket, Long>> iterator = packets.entrySet().iterator(); iterator.hasNext(); ) {
-                final Map.Entry<IPacket, Long> entry = iterator.next();
-
-                if (entry.getValue() < System.currentTimeMillis()) {
+            long currentTime = System.currentTimeMillis();
+            Iterator<Map.Entry<CPlayerPacket, Long>> iterator = packets.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<CPlayerPacket, Long> entry = iterator.next();
+                if (currentTime >= entry.getValue()) {
                     mc.player.connection.sendPacket(entry.getKey());
-                    sentPacket = (CPlayerPacket) entry.getKey();
-                    iterator.remove();
+                    sentPacket = entry.getKey();
+                    iterator.remove(); // Remove the packet from the map once sent
                 }
             }
         }
@@ -48,15 +48,20 @@ public final class Disabler extends Module {
     @SubscribeEvent
     public void onPacket(PacketEvent event) {
         if (event.getPacket() instanceof CPlayerPacket) {
-            packets.put(event.getPacket(), System.currentTimeMillis() + 1000);
-            event.setCanceled(true);
+            CPlayerPacket packet = (CPlayerPacket) event.getPacket();
+            packets.put(packet, System.currentTimeMillis() + 1000);
+            //event.setCanceled(true); // Cancel the packet from being processed immediately
+            event.setPacket(new CPlayerPacket());
         }
     }
 
     @SubscribeEvent
     public void onRender(RenderWorldLastEvent event) {
         if (sentPacket != null) {
-            RenderUtils.drawOutlinedBox(new BlockPos(sentPacket.getX(0), sentPacket.getY(0), sentPacket.getZ(0)), 0, 1, 0, event);
+            RenderUtils.drawOutlinedBox(
+                    new BlockPos(sentPacket.getX(0), sentPacket.getY(0), sentPacket.getZ(0)),
+                    0, 1, 0, event
+            );
         }
     }
 }
