@@ -12,7 +12,8 @@ public class FastBreak extends Module {
     public FastBreak(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
-        multiplyBy = new Setting("MultiplyBy", this, 1.2, 1.1, 2, true);
+        multiplyBy = new Setting("MultiplyBy", this, 1.2, 1.1, 5, false);
+        addSetting(multiplyBy);
     }
 
     @SubscribeEvent

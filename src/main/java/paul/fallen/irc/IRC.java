@@ -17,7 +17,7 @@ public class IRC {
 
     public IRC() {
         chatPool = new ArrayList<>();
-        connectToServer();
+        //connectToServer();
     }
 
     public void connectToServer() {
