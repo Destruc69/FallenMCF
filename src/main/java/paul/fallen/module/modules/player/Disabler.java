@@ -39,7 +39,7 @@ public final class Disabler extends Module {
                 if (currentTime >= entry.getValue()) {
                     mc.player.connection.sendPacket(entry.getKey());
                     sentPacket = entry.getKey();
-                    iterator.remove(); // Remove the packet from the map once sent
+                    iterator.remove();
                 }
             }
         }
@@ -50,8 +50,7 @@ public final class Disabler extends Module {
         if (event.getPacket() instanceof CPlayerPacket) {
             CPlayerPacket packet = (CPlayerPacket) event.getPacket();
             packets.put(packet, System.currentTimeMillis() + 1000);
-            //event.setCanceled(true); // Cancel the packet from being processed immediately
-            event.setPacket(new CPlayerPacket());
+            event.setCanceled(true); // Cancel the packet from being processed immediately
         }
     }
 

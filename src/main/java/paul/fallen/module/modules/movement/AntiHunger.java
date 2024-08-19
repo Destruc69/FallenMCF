@@ -27,19 +27,6 @@ public final class AntiHunger extends Module {
         addSetting(groundSpoof);
     }
 
-    @Override
-    public void onEnable() {
-        if (cancelSprintPacket.getValBoolean()) {
-            try {
-                assert mc.player != null;
-                if (mc.player.isSprinting()) {
-                    mc.player.connection.sendPacket(new CEntityActionPacket(mc.player, CEntityActionPacket.Action.STOP_SPRINTING));
-                }
-            } catch (Exception ignored) {
-            }
-        }
-    }
-
     @SubscribeEvent
     public void onPacketOut(PacketEvent event) {
         if (cancelSprintPacket.getValBoolean() && event.getPacket() instanceof CEntityActionPacket) {
