@@ -7,7 +7,6 @@
  */
 package paul.fallen.module.modules.movement;
 
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -19,7 +18,8 @@ import java.util.ArrayList;
 
 public final class AutoSprintHack extends Module {
 
-    private ArrayList<BlockPos> pp;
+    private ArrayList<Pathfinder.CustomBlockPos> pp = new ArrayList<>();
+    private Pathfinder pathfinder;
 
     public AutoSprintHack(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
@@ -27,25 +27,39 @@ public final class AutoSprintHack extends Module {
 
     @Override
     public void onEnable() {
-        super.onEnable();
+        try {
+            super.onEnable();
 
-        Pathfinder pathfinder = new Pathfinder(mc.player.getPosition(), mc.player.getPosition().add(10, 0, 10));
-        pathfinder.think(100);
-        pp = pathfinder.getPath();
+            pathfinder = new Pathfinder(mc.player.getPosition(), mc.player.getPosition().add(10, -10, 10));
+            pathfinder.think();
+            pp = pathfinder.getPath();
+        } catch (Exception ignored) {
+        }
     }
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) throws Exception {
         try {
             mc.gameSettings.keyBindSprint.setPressed(true);
+
+            pathfinder.act();
         } catch (Exception ignored) {
         }
     }
 
     @SubscribeEvent
     public void onRender(RenderWorldLastEvent event) {
-        for (BlockPos b : pp) {
-            RenderUtils.drawOutlinedBox(b, 0, 1, 0, event);
+        try {
+            for (Pathfinder.CustomBlockPos b : pp) {
+                if (b.getActionCost() == Pathfinder.BREAK_COST) {
+                    RenderUtils.drawOutlinedBox(b.getBlockPos(), 1, 0, 0, event);
+                } else if (b.getActionCost() == Pathfinder.PLACE_COST) {
+                    RenderUtils.drawOutlinedBox(b.getBlockPos(), 0, 1, 0, event);
+                } else if (b.getActionCost() == Pathfinder.TRAVERSE_COST) {
+                    RenderUtils.drawOutlinedBox(b.getBlockPos(), 0, 0, 1, event);
+                }
+            }
+        } catch (Exception ignored) {
         }
     }
 }
