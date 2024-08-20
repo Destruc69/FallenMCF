@@ -2,7 +2,9 @@ package paul.fallen.pathfinding;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
+import paul.fallen.utils.world.BlockUtils;
 
 import java.util.*;
 
@@ -22,6 +24,11 @@ public class Pathfinder {
     }
 
     public void think() {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.world == null) {
+            throw new IllegalStateException("Minecraft world is not initialized.");
+        }
+
         PriorityQueue<Node> openSet = new PriorityQueue<>();
         Map<CustomBlockPos, CustomBlockPos> cameFrom = new HashMap<>();
         Map<CustomBlockPos, Integer> gScore = new HashMap<>();
@@ -78,15 +85,9 @@ public class Pathfinder {
 
     private List<Neighbor> getNeighbors(CustomBlockPos pos) {
         List<Neighbor> neighbors = new ArrayList<>();
-
-        // Define possible movement directions including horizontal, upward, and downward checks
         int[][] directions = {
-                {1, 0, 0}, {-1, 0, 0}, {0, 0, 1}, {0, 0, -1}, // Horizontal movements (right, left, forward, backward)
-                {1, -1, 0}, {-1, -1, 0}, {0, -1, 1}, {0, -1, -1}, // Diagonal downward movements
-                {1, 1, 0}, {-1, 1, 0}, {0, 1, 1}, {0, 1, -1}, // Diagonal upward movements
-                {0, -1, 0}, {0, 1, 0} // Vertical only (down and up)
+                {1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1}
         };
-
         for (int[] direction : directions) {
             BlockPos neighborPos = pos.getBlockPos().add(direction[0], direction[1], direction[2]);
             int actionCost = calculateActionCost(pos.getBlockPos(), neighborPos);
@@ -94,14 +95,13 @@ public class Pathfinder {
                 neighbors.add(new Neighbor(new CustomBlockPos(neighborPos, actionCost), actionCost));
             }
         }
-
         return neighbors;
     }
 
     private int calculateActionCost(BlockPos from, BlockPos to) {
         if (canTraverse(from, to)) {
             return TRAVERSE_COST;
-        } else if (canBreak(from, to)) {
+        } else if (canBreak(from, to) && canBreakEffectively(from, to)) {
             return BREAK_COST;
         } else if (canPlace(from, to)) {
             return PLACE_COST;
@@ -111,19 +111,56 @@ public class Pathfinder {
     }
 
     private boolean canTraverse(BlockPos from, BlockPos to) {
-        BlockState b = Minecraft.getInstance().world.getBlockState(to.down());
-        BlockState d = Minecraft.getInstance().world.getBlockState(to);
-        BlockState f = Minecraft.getInstance().world.getBlockState(to.up());
+        Minecraft minecraft = Minecraft.getInstance();
+        BlockState below = minecraft.world.getBlockState(to.down());
+        BlockState current = minecraft.world.getBlockState(to);
+        BlockState above = minecraft.world.getBlockState(to.up());
 
-        return !b.isAir() && d.isAir() && f.isAir();
+        // Ensure the block below is solid enough to walk on
+        boolean belowSolid = !below.isAir() && below.getMaterial().isSolid();
+
+        // Ensure the current block is either air or a walkable surface
+        boolean currentWalkable = current.isAir() || current.getMaterial().isReplaceable();
+
+        // Ensure the block above is clear enough to not obstruct movement
+        boolean aboveClear = above.isAir() || above.getMaterial().isReplaceable();
+
+        return belowSolid && currentWalkable && aboveClear;
     }
 
     private boolean canBreak(BlockPos from, BlockPos to) {
-        return !Minecraft.getInstance().world.getBlockState(to).isAir();
+        Minecraft minecraft = Minecraft.getInstance();
+        BlockState state = minecraft.world.getBlockState(to);
+        boolean isNotAir = !state.isAir();
+        boolean isNotLiquid = !state.getMaterial().isLiquid();
+
+        // Ensure breaking a block is valid: not air or liquid
+        return isNotAir && isNotLiquid;
+    }
+
+    private boolean canBreakEffectively(BlockPos from, BlockPos to) {
+        Minecraft minecraft = Minecraft.getInstance();
+        BlockState below = minecraft.world.getBlockState(to.down());
+
+        // Ensure breaking a block doesn’t disrupt traversal by checking the block below
+        return !below.isAir() && !below.getMaterial().isLiquid();
     }
 
     private boolean canPlace(BlockPos from, BlockPos to) {
-        return Minecraft.getInstance().world.getBlockState(to).isAir();
+        Minecraft minecraft = Minecraft.getInstance();
+        BlockState state = minecraft.world.getBlockState(to);
+        BlockState below = minecraft.world.getBlockState(to.down());
+
+        boolean isAir = state.isAir();
+        boolean isReplaceable = state.getMaterial().isReplaceable();
+
+        // Check if the position to place a block is valid: air or replaceable
+        boolean validPlacement = isAir || isReplaceable;
+
+        // For horizontal bridging, only ensure the block below is solid or non-air
+        boolean belowSolid = !below.isAir() && !below.getMaterial().isLiquid();
+
+        return validPlacement && (belowSolid || from.equals(to.down()));  // Allow placing if below is solid or directly on the block below
     }
 
     public ArrayList<CustomBlockPos> getPath() {
@@ -200,6 +237,76 @@ public class Pathfinder {
     }
 
     public void act() {
+        Minecraft minecraft = Minecraft.getInstance();
+        PlayerEntity player = minecraft.player;
 
+        if (player == null || path.isEmpty()) {
+            return; // No path or player is not available
+        }
+
+        BlockPos playerPos = player.getPosition();
+        CustomBlockPos currentTarget = path.get(0);
+        BlockPos targetPos = currentTarget.getBlockPos();
+
+        // Check if we need to handle bridging
+        boolean isBridging = playerPos.getY() < targetPos.getY();
+
+        // Handle bridging upwards
+        if (isBridging) {
+            BlockPos blockBelowPlayer = playerPos.down();
+            BlockState belowState = minecraft.world.getBlockState(blockBelowPlayer);
+
+            // Place a block below the player if necessary
+            if (belowState.isAir() || !canTraverse(playerPos, blockBelowPlayer)) {
+                BlockUtils.placeBlock(blockBelowPlayer, Minecraft.getInstance().player.inventory.currentItem, true, true);
+            }
+
+            // Move the player upwards if the target is higher
+            if (playerPos.getY() < targetPos.getY()) {
+                player.jump(); // Simulate jumping
+            }
+
+            // Continue bridging upwards until target Y is reached
+            if (playerPos.getY() >= targetPos.getY()) {
+                path.remove(0); // Remove the current target if we have reached the height
+                if (path.isEmpty()) {
+                    return; // No more path to follow
+                }
+                currentTarget = path.get(0);
+                targetPos = currentTarget.getBlockPos();
+            }
+        } else {
+            // Handle horizontal and downward movement
+            if (playerPos.distanceSq(targetPos) < 1.0) {
+                path.remove(0); // Remove the current target as we reached it
+                if (path.isEmpty()) {
+                    return; // No more path to follow
+                }
+                currentTarget = path.get(0);
+                targetPos = currentTarget.getBlockPos();
+            }
+
+            // Get the direction to the target
+            double dx = targetPos.getX() - playerPos.getX();
+            double dy = targetPos.getY() - playerPos.getY();
+            double dz = targetPos.getZ() - playerPos.getZ();
+            double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+            // Normalize direction
+            dx /= distance;
+            dy /= distance;
+            dz /= distance;
+
+            // Set player yaw and pitch towards the target
+            player.rotationYaw = (float) Math.atan2(dz, dx) * (180.0F / (float) Math.PI) - 90.0F;
+            player.rotationPitch = (float) -Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)) * (180.0F / (float) Math.PI);
+
+            // Execute actions
+            if (canBreak(playerPos, targetPos)) {
+                BlockUtils.breakBlock(targetPos, Minecraft.getInstance().player.inventory.currentItem, true, true);
+            } else if (canPlace(playerPos, targetPos)) {
+                BlockUtils.placeBlock(playerPos, Minecraft.getInstance().player.inventory.currentItem, true, true);
+            }
+        }
     }
 }

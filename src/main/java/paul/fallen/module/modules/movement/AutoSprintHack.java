@@ -14,11 +14,8 @@ import paul.fallen.module.Module;
 import paul.fallen.pathfinding.Pathfinder;
 import paul.fallen.utils.render.RenderUtils;
 
-import java.util.ArrayList;
-
 public final class AutoSprintHack extends Module {
 
-    private ArrayList<Pathfinder.CustomBlockPos> pp = new ArrayList<>();
     private Pathfinder pathfinder;
 
     public AutoSprintHack(int bind, String name, String displayName, Category category) {
@@ -32,7 +29,6 @@ public final class AutoSprintHack extends Module {
 
             pathfinder = new Pathfinder(mc.player.getPosition(), mc.player.getPosition().add(10, -10, 10));
             pathfinder.think();
-            pp = pathfinder.getPath();
         } catch (Exception ignored) {
         }
     }
@@ -50,7 +46,7 @@ public final class AutoSprintHack extends Module {
     @SubscribeEvent
     public void onRender(RenderWorldLastEvent event) {
         try {
-            for (Pathfinder.CustomBlockPos b : pp) {
+            for (Pathfinder.CustomBlockPos b : pathfinder.getPath()) {
                 if (b.getActionCost() == Pathfinder.BREAK_COST) {
                     RenderUtils.drawOutlinedBox(b.getBlockPos(), 1, 0, 0, event);
                 } else if (b.getActionCost() == Pathfinder.PLACE_COST) {
