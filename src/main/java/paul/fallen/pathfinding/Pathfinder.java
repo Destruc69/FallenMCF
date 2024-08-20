@@ -78,14 +78,23 @@ public class Pathfinder {
 
     private List<Neighbor> getNeighbors(CustomBlockPos pos) {
         List<Neighbor> neighbors = new ArrayList<>();
+
+        // Define possible movement directions including horizontal, upward, and downward checks
         int[][] directions = {
-                {1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1}
+                {1, 0, 0}, {-1, 0, 0}, {0, 0, 1}, {0, 0, -1}, // Horizontal movements (right, left, forward, backward)
+                {1, -1, 0}, {-1, -1, 0}, {0, -1, 1}, {0, -1, -1}, // Diagonal downward movements
+                {1, 1, 0}, {-1, 1, 0}, {0, 1, 1}, {0, 1, -1}, // Diagonal upward movements
+                {0, -1, 0}, {0, 1, 0} // Vertical only (down and up)
         };
+
         for (int[] direction : directions) {
             BlockPos neighborPos = pos.getBlockPos().add(direction[0], direction[1], direction[2]);
             int actionCost = calculateActionCost(pos.getBlockPos(), neighborPos);
-            neighbors.add(new Neighbor(new CustomBlockPos(neighborPos, actionCost), actionCost));
+            if (actionCost != Integer.MAX_VALUE) {
+                neighbors.add(new Neighbor(new CustomBlockPos(neighborPos, actionCost), actionCost));
+            }
         }
+
         return neighbors;
     }
 
