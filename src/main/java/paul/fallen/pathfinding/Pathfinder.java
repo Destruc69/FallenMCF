@@ -101,7 +101,7 @@ public class Pathfinder {
     private int calculateActionCost(BlockPos from, BlockPos to) {
         if (canTraverse(from, to)) {
             return TRAVERSE_COST;
-        } else if (canBreak(from, to) && canBreakEffectively(from, to)) {
+        } else if (canBreak(from, to)) {
             return BREAK_COST;
         } else if (canPlace(from, to)) {
             return PLACE_COST;
@@ -134,16 +134,13 @@ public class Pathfinder {
         boolean isNotAir = !state.isAir();
         boolean isNotLiquid = !state.getMaterial().isLiquid();
 
-        // Ensure breaking a block is valid: not air or liquid
-        return isNotAir && isNotLiquid;
+        // Ensure breaking is valid (not air or liquid) and only in horizontal or downward directions
+        return isNotAir && isNotLiquid && isHorizontalOrDownward(from, to);
     }
 
-    private boolean canBreakEffectively(BlockPos from, BlockPos to) {
-        Minecraft minecraft = Minecraft.getInstance();
-        BlockState below = minecraft.world.getBlockState(to.down());
-
-        // Ensure breaking a block doesn’t disrupt traversal by checking the block below
-        return !below.isAir() && !below.getMaterial().isLiquid();
+    private boolean isHorizontalOrDownward(BlockPos from, BlockPos to) {
+        // Check if the target is either at the same Y level or below the player's position
+        return to.getY() <= from.getY();
     }
 
     private boolean canPlace(BlockPos from, BlockPos to) {
@@ -157,10 +154,11 @@ public class Pathfinder {
         // Check if the position to place a block is valid: air or replaceable
         boolean validPlacement = isAir || isReplaceable;
 
-        // For horizontal bridging, only ensure the block below is solid or non-air
+        // For horizontal or upward bridging, ensure the block below is solid or non-air
         boolean belowSolid = !below.isAir() && !below.getMaterial().isLiquid();
 
-        return validPlacement && (belowSolid || from.equals(to.down()));  // Allow placing if below is solid or directly on the block below
+        // Allow placing if below is solid, or if the player is bridging upwards
+        return validPlacement && (belowSolid || from.getY() < to.getY());
     }
 
     public ArrayList<CustomBlockPos> getPath() {
@@ -244,48 +242,46 @@ public class Pathfinder {
             return; // No path or player is not available
         }
 
+        // Get the player's current position
         BlockPos playerPos = player.getPosition();
+
+        // Check if player has reached the end of the path
         CustomBlockPos currentTarget = path.get(0);
         BlockPos targetPos = currentTarget.getBlockPos();
 
-        // Check if we need to handle bridging
-        boolean isBridging = playerPos.getY() < targetPos.getY();
+        // Check if we are close enough to the target
+        if (playerPos.distanceSq(targetPos) < 1.0) {
+            path.remove(0); // Remove the current target as we reached it
+            if (path.isEmpty()) {
+                return; // No more path to follow
+            }
+            currentTarget = path.get(0);
+            targetPos = currentTarget.getBlockPos();
+        }
 
-        // Handle bridging upwards
-        if (isBridging) {
+        // Check if the player needs to bridge upwards
+        boolean needsBridgingUpwards = targetPos.getY() > playerPos.getY() && needsUpwardBridging(playerPos);
+
+        // Handle setting up on a block before bridging upwards
+        if (needsBridgingUpwards) {
             BlockPos blockBelowPlayer = playerPos.down();
             BlockState belowState = minecraft.world.getBlockState(blockBelowPlayer);
 
-            // Place a block below the player if necessary
-            if (belowState.isAir() || !canTraverse(playerPos, blockBelowPlayer)) {
-                BlockUtils.placeBlock(blockBelowPlayer, Minecraft.getInstance().player.inventory.currentItem, true, true);
+            // Ensure the player is standing on a solid block before bridging upwards
+            if (belowState.isAir()) {
+                BlockUtils.placeBlock(blockBelowPlayer, player.inventory.currentItem, true, true);
+                return; // Return after placing the block to stabilize the player
+            } else if (player.isOnGround()) {
+                // Jump and place block upwards during bridging
+                player.jump();
+                BlockPos blockBelow = playerPos.down();
+                BlockUtils.placeBlock(blockBelow, player.inventory.currentItem, true, true);
+                return; // Return after jumping and placing to continue the process
             }
+        }
 
-            // Move the player upwards if the target is higher
-            if (playerPos.getY() < targetPos.getY()) {
-                player.jump(); // Simulate jumping
-            }
-
-            // Continue bridging upwards until target Y is reached
-            if (playerPos.getY() >= targetPos.getY()) {
-                path.remove(0); // Remove the current target if we have reached the height
-                if (path.isEmpty()) {
-                    return; // No more path to follow
-                }
-                currentTarget = path.get(0);
-                targetPos = currentTarget.getBlockPos();
-            }
-        } else {
-            // Handle horizontal and downward movement
-            if (playerPos.distanceSq(targetPos) < 1.0) {
-                path.remove(0); // Remove the current target as we reached it
-                if (path.isEmpty()) {
-                    return; // No more path to follow
-                }
-                currentTarget = path.get(0);
-                targetPos = currentTarget.getBlockPos();
-            }
-
+        // Handle horizontal and downward directions
+        if (!needsBridgingUpwards) {
             // Get the direction to the target
             double dx = targetPos.getX() - playerPos.getX();
             double dy = targetPos.getY() - playerPos.getY();
@@ -301,12 +297,29 @@ public class Pathfinder {
             player.rotationYaw = (float) Math.atan2(dz, dx) * (180.0F / (float) Math.PI) - 90.0F;
             player.rotationPitch = (float) -Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)) * (180.0F / (float) Math.PI);
 
-            // Execute actions
-            if (canBreak(playerPos, targetPos)) {
-                BlockUtils.breakBlock(targetPos, Minecraft.getInstance().player.inventory.currentItem, true, true);
+            // Execute actions for horizontal and downward directions
+            if (canBreak(playerPos, targetPos) && playerPos.getY() >= targetPos.getY()) {
+                BlockUtils.breakBlock(targetPos, player.inventory.currentItem, true, true);
             } else if (canPlace(playerPos, targetPos)) {
-                BlockUtils.placeBlock(playerPos, Minecraft.getInstance().player.inventory.currentItem, true, true);
+                BlockUtils.placeBlock(targetPos, player.inventory.currentItem, true, true);
             }
         }
+    }
+
+    /**
+     * Checks if the next positions in the path require upward bridging.
+     * If there are blocks that need to be placed upwards from the ground, return true.
+     */
+    private boolean needsUpwardBridging(BlockPos playerPos) {
+        for (CustomBlockPos pos : path) {
+            BlockPos blockPos = pos.getBlockPos();
+            if (blockPos.getY() > playerPos.getY()) {
+                // Check if the action assigned to this block is a "place" action
+                if (pos.actionCost == PLACE_COST) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
