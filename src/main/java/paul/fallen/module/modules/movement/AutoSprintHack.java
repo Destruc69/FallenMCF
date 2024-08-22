@@ -7,6 +7,7 @@
  */
 package paul.fallen.module.modules.movement;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
@@ -14,6 +15,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
 import paul.fallen.pathfinding.LocomotionPathfinder;
 import paul.fallen.utils.render.RenderUtils;
+import paul.fallen.utils.world.BlockUtils;
 
 public final class AutoSprintHack extends Module {
 
@@ -23,18 +25,27 @@ public final class AutoSprintHack extends Module {
         super(bind, name, displayName, category);
     }
 
+    @Override
+    public void onEnable() {
+        try {
+            super.onEnable();
+            pathfinder = new LocomotionPathfinder(mc.player.getPosition(), new BlockPos(0, 0, 0));
+            pathfinder.compute();
+        } catch (Exception ignored) {
+        }
+    }
+
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) throws Exception {
         try {
             mc.gameSettings.keyBindSprint.setPressed(true);
 
-            if (mc.player.ticksExisted % 20 == 0) {
-                pathfinder = new LocomotionPathfinder(mc.player.getPosition(), new BlockPos(0, 0, 0));
-                pathfinder.compute();
-            }
-
             if (pathfinder.getPath().size() > 0) {
-                pathfinder.move();
+                //pathfinder.move();
+
+                if (mc.world.getBlockState(pathfinder.getTargetPositionInPathArray(pathfinder.getPath())).isAir() && !mc.world.getBlockState(pathfinder.getTargetPositionInPathArray(pathfinder.getPath()).up()).isAir()) {
+                    BlockUtils.breakBlock(pathfinder.getTargetPositionInPathArray(pathfinder.getPath()).up(), Minecraft.getInstance().player.inventory.currentItem, true, true);
+                }
             }
         } catch (Exception ignored) {
         }
