@@ -1,17 +1,28 @@
 package paul.fallen.pathfinding;
 
+import net.minecraft.block.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import paul.fallen.utils.render.RenderUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 
 public class LocomotionPathfinder {
-    private final BlockPos startBlockPos;
-    private final BlockPos endBlockPos;
+    private BlockPos startPos;
+    private BlockPos endPos;
+    private ArrayList<BlockPos> path = new ArrayList<>();
+    private ArrayList<Hub> hubs = new ArrayList<>();
+    private ArrayList<Hub> hubsToWork = new ArrayList<>();
+    private double minDistanceSquared = 9;
+    private boolean nearest = true;
+
+    private static final Minecraft mc = Minecraft.getInstance();
+
     private static final BlockPos[] flatCardinalDirections = {
             new BlockPos(1, 0, 0),
             new BlockPos(-1, 0, 0),
@@ -44,43 +55,10 @@ public class LocomotionPathfinder {
             new BlockPos(1, -1, -1),
             new BlockPos(-1, -1, 1)
     };
-    private final ArrayList<Hub> hubs = new ArrayList<>();
-    private final ArrayList<Hub> hubsToWork = new ArrayList<>();
-    private final double minDistanceSquared = 9;
-    private final boolean nearest = true;
-    private ArrayList<BlockPos> path = new ArrayList<>();
 
-    public LocomotionPathfinder(BlockPos startBlockPos, BlockPos endBlockPos) {
-        this.startBlockPos = startBlockPos;
-        this.endBlockPos = endBlockPos;
-    }
-
-    public static boolean checkPositionValidity(BlockPos loc, boolean checkGround) {
-        BlockPos block1 = loc;
-        BlockPos block2 = loc.up();
-        BlockPos block3 = loc.down();
-        return !isBlockSolid(block1) && !isBlockSolid(block2) && (isBlockSolid(block3) || !checkGround) && isSafeToWalkOn(block3);
-    }
-
-    private static boolean isBlockSolid(BlockPos block) {
-        return Minecraft.getInstance().world.getBlockState(block).isSolid() ||
-                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof net.minecraft.block.SlabBlock ||
-                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof net.minecraft.block.StairsBlock ||
-                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof net.minecraft.block.CactusBlock ||
-                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof net.minecraft.block.ChestBlock ||
-                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof net.minecraft.block.EnderChestBlock ||
-                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof net.minecraft.block.SkullBlock ||
-                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof net.minecraft.block.PaneBlock ||
-                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof net.minecraft.block.FenceBlock ||
-                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof net.minecraft.block.WallBlock ||
-                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof net.minecraft.block.GlassBlock ||
-                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof net.minecraft.block.PistonBlock ||
-                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof net.minecraft.block.StainedGlassBlock;
-    }
-
-    private static boolean isSafeToWalkOn(BlockPos block) {
-        return !(Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof net.minecraft.block.FenceBlock) &&
-                !(Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof net.minecraft.block.WallBlock);
+    public LocomotionPathfinder(BlockPos startPos, BlockPos endPos) {
+        this.startPos = startPos;
+        this.endPos = endPos;
     }
 
     public ArrayList<BlockPos> getPath() {
@@ -88,20 +66,20 @@ public class LocomotionPathfinder {
     }
 
     public void compute() {
-        compute(100, 2);
+        compute(1000, 4);
     }
 
     public void compute(int loops, int depth) {
         path.clear();
         hubsToWork.clear();
         ArrayList<BlockPos> initPath = new ArrayList<>();
-        initPath.add(startBlockPos);
-        hubsToWork.add(new Hub(startBlockPos, null, initPath, startBlockPos.distanceSq(endBlockPos), 0, 0));
+        initPath.add(startPos);
+        hubsToWork.add(new Hub(startPos, null, initPath, startPos.manhattanDistance(endPos), 0, 0));
         search:
         for (int i = 0; i < loops; i++) {
-            hubsToWork.sort(new CompareHub());
+            Collections.sort(hubsToWork, new CompareHub());
             int j = 0;
-            if (hubsToWork.isEmpty()) {
+            if (hubsToWork.size() == 0) {
                 break;
             }
             for (Hub hub : new ArrayList<>(hubsToWork)) {
@@ -114,7 +92,7 @@ public class LocomotionPathfinder {
 
                     for (BlockPos direction : flatCardinalDirections) {
                         BlockPos loc = hub.getLoc().add(direction);
-                        if (checkPositionValidity(loc, false)) {
+                        if (checkPositionValidity(loc)) {
                             if (addHub(hub, loc, 0)) {
                                 break search;
                             }
@@ -122,14 +100,14 @@ public class LocomotionPathfinder {
                     }
 
                     BlockPos loc1 = hub.getLoc().up();
-                    if (checkPositionValidity(loc1, false)) {
+                    if (checkPositionValidity(loc1)) {
                         if (addHub(hub, loc1, 0)) {
                             break search;
                         }
                     }
 
                     BlockPos loc2 = hub.getLoc().down();
-                    if (checkPositionValidity(loc2, false)) {
+                    if (checkPositionValidity(loc2)) {
                         if (addHub(hub, loc2, 0)) {
                             break search;
                         }
@@ -138,9 +116,50 @@ public class LocomotionPathfinder {
             }
         }
         if (nearest) {
-            hubs.sort(new CompareHub());
-            path = new ArrayList<>(hubs.get(0).getPath());
+            Collections.sort(hubs, new CompareHub());
+            path = hubs.get(0).getPath();
         }
+    }
+
+    public static boolean checkPositionValidity(BlockPos pos) {
+        return checkPositionValidity(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    public static boolean checkPositionValidity(int x, int y, int z) {
+        BlockPos block1 = new BlockPos(x, y, z);
+        BlockPos block2 = new BlockPos(x, y + 1, z);
+        BlockPos block3 = new BlockPos(x, y - 1, z);
+
+        return !isBlockSolid(block1) &&
+                !isBlockSolid(block2) &&
+                isBlockSolid(block3) &&
+                isSafeToWalkOn(block3);
+    }
+
+    private static boolean isBlockSolid(BlockPos block) {
+        World world = Minecraft.getInstance().world;
+        Block blockType = world.getBlockState(block).getBlock();
+        return world.getBlockState(block).isSolid() ||
+                blockType instanceof SlabBlock ||
+                blockType instanceof StairsBlock ||
+                blockType instanceof CactusBlock ||
+                blockType instanceof ChestBlock ||
+                blockType instanceof EnderChestBlock ||
+                blockType instanceof SkullBlock ||
+                blockType instanceof PaneBlock ||
+                blockType instanceof FenceBlock ||
+                blockType instanceof WallBlock ||
+                blockType instanceof GlassBlock ||
+                blockType instanceof PistonBlock ||
+                blockType instanceof PistonHeadBlock ||
+                blockType instanceof StainedGlassBlock ||
+                blockType instanceof TrapDoorBlock;
+    }
+
+    private static boolean isSafeToWalkOn(BlockPos block) {
+        World world = Minecraft.getInstance().world;
+        Block blockType = world.getBlockState(block).getBlock();
+        return !(blockType instanceof FenceBlock) && !(blockType instanceof WallBlock);
     }
 
     public Hub isHubExisting(BlockPos loc) {
@@ -164,15 +183,15 @@ public class LocomotionPathfinder {
             totalCost += parent.getTotalCost();
         }
         if (existingHub == null) {
-            if (loc.equals(endBlockPos) || (minDistanceSquared != 0 && loc.distanceSq(endBlockPos) <= minDistanceSquared)) {
+            if (loc.equals(endPos) || (minDistanceSquared != 0 && loc.manhattanDistance(endPos) <= minDistanceSquared)) {
                 path.clear();
-                path.addAll(parent.getPath());
+                path = parent.getPath();
                 path.add(loc);
                 return true;
             } else {
                 ArrayList<BlockPos> path = new ArrayList<>(parent.getPath());
                 path.add(loc);
-                hubsToWork.add(new Hub(loc, parent, path, loc.distanceSq(endBlockPos), cost, totalCost));
+                hubsToWork.add(new Hub(loc, parent, path, loc.manhattanDistance(endPos), cost, totalCost));
             }
         } else if (existingHub.getCost() > cost) {
             ArrayList<BlockPos> path = new ArrayList<>(parent.getPath());
@@ -180,101 +199,82 @@ public class LocomotionPathfinder {
             existingHub.setLoc(loc);
             existingHub.setParent(parent);
             existingHub.setPath(path);
-            existingHub.setSquareDistanceToFromTarget(loc.distanceSq(endBlockPos));
+            existingHub.setSquareDistanceToFromTarget(loc.manhattanDistance(endPos));
             existingHub.setCost(cost);
             existingHub.setTotalCost(totalCost);
         }
         return false;
     }
 
+    public void move() {
+        BlockPos nextPos = getTargetPositionInPathArray(path);
+        Vector3d target = new Vector3d(nextPos.getX() + 0.5, mc.player.getPosY(), nextPos.getZ() + 0.5);
+        Vector3d playerPos = mc.player.getPositionVec();
+        Vector3d motion = target.subtract(playerPos).normalize().scale(mc.player.isSprinting() ? 0.26 : 0.2);
+
+        mc.player.setMotion(motion.x, mc.player.getMotion().y, motion.z);
+
+        if (nextPos.getY() > mc.player.getPosY() && mc.player.isOnGround()) {
+            mc.player.jump();
+        }
+
+        if (mc.player.isInWater()) {
+            mc.player.setMotion(motion.x, 0.01, motion.z);
+        }
+    }
+
     public void renderPath(RenderWorldLastEvent event) {
-        for (int i = 0; i < getPath().size(); i++) {
-            if (i + 1 <= getPath().size()) {
-                RenderUtils.drawLine(getPath().get(i), getPath().get(i + 1), 0, 1, 0, event);
-            }
+        for (int i = 0; i < path.size() - 1; i++) {
+            RenderUtils.drawLine(path.get(i), path.get(i + 1), 0, 1, 0, event);
         }
     }
 
     public void dynamicRefresh() {
-        Minecraft mc = Minecraft.getInstance();
-
-        if (mc.player.getDistanceSq(getPath().get(0).getX(), getPath().get(0).getY(), getPath().get(0).getZ()) > mc.gameSettings.renderDistanceChunks * 16 - 1 ||
-                mc.player.getDistanceSq(getPath().get(getPath().size() - 1).getX(), getPath().get(getPath().size() - 1).getY(), getPath().get(getPath().size() - 1).getZ()) <= 1) {
-            compute();
-        }
-
-        boolean onPath = false;
-        int range = 2; // Check blocks 2 blocks away from the player in all directions
-
-        for (int x = -range; x <= range; x++) {
-            for (int y = -range; y <= range; y++) {
-                for (int z = -range; z <= range; z++) {
-                    BlockPos blockPos = new BlockPos(mc.player.getPosX() + x, mc.player.getPosY() + y, mc.player.getPosZ() + z);
-                    if (getPath().contains(blockPos)) {
-                        onPath = true;
-                        break; // Break out of the loops once a block on the path is found
-                    }
-                }
-                if (onPath) {
-                    break; // Break out of the loops once a block on the path is found
-                }
-            }
-            if (onPath) {
-                break; // Break out of the loops once a block on the path is found
-            }
-        }
-
-        if (!onPath) {
+        if (isPathOutOfRange() || isPathTooClose() || !isOnPath()) {
             compute();
         }
     }
 
-    public void move() {
-        BlockPos nextPos = getTargetPositionInPathArray(getPath());
+    private boolean isOnPath() {
+        Vector3d playerPos = mc.player.getPositionVec();
+        return path.stream().anyMatch(blockPos ->
+                playerPos.subtract(new Vector3d(blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5)).lengthSquared() < 16.0
+        );
+    }
 
-        // Move towards the next position
-        double speed = Minecraft.getInstance().player.isSprinting() ? 0.26 : 0.2; // Adjust speed as needed
-        Vector3d target = new Vector3d(nextPos.getX() + 0.5, Minecraft.getInstance().player.getPosY(), nextPos.getZ() + 0.5);
-        Vector3d playerPos = Minecraft.getInstance().player.getPositionVec();
-        Vector3d motion = target.subtract(playerPos).normalize().scale(speed);
+    private boolean isPathOutOfRange() {
+        if (path.isEmpty()) return true;  // If there's no path, it's considered out of range
 
-        // Apply movement
-        Minecraft.getInstance().player.setMotion(motion.x, Minecraft.getInstance().player.getMotion().y, motion.z);
+        BlockPos lastPos = path.get(path.size() - 1);  // Get the last position in the path
+        double distance = mc.player.getDistanceSq(lastPos.getX(), lastPos.getY(), lastPos.getZ());
 
-        // Jump if necessary
-        if (nextPos.getY() > Minecraft.getInstance().player.getPosY() && Minecraft.getInstance().player.isOnGround()) {
-            Minecraft.getInstance().player.jump();
-        }
+        // Define a max range (e.g., 100 blocks). You can adjust this threshold as needed.
+        double maxRange = 10 * 10;  // Squared distance for efficiency
+        return distance > maxRange;
+    }
 
-        // Adjust for water movement
-        if (Minecraft.getInstance().player.isInWater()) {
-            Minecraft.getInstance().player.setMotion(Minecraft.getInstance().player.getMotion().x, 0.01, Minecraft.getInstance().player.getMotion().z);
-        }
+    private boolean isPathTooClose() {
+        if (path.isEmpty()) return true;  // If there's no path, it's considered too close
+
+        BlockPos lastPos = path.get(path.size() - 1);  // Get the last position in the path
+        double distance = mc.player.getDistanceSq(lastPos.getX(), lastPos.getY(), lastPos.getZ());
+
+        // Define a minimum range (e.g., 1 block). You can adjust this threshold as needed.
+        double minRange = 1 * 1;  // Squared distance for efficiency
+        return distance < minRange;
     }
 
     public BlockPos getTargetPositionInPathArray(ArrayList<BlockPos> path) {
-        int closestBlockIndex = 0;
-        double closestBlockDistance = Double.POSITIVE_INFINITY;
-        for (int i = 0; i < path.size(); i++) {
-            double distance = Minecraft.getInstance().player.getDistanceSq(path.get(i).getX(), path.get(i).getY(), path.get(i).getZ());
-            if (distance < closestBlockDistance) {
-                closestBlockDistance = distance;
-                closestBlockIndex = i;
-            }
-        }
-
-        BlockPos closestBlock = path.get(closestBlockIndex);
-        BlockPos nextBlock;
-        if (closestBlockIndex == path.size() - 1) {
-            nextBlock = closestBlock;
-        } else {
-            nextBlock = path.get(closestBlockIndex + 1);
-        }
-
-        return nextBlock;
+        return path.stream()
+                .min(Comparator.comparingDouble(blockPos -> {
+                    assert mc.player != null;
+                    return mc.player.getDistanceSq(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+                }))
+                .map(closestBlock -> path.indexOf(closestBlock) + 1 < path.size() ? path.get(path.indexOf(closestBlock) + 1) : closestBlock)
+                .orElse(startPos);
     }
 
-    private static class Hub {
+    private class Hub {
         private BlockPos loc;
         private Hub parent;
         private ArrayList<BlockPos> path;
@@ -295,36 +295,36 @@ public class LocomotionPathfinder {
             return loc;
         }
 
-        public void setLoc(BlockPos loc) {
-            this.loc = loc;
-        }
-
         public Hub getParent() {
             return parent;
-        }
-
-        public void setParent(Hub parent) {
-            this.parent = parent;
         }
 
         public ArrayList<BlockPos> getPath() {
             return path;
         }
 
-        public void setPath(ArrayList<BlockPos> path) {
-            this.path = path;
-        }
-
         public double getSquareDistanceToFromTarget() {
             return squareDistanceToFromTarget;
         }
 
-        public void setSquareDistanceToFromTarget(double squareDistanceToFromTarget) {
-            this.squareDistanceToFromTarget = squareDistanceToFromTarget;
-        }
-
         public double getCost() {
             return cost;
+        }
+
+        public void setLoc(BlockPos loc) {
+            this.loc = loc;
+        }
+
+        public void setParent(Hub parent) {
+            this.parent = parent;
+        }
+
+        public void setPath(ArrayList<BlockPos> path) {
+            this.path = path;
+        }
+
+        public void setSquareDistanceToFromTarget(double squareDistanceToFromTarget) {
+            this.squareDistanceToFromTarget = squareDistanceToFromTarget;
         }
 
         public void setCost(double cost) {
@@ -340,11 +340,12 @@ public class LocomotionPathfinder {
         }
     }
 
-    private static class CompareHub implements Comparator<Hub> {
+    public class CompareHub implements Comparator<Hub> {
         @Override
         public int compare(Hub o1, Hub o2) {
-            return (int) (
-                    (o1.getSquareDistanceToFromTarget() + o1.getTotalCost()) - (o2.getSquareDistanceToFromTarget() + o2.getTotalCost())
+            return Double.compare(
+                    o1.getSquareDistanceToFromTarget() + o1.getTotalCost(),
+                    o2.getSquareDistanceToFromTarget() + o2.getTotalCost()
             );
         }
     }
