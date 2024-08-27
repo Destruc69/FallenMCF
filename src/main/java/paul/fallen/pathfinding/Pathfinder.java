@@ -1,146 +1,136 @@
 package paul.fallen.pathfinding;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 
 import java.util.*;
 
 public class Pathfinder {
-    private final CustomBlockPos start;
-    private final CustomBlockPos end;
-    private final ArrayList<CustomBlockPos> path;
 
-    public static final int TRAVERSE_COST = 1;
-    public static final int BREAK_COST = 5;
+    private static final World world = Minecraft.getInstance().world;
 
-    public Pathfinder(BlockPos start, BlockPos end) {
-        this.start = new CustomBlockPos(start, 0);
-        this.end = new CustomBlockPos(end, 0);
-        this.path = new ArrayList<>();
+    public Pathfinder() {
     }
 
-    public void think() {
-        Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.world == null) {
-            throw new IllegalStateException("Minecraft world is not initialized.");
-        }
+    private boolean isWalkable(BlockPos pos) {
+        BlockState state = world.getBlockState(pos);
+        return state.getBlock() != Blocks.AIR && !state.getMaterial().isLiquid();
+    }
 
-        PriorityQueue<Node> openSet = new PriorityQueue<>();
-        Map<CustomBlockPos, CustomBlockPos> cameFrom = new HashMap<>();
-        Map<CustomBlockPos, Integer> gScore = new HashMap<>();
-        Map<CustomBlockPos, Integer> fScore = new HashMap<>();
-        Set<CustomBlockPos> closedSet = new HashSet<>();
+    private List<BlockPos> getPositionsBetween(BlockPos from, BlockPos to) {
+        List<BlockPos> positions = new ArrayList<>();
+        int minX = Math.min(from.getX(), to.getX());
+        int maxX = Math.max(from.getX(), to.getX());
+        int minY = Math.min(from.getY(), to.getY());
+        int maxY = Math.max(from.getY(), to.getY());
+        int minZ = Math.min(from.getZ(), to.getZ());
+        int maxZ = Math.max(from.getZ(), to.getZ());
 
-        openSet.add(new Node(start, heuristic(start.getBlockPos(), end.getBlockPos())));
-        gScore.put(start, 0);
-        fScore.put(start, heuristic(start.getBlockPos(), end.getBlockPos()));
-
-        while (!openSet.isEmpty()) {
-            CustomBlockPos current = openSet.poll().pos;
-
-            if (current.equals(end)) {
-                reconstructPath(cameFrom, current);
-                return;
-            }
-
-            closedSet.add(current);
-
-            for (Neighbor neighbor : getNeighbors(current)) {
-                if (closedSet.contains(neighbor.pos)) continue;
-
-                int tentativeGScore = gScore.getOrDefault(current, Integer.MAX_VALUE) + neighbor.actionCost;
-
-                if (!gScore.containsKey(neighbor.pos) || tentativeGScore < gScore.get(neighbor.pos)) {
-                    cameFrom.put(neighbor.pos, current);
-                    gScore.put(neighbor.pos, tentativeGScore);
-                    fScore.put(neighbor.pos, tentativeGScore + heuristic(neighbor.pos.getBlockPos(), end.getBlockPos()));
-
-                    if (!openSet.contains(new Node(neighbor.pos, fScore.get(neighbor.pos)))) {
-                        openSet.add(new Node(neighbor.pos, fScore.get(neighbor.pos)));
-                    }
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    positions.add(new BlockPos(x, y, z));
                 }
             }
         }
-
-        path.clear();
+        return positions;
     }
 
-    private void reconstructPath(Map<CustomBlockPos, CustomBlockPos> cameFrom, CustomBlockPos current) {
-        path.clear();
-        while (cameFrom.containsKey(current)) {
-            path.add(current);
-            current = cameFrom.get(current);
-        }
-        path.add(start);
-        Collections.reverse(path);
-    }
-
-    private int heuristic(BlockPos a, BlockPos b) {
-        return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY()) + Math.abs(a.getZ() - b.getZ());
-    }
-
-    private List<Neighbor> getNeighbors(CustomBlockPos pos) {
-        List<Neighbor> neighbors = new ArrayList<>();
-        int[][] directions = {
-                {1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1}
-        };
-        for (int[] direction : directions) {
-            BlockPos neighborPos = pos.getBlockPos().add(direction[0], direction[1], direction[2]);
-            int actionCost = calculateActionCost(pos.getBlockPos(), neighborPos);
-            if (actionCost != Integer.MAX_VALUE) {
-                neighbors.add(new Neighbor(new CustomBlockPos(neighborPos, actionCost), actionCost));
+    private List<BlockPos> getNeighborPositions(BlockPos pos) {
+        List<BlockPos> neighbors = new ArrayList<>();
+        for (int x = -1; x <= 1; x++) {
+            for (int y = -1; y <= 1; y++) {
+                for (int z = -1; z <= 1; z++) {
+                    if (x != 0 || y != 0 || z != 0) {
+                        neighbors.add(pos.add(x, y, z));
+                    }
+                }
             }
         }
         return neighbors;
     }
 
-    private int calculateActionCost(BlockPos from, BlockPos to) {
-        if (canTraverse(from, to)) {
-            return TRAVERSE_COST;
-        } else if (canBreak(from, to)) {
-            return BREAK_COST;
-        } else {
-            return Integer.MAX_VALUE;
+    private List<BlockPos> aStarPathfinding(BlockPos start, BlockPos goal, Set<BlockPos> walkablePositions) {
+        PriorityQueue<Node> openSet = new PriorityQueue<>(Comparator.comparingInt(n -> n.fCost));
+        Set<BlockPos> closedSet = new HashSet<>();
+        Map<BlockPos, BlockPos> cameFrom = new HashMap<>();
+
+        Node startNode = new Node(start, 0, heuristic(start, goal));
+        openSet.add(startNode);
+
+        Map<BlockPos, Integer> gScores = new HashMap<>();
+        gScores.put(start, 0);
+
+        while (!openSet.isEmpty()) {
+            Node current = openSet.poll();
+            if (current.pos.equals(goal)) {
+                return reconstructPath(cameFrom, current.pos);
+            }
+
+            closedSet.add(current.pos);
+
+            for (BlockPos neighbor : getNeighborPositions(current.pos)) {
+                if (!walkablePositions.contains(neighbor) || closedSet.contains(neighbor)) {
+                    continue;
+                }
+
+                int tentativeGScore = gScores.getOrDefault(current.pos, Integer.MAX_VALUE) + 1;
+
+                if (tentativeGScore < gScores.getOrDefault(neighbor, Integer.MAX_VALUE)) {
+                    cameFrom.put(neighbor, current.pos);
+                    gScores.put(neighbor, tentativeGScore);
+                    Node neighborNode = new Node(neighbor, tentativeGScore, heuristic(neighbor, goal));
+
+                    if (!openSet.contains(neighborNode)) {
+                        openSet.add(neighborNode);
+                    }
+                }
+            }
         }
+
+        return Collections.emptyList();  // No path found
     }
 
-    private boolean canTraverse(BlockPos from, BlockPos to) {
-        BlockState a = Minecraft.getInstance().world.getBlockState(from.down());
-        BlockState b = Minecraft.getInstance().world.getBlockState(from);
-        BlockState c = Minecraft.getInstance().world.getBlockState(from.up());
-
-        BlockState d = Minecraft.getInstance().world.getBlockState(to.down());
-        BlockState e = Minecraft.getInstance().world.getBlockState(to);
-        BlockState f = Minecraft.getInstance().world.getBlockState(to.up());
-
-        return a.isSolid() && b.isAir() && c.isAir() && d.isSolid() && e.isAir() && f.isAir();
+    private int heuristic(BlockPos a, BlockPos b) {
+        return MathHelper.abs(a.getX() - b.getX()) + MathHelper.abs(a.getY() - b.getY()) + MathHelper.abs(a.getZ() - b.getZ());
     }
 
-    private boolean canBreak(BlockPos from, BlockPos to) {
-        BlockState d = Minecraft.getInstance().world.getBlockState(to.down());
-        BlockState e = Minecraft.getInstance().world.getBlockState(to);
-        BlockState f = Minecraft.getInstance().world.getBlockState(to.up());
-
-        return d.isSolid() && (e.isSolid() || f.isSolid());
-    }
-
-    public ArrayList<CustomBlockPos> getPath() {
+    private List<BlockPos> reconstructPath(Map<BlockPos, BlockPos> cameFrom, BlockPos current) {
+        List<BlockPos> path = new ArrayList<>();
+        while (cameFrom.containsKey(current)) {
+            path.add(current);
+            current = cameFrom.get(current);
+        }
+        Collections.reverse(path);
         return path;
     }
 
-    private static class Node implements Comparable<Node> {
-        CustomBlockPos pos;
-        int priority;
-
-        Node(CustomBlockPos pos, int priority) {
-            this.pos = pos;
-            this.priority = priority;
+    public List<BlockPos> findPath(BlockPos start, BlockPos goal) {
+        List<BlockPos> allPositions = getPositionsBetween(start, goal);
+        Set<BlockPos> walkablePositions = new HashSet<>();
+        for (BlockPos pos : allPositions) {
+            if (isWalkable(pos)) {
+                walkablePositions.add(pos);
+            }
         }
+        return aStarPathfinding(start, goal, walkablePositions);
+    }
 
-        @Override
-        public int compareTo(Node other) {
-            return Integer.compare(this.priority, other.priority);
+    private static class Node {
+        BlockPos pos;
+        int gCost;
+        int hCost;
+        int fCost;
+
+        Node(BlockPos pos, int gCost, int hCost) {
+            this.pos = pos;
+            this.gCost = gCost;
+            this.hCost = hCost;
+            this.fCost = gCost + hCost;
         }
 
         @Override
@@ -154,47 +144,6 @@ public class Pathfinder {
         @Override
         public int hashCode() {
             return pos.hashCode();
-        }
-    }
-
-    private static class Neighbor {
-        CustomBlockPos pos;
-        int actionCost;
-
-        Neighbor(CustomBlockPos pos, int actionCost) {
-            this.pos = pos;
-            this.actionCost = actionCost;
-        }
-    }
-
-    public class CustomBlockPos {
-        private final BlockPos blockPos;
-        private final int actionCost;
-
-        public CustomBlockPos(BlockPos blockPos, int actionCost) {
-            this.blockPos = blockPos;
-            this.actionCost = actionCost;
-        }
-
-        public BlockPos getBlockPos() {
-            return blockPos;
-        }
-
-        public int getActionCost() {
-            return actionCost;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null || getClass() != obj.getClass()) return false;
-            CustomBlockPos that = (CustomBlockPos) obj;
-            return blockPos.equals(that.blockPos);
-        }
-
-        @Override
-        public int hashCode() {
-            return blockPos.hashCode();
         }
     }
 }
