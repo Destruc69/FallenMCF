@@ -32,7 +32,7 @@ public final class AutoSprintHack extends Module {
             super.onEnable();
 
             pathfinder = new Pathfinder();
-            blockPosList = pathfinder.findPath(mc.player.getPosition(), mc.player.getPosition().add(10, 0, 0));
+            blockPosList = pathfinder.findPath(mc.player.getPosition(), mc.player.getPosition().add(10, 0, 10));
         } catch (Exception ignored) {
         }
     }
@@ -41,6 +41,8 @@ public final class AutoSprintHack extends Module {
     public void onTick(TickEvent.PlayerTickEvent event) throws Exception {
         try {
             mc.gameSettings.keyBindSprint.setPressed(true);
+
+            pathfinder.updatePathPosition(blockPosList);
         } catch (Exception ignored) {
         }
     }
@@ -48,8 +50,8 @@ public final class AutoSprintHack extends Module {
     @SubscribeEvent
     public void onRender(RenderWorldLastEvent event) {
         try {
-            for (BlockPos blockPos : blockPosList) {
-                RenderUtils.drawOutlinedBox(blockPos, 0, 1, 0, event);
+            for (BlockPos p : blockPosList) {
+                RenderUtils.drawOutlinedBox(p, 0, 1, 0, event);
             }
         } catch (Exception ignored) {
         }

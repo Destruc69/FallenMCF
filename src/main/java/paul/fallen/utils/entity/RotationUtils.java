@@ -2,6 +2,7 @@ package paul.fallen.utils.entity;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.play.client.CPlayerPacket;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 
 public class RotationUtils {
@@ -40,5 +41,12 @@ public class RotationUtils {
         float pitch = (float) Math.toDegrees(Math.atan2(-yDiff, horizontalDistance));
 
         return new float[]{(int) yaw, (int) pitch};
+    }
+
+    public static float getHorizontalAngleToLookVec(Vector3d vec)
+    {
+        float currentYaw = MathHelper.wrapDegrees(Minecraft.getInstance().player.rotationYaw);
+        float neededYaw = getYawAndPitch(vec)[0];
+        return MathHelper.wrapDegrees(currentYaw - neededYaw);
     }
 }
