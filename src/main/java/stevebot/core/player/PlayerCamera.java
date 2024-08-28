@@ -157,17 +157,17 @@ public class PlayerCamera {
     public boolean isLookingAt(int x, int y, int z, boolean ignorePitch, double rangeAngleDeg) {
         if (minecraftAdapter.hasPlayer()) {
             if (ignorePitch) {
-                final Vector2d posHead = minecraftAdapter.getPlayerHeadPositionXZ();
+                final net.minecraft.util.math.vector.Vector3d posHead = minecraftAdapter.getPlayerHeadPositionXZ();
                 final Vector2d posBlock = new Vector2d(x + 0.5, z + 0.5);
-                final Vector2d dirBlock = posBlock.copy().sub(posHead).normalize();
+                final Vector2d dirBlock = posBlock.copy().sub(posHead.x, posHead.y).normalize();
                 final Vector2d lookDir = new Vector2d(getLookDir().x, getLookDir().z).normalize();
                 final double angle = lookDir.angleDeg(dirBlock);
                 return Math.abs(angle) <= rangeAngleDeg;
             } else {
-                final Vector3d posHead = minecraftAdapter.getPlayerHeadPosition();
+                final net.minecraft.util.math.vector.Vector3d posHead = minecraftAdapter.getPlayerHeadPosition();
                 final Vector3d posBlock = new Vector3d(x + 0.5, y + 0.5, z + 0.5);
-                final Vector3d dirBlock = posBlock.copy().sub(posHead).normalize();
-                final Vector3d lookDir = getLookDir().normalize();
+                final Vector3d dirBlock = posBlock.copy().sub(posHead.x, posHead.y, posHead.z).normalize();
+                final Vector3d lookDir = new Vector3d(getLookDir().normalize().x, getLookDir().normalize().y, getLookDir().normalize().z);
                 final double angle = lookDir.angleDeg(dirBlock);
                 return Math.abs(angle) <= rangeAngleDeg;
             }
@@ -180,7 +180,7 @@ public class PlayerCamera {
     /**
      * @return the direction the player is looking as a {@link Vector3d}
      */
-    public Vector3d getLookDir() {
+    public net.minecraft.util.math.vector.Vector3d getLookDir() {
         return minecraftAdapter.getLookDir();
     }
 
@@ -217,8 +217,8 @@ public class PlayerCamera {
     public void setLookAt(int x, int y, int z, boolean keepPitch) {
         if (minecraftAdapter.hasPlayer()) {
             final Vector3d posBlock = new Vector3d(x + 0.5, y + 0.5, z + 0.5);
-            final Vector3d posHead = minecraftAdapter.getPlayerHeadPosition();
-            final Vector3d dir = posBlock.copy().sub(posHead).normalize().scale(-1);
+            final net.minecraft.util.math.vector.Vector3d posHead = minecraftAdapter.getPlayerHeadPosition();
+            final Vector3d dir = posBlock.copy().sub(posHead.x, posHead.y, posHead.z).normalize().scale(-1);
             if (keepPitch) {
                 dir.y = 0;
             }
@@ -234,8 +234,8 @@ public class PlayerCamera {
      */
     public void setLookAtPoint(Vector3d point) {
         if (minecraftAdapter.hasPlayer()) {
-            final Vector3d posHead = minecraftAdapter.getPlayerHeadPosition();
-            final Vector3d dir = point.copy().sub(posHead).normalize().scale(-1);
+            final net.minecraft.util.math.vector.Vector3d posHead = minecraftAdapter.getPlayerHeadPosition();
+            final Vector3d dir = point.copy().sub(posHead.x, posHead.y, posHead.z).normalize().scale(-1);
             setLook(dir);
         }
     }

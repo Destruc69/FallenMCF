@@ -53,7 +53,7 @@ public class StevebotApi {
     public void pathDirection(double distance, boolean startFollowing, boolean enableFreelook) {
         if (PlayerUtils.hasPlayer()) {
             final BaseBlockPos from = PlayerUtils.getPlayerBlockPos();
-            final Vector3d dir = PlayerUtils.getCamera().getLookDir().setLength(distance);
+            final Vector3d dir = new Vector3d(PlayerUtils.getCamera().getLookDir().x, PlayerUtils.getCamera().getLookDir().y, PlayerUtils.getCamera().getLookDir().z).setLength(distance);
             final Goal goal = new XZGoal(from.getX() + dir.getIntX(), from.getZ() + dir.getIntZ());
             pathHandler.createPath(new BaseBlockPos(from), goal, startFollowing, enableFreelook);
         }

@@ -1,14 +1,14 @@
 package stevebot.core.minecraft;
 
-import java.util.List;
+import net.minecraft.util.math.vector.Vector3d;
 import stevebot.core.data.blockpos.BaseBlockPos;
 import stevebot.core.data.blocks.BlockWrapper;
 import stevebot.core.data.items.wrapper.ItemBlockWrapper;
 import stevebot.core.data.items.wrapper.ItemStackWrapper;
 import stevebot.core.data.items.wrapper.ItemWrapper;
-import stevebot.core.math.vectors.vec2.Vector2d;
-import stevebot.core.math.vectors.vec3.Vector3d;
 import stevebot.core.player.PlayerInputConfig;
+
+import java.util.List;
 
 public interface MinecraftAdapter {
 
@@ -25,12 +25,12 @@ public interface MinecraftAdapter {
     /**
      * @return the current position of the player head
      */
-    Vector3d getPlayerHeadPosition();
+    net.minecraft.util.math.vector.Vector3d getPlayerHeadPosition();
 
     /**
      * @return the current position on the xz-plane of the player head
      */
-    Vector2d getPlayerHeadPositionXZ();
+    Vector3d getPlayerHeadPositionXZ();
 
     /**
      * @return the current player position as a {@link BaseBlockPos}
@@ -40,12 +40,12 @@ public interface MinecraftAdapter {
     /**
      * @return the current player position
      */
-    Vector3d getPlayerPosition();
+    net.minecraft.util.math.vector.Vector3d getPlayerPosition();
 
     /**
      * @return the current placer motion vector
      */
-    Vector3d getPlayerMotion();
+    net.minecraft.util.math.vector.Vector3d getPlayerMotion();
 
     /**
      * @return the yaw-component of the player rotation (not camera rotation)
@@ -76,7 +76,7 @@ public interface MinecraftAdapter {
     /**
      * @return the direction the player is looking in
      */
-    Vector3d getLookDir();
+    net.minecraft.util.math.vector.Vector3d getLookDir();
 
     /**
      * @param interceptor set the {@link MouseChangeInterceptor} (to block or allow mouse movement)

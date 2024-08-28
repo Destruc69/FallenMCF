@@ -1,24 +1,26 @@
 package paul.fallen.stevebot.mod.adapter;
 
-import net.java.games.input.Mouse;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.MouseHelper;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.pathfinding.PathType;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import stevebot.core.data.blockpos.BaseBlockPos;
 import stevebot.core.data.blocks.BlockWrapper;
@@ -43,14 +45,17 @@ public class MinecraftAdapterImpl implements MinecraftAdapter {
     private final Map<String, Block> blocks = new HashMap<>();
 
     public MinecraftAdapterImpl() {
-        Minecraft.getInstance().mouseHelper = new MouseHelper() {
-            @Override
-            public void mouseXYChange() {
-                if (mouseChangeInterceptor == null || mouseChangeInterceptor.onChange()) {
-                    super.mouseXYChange();
-                }
-            }
-        };
+    }
+
+    private static float getBreakDuration(ItemStack itemStack, BlockState state) {
+        float blockHardness = state.getBlockHardness(null, null);
+        if (blockHardness < 0) {
+            return Float.MAX_VALUE;
+        }
+        float playerBreakSpeed = getDigSpeed(itemStack, state);
+        int canHarvestMod = (itemStack != null && itemStack.canHarvestBlock(state)) ? 30 : 100;
+        float dmgPerTick = ((playerBreakSpeed / blockHardness) * (1f / canHarvestMod));
+        return 1f / dmgPerTick;
     }
 
     private Minecraft getMinecraft() {
@@ -86,14 +91,13 @@ public class MinecraftAdapterImpl implements MinecraftAdapter {
         return new Vector3d(posEyes.x, posEyes.z, posEyes.z);
     }
 
-    @Override
-    public BaseBlockPos getPlayerBlockPosition() {
-        PlayerEntity player = getPlayer();
-        if (player != null) {
-            return new BaseBlockPos(player.getPosition());
-        } else {
-            return null;
+    @SubscribeEvent
+    public void onMouseChange(InputEvent.RawMouseEvent event) {
+        if (mouseChangeInterceptor == null || mouseChangeInterceptor.onChange()) {
+            return;
         }
+
+        event.setCanceled(true);
     }
 
     @Override
@@ -163,26 +167,28 @@ public class MinecraftAdapterImpl implements MinecraftAdapter {
     }
 
     @Override
+    public BaseBlockPos getPlayerBlockPosition() {
+        PlayerEntity player = getPlayer();
+        if (player != null) {
+            return new BaseBlockPos(player.getPosition().getX(), player.getPosition().getY(), player.getPosition().getZ());
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public float getMouseSensitivity() {
-        return getMinecraft().gameSettings.mouseSensitivity;
+        return (float) getMinecraft().gameSettings.mouseSensitivity;
     }
 
     @Override
     public double getMouseDX() {
-        return Mouse.getDX();
+        return Minecraft.getInstance().mouseHelper.getXVelocity();
     }
 
     @Override
     public double getMouseDY() {
-        return Mouse.getDY();
-    }
-
-    @Override
-    public void setInput(final int keyCode, final boolean down) {
-        KeyBinding.setKeyBindState(keyCode, down);
-        if (down) {
-            KeyBinding.onTick(keyCode);
-        }
+        return Minecraft.getInstance().mouseHelper.getYVelocity();
     }
 
     @Override
@@ -222,9 +228,11 @@ public class MinecraftAdapterImpl implements MinecraftAdapter {
     }
 
     @Override
-    public boolean isPlayerOnGround() {
-        PlayerEntity player = getPlayer();
-        return player.onGround;
+    public void setInput(final int keyCode, final boolean down) {
+        KeyBinding.setKeyBindState(InputMappings.getInputByCode(keyCode, 0), down);
+        if (down) {
+            KeyBinding.onTick(InputMappings.getInputByCode(keyCode, 0));
+        }
     }
 
     @Override
@@ -262,17 +270,9 @@ public class MinecraftAdapterImpl implements MinecraftAdapter {
     }
 
     @Override
-    public List<BlockWrapper> getBlocks() {
-        this.blocks.clear();
-        List<BlockWrapper> blockList = new ArrayList<>();
-        for (Block block : ForgeRegistries.BLOCKS) {
-            String name = block.getRegistryName().toString();
-            int id = Block.getIdFromBlock(block);
-            boolean isNormalCube = block.defaultBlockState().getMaterial().isSolid();
-            blockList.add(new BlockWrapper(id, name, isNormalCube));
-            this.blocks.put(name, block);
-        }
-        return blockList;
+    public boolean isPlayerOnGround() {
+        PlayerEntity player = getPlayer();
+        return player.isOnGround();
     }
 
     @Override
@@ -289,67 +289,70 @@ public class MinecraftAdapterImpl implements MinecraftAdapter {
     }
 
     @Override
+    public List<BlockWrapper> getBlocks() {
+        this.blocks.clear();
+        List<BlockWrapper> blockList = new ArrayList<>();
+        for (Block block : ForgeRegistries.BLOCKS) {
+            String name = block.getRegistryName().toString();
+            int id = Integer.parseInt(String.valueOf(ForgeRegistries.BLOCKS.getKey(block)));
+            boolean isNormalCube = block.getDefaultState().getMaterial().isSolid();
+            blockList.add(new BlockWrapper(id, name, isNormalCube));
+            this.blocks.put(name, block);
+        }
+        return blockList;
+    }
+
+    @Override
     public int getBlockId(final BaseBlockPos pos) {
         BlockState blockState = getWorld().getBlockState(new BlockPos(pos.getX(), pos.getY(), pos.getZ()));
         Block block = blockState.getBlock();
-        return Block.getIdFromBlock(block);
+        return Integer.parseInt(String.valueOf(ForgeRegistries.BLOCKS.getKey(block)));
     }
 
     @Override
     public boolean isChunkLoaded(int chunkX, int chunkZ) {
-        return getWorld().getChunkProvider().isChunkLoaded(chunkX, chunkZ);
+        return getWorld().getChunkProvider().isChunkLoaded(new ChunkPos(chunkX, chunkZ));
     }
 
     @Override
     public int getItemIdFromBlock(final BlockWrapper block) {
-        Item itemFromBlock = Item.byBlock(blocks.get(block.getName()));
+        Item itemFromBlock = Item.getItemFromBlock(blocks.get(block.getName()));
         return Item.getIdFromItem(itemFromBlock);
     }
 
     @Override
     public int getBlockIdFromItem(final ItemBlockWrapper item) {
-        ItemBlock itemBlock = (ItemBlock) items.get(item.getName());
-        return Block.getIdFromBlock(itemBlock.getBlock());
+        BlockItem itemBlock = (BlockItem) items.get(item.getName());
+        return Integer.parseInt(String.valueOf(itemBlock.getBlock()));
     }
 
     @Override
     public String getBlockFacing(final BaseBlockPos position) {
         BlockState blockState = getWorld().getBlockState(new BlockPos(position.getX(), position.getY(), position.getZ()));
-        Direction facing = blockState.getValue(BlockStateProperties.HORIZONTAL_FACING);
-        return facing.getName();
+        Direction facing = blockState.get(BlockStateProperties.HORIZONTAL_FACING);
+        return facing.getName2();
     }
 
     @Override
     public boolean isDoorOpen(final BaseBlockPos position) {
         BlockState blockState = getWorld().getBlockState(new BlockPos(position.getX(), position.getY(), position.getZ()));
-        return blockState.getValue(BlockStateProperties.OPEN);
+        return blockState.get(BlockStateProperties.OPEN);
     }
 
     @Override
     public boolean isBlockPassable(final BlockWrapper block, final BaseBlockPos pos) {
-        return blocks.get(block.getName()).isPathfindable(getWorld(), new BlockPos(pos.getX(), pos.getY(), pos.getZ()), PathType.AIR);
+        return blocks.get(block.getName()).getDefaultState().getMaterial().isReplaceable();
     }
 
     @Override
     public float getBreakDuration(ItemWrapper item, BlockWrapper block) {
         Block mcBlock = blocks.get(block.getName());
         if (item == null) {
-            return getBreakDuration(ItemStack.EMPTY, mcBlock.defaultBlockState());
+            return getBreakDuration(ItemStack.EMPTY, mcBlock.getDefaultState());
         } else {
             Item mcItem = items.get(item.getName());
-            return getBreakDuration(new ItemStack(mcItem), mcBlock.defaultBlockState());
+            return getBreakDuration(new ItemStack(mcItem), mcBlock.getDefaultState());
         }
-    }
-
-    private static float getBreakDuration(ItemStack itemStack, BlockState state) {
-        float blockHardness = state.getDestroySpeed(null, null);
-        if (blockHardness < 0) {
-            return Float.MAX_VALUE;
-        }
-        float playerBreakSpeed = getDigSpeed(itemStack, state);
-        int canHarvestMod = (itemStack != null && itemStack.canHarvestBlock(state)) ? 30 : 100;
-        float dmgPerTick = ((playerBreakSpeed / blockHardness) * (1f / canHarvestMod));
-        return 1f / dmgPerTick;
     }
 
     private static float getDigSpeed(ItemStack itemStack, BlockState state) {

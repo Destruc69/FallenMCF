@@ -145,31 +145,14 @@ public class PlayerUtils {
     /**
      * @return the exact current position of the player as a {@link Vector3d}
      */
-    public static Vector3d getPlayerPosition() {
+    public static net.minecraft.util.math.vector.Vector3d getPlayerPosition() {
         return minecraftAdapter.getPlayerPosition();
     }
-
-
-    /**
-     * @return the exact current position of the player in the block as a {@link Vector3d}
-     */
-    public static Vector3d getPlayerPositionInBlock() {
-        final Vector3d playerPos = getPlayerPosition();
-        if (playerPos != null) {
-            playerPos.x = playerPos.x - Math.floor(playerPos.x);
-            playerPos.y = playerPos.y - Math.floor(playerPos.y);
-            playerPos.z = playerPos.z - Math.floor(playerPos.z);
-            return playerPos;
-        } else {
-            return null;
-        }
-    }
-
 
     /**
      * @return the current movement of the player.
      */
-    public static Vector3d getMotionVector() {
+    public static net.minecraft.util.math.vector.Vector3d getMotionVector() {
         return minecraftAdapter.getPlayerMotion();
     }
 
@@ -206,7 +189,7 @@ public class PlayerUtils {
      * @return true, if the player is moving on any axis.
      */
     public static boolean isPlayerMoving(double threshold, boolean includeY) {
-        final Vector3d motion = getMotionVector();
+        final net.minecraft.util.math.vector.Vector3d motion = getMotionVector();
         if (motion != null) {
             if (includeY) {
                 return motion.x > threshold || motion.y > threshold || motion.z > threshold;
@@ -253,8 +236,8 @@ public class PlayerUtils {
      * @return true, if the player is currently at the given coordinates (within the given threshold).
      */
     public static boolean isAtLocationThreshold(double x, double z, double threshold) {
-        final Vector3d current = getPlayerPosition();
-        return !(current.dist2(x, current.y, z) > threshold);
+        final net.minecraft.util.math.vector.Vector3d current = getPlayerPosition();
+        return !(current.distanceTo(new net.minecraft.util.math.vector.Vector3d(x, current.y, z)) > threshold);
     }
 
 
@@ -265,8 +248,8 @@ public class PlayerUtils {
      * @return true, if the player is currently at the given coordinates (within a threshold defined by {@code PlayerUtils.AT_LOC_DIST_ERROR}).
      */
     public static boolean isAtLocation(double x, double y, double z) {
-        final Vector3d current = getPlayerPosition();
-        return !(current.dist2(x, y, z) > AT_LOC_DIST_ERROR);
+        final net.minecraft.util.math.vector.Vector3d current = getPlayerPosition();
+        return !(current.distanceTo(new net.minecraft.util.math.vector.Vector3d(x, y, z)) > AT_LOC_DIST_ERROR);
     }
 
 }

@@ -193,11 +193,7 @@ public class ActionUtils {
         if (!isDoorBottom && !BlockUtils.canWalkThrough(position)) {
             return false;
         }
-        if (!isDoorTop && !BlockUtils.canWalkThrough(positionTop)) {
-            return false;
-        }
-
-        return true;
+        return isDoorTop || BlockUtils.canWalkThrough(positionTop);
     }
 
 
@@ -228,7 +224,7 @@ public class ActionUtils {
         final Vector3d nFace = new Vector3d(direction.dx, direction.dy, direction.dz);
         final Vector3d posLookAt = new Vector3d(pos.getCenterX(), pos.getCenterY(), pos.getCenterZ())
                 .add(direction.dx * 0.5, direction.dy * 0.5, direction.dz * 0.5);
-        final Vector3d dirPlayer = posLookAt.sub(minecraftAdapter.getPlayerHeadPosition()).normalize();
+        final Vector3d dirPlayer = posLookAt.sub(minecraftAdapter.getPlayerHeadPosition().x, minecraftAdapter.getPlayerHeadPosition().y, minecraftAdapter.getPlayerHeadPosition().z).normalize();
         return dirPlayer.dot(nFace) <= 0;
     }
 
@@ -294,11 +290,7 @@ public class ActionUtils {
 
         // check west
         fastPos1.set(pos).add(Direction.WEST);
-        if (BlockUtils.isLiquid(fastPos1)) {
-            return false;
-        }
-
-        return true;
+        return !BlockUtils.isLiquid(fastPos1);
     }
 
 

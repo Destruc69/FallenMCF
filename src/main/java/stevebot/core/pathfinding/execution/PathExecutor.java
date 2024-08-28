@@ -1,6 +1,7 @@
 package stevebot.core.pathfinding.execution;
 
 import stevebot.core.data.blockpos.BaseBlockPos;
+import stevebot.core.math.vectors.vec3.Vector3d;
 import stevebot.core.minecraft.MinecraftAdapter;
 import stevebot.core.misc.Config;
 import stevebot.core.misc.ProcState;
@@ -214,7 +215,7 @@ public class PathExecutor implements TransitionListener<PathExecutionStateMachin
         ProcState actionState = currentAction.tick(firstTick);
         pathTicks++;
         firstTick = false;
-        pathTraceRenderable.addPoint(PlayerUtils.getPlayerPosition(), Color.MAGENTA);
+        pathTraceRenderable.addPoint(new Vector3d(PlayerUtils.getPlayerPosition().x, PlayerUtils.getPlayerPosition().y, PlayerUtils.getPlayerPosition().z), Color.MAGENTA);
 
         if (actionState == ProcState.FAILED) {
             currentAction.onActionFinished(ProcState.FAILED);

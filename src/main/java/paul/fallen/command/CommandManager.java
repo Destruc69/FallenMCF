@@ -27,6 +27,7 @@ public class CommandManager implements ClientSupport {
         commandList.add(new ToggleCommand());
         commandList.add(new BindCommand());
         commandList.add(new WaypointCommand());
+        commandList.add(new SteveBotCommand());
 
         ArrayList<String> nameList = new ArrayList<String>();
         for (Module m : FALLENClient.INSTANCE.getModuleManager().getModules()) {

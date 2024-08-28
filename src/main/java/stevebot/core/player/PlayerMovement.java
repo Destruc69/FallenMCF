@@ -77,7 +77,7 @@ public class PlayerMovement {
      */
     public boolean moveTowardsSpeed(double x, double y, double z, double maxHorSpeed) {
         if (!PlayerUtils.isAtLocation(x, y, z)) {
-            final double currentSpeedSquared = PlayerUtils.getMotionVector().mul(1, 0, 1).length2();
+            final double currentSpeedSquared = PlayerUtils.getMotionVector().mul(1, 0, 1).length();
             if (currentSpeedSquared < maxHorSpeed * maxHorSpeed) {
                 camera.setLookAt(BlockUtils.toBaseBlockPos(new Vector3d(x, PlayerUtils.getPlayerPosition().y, z)), true);
                 input.setMoveForward();
@@ -97,7 +97,7 @@ public class PlayerMovement {
      * @return true, if the player reached the given coordinates
      */
     public boolean moveTowardsSpeed(double x, double z, double maxHorSpeed) {
-        final double currentSpeedSquared = PlayerUtils.getMotionVector().mul(1, 0, 1).length2();
+        final double currentSpeedSquared = PlayerUtils.getMotionVector().mul(1, 0, 1).length();
         if (currentSpeedSquared > maxHorSpeed * maxHorSpeed) {
             return false;
         } else {
@@ -113,16 +113,12 @@ public class PlayerMovement {
      * @return true, if the preferred speed was reached
      */
     public boolean slowDown(double prefSpeed) {
-        Vector3d motion = PlayerUtils.getMotionVector().mul(1, 0, 1);
+        net.minecraft.util.math.vector.Vector3d motion = PlayerUtils.getMotionVector().mul(1, 0, 1);
         final double speed = motion.length();
 
-        if (speed > prefSpeed) {
-//			final double angle = Math.toDegrees(angleRad(view.x, view.y, -motion.x, -motion.y));
-//			moveAngle(angle);
-            return false;
-        } else {
-            return true;
-        }
+        //			final double angle = Math.toDegrees(angleRad(view.x, view.y, -motion.x, -motion.y));
+        //			moveAngle(angle);
+        return !(speed > prefSpeed);
     }
 
     /**

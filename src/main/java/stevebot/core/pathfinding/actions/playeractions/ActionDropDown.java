@@ -3,6 +3,7 @@ package stevebot.core.pathfinding.actions.playeractions;
 import stevebot.core.data.blockpos.BaseBlockPos;
 import stevebot.core.data.blocks.BlockUtils;
 import stevebot.core.data.modification.Modification;
+import stevebot.core.math.vectors.vec3.Vector3d;
 import stevebot.core.misc.Direction;
 import stevebot.core.misc.ProcState;
 import stevebot.core.misc.StateMachine;
@@ -17,11 +18,18 @@ import stevebot.core.player.PlayerUtils;
 public class ActionDropDown extends Action {
 
 
-    private enum State {
-        WALK_TOWARDS_EDGE, SLIDE_OFF_EDGE, FALLING;
+    /**
+     * Walk towards the edge but do not fall off.
+     */
+    private ProcState tickWalkTowardsEdge() {
+        final double distToEdge = BlockUtils.distToEdge(new Vector3d(PlayerUtils.getPlayerPosition().x, PlayerUtils.getPlayerPosition().y, PlayerUtils.getPlayerPosition().z), direction);
+        if (distToEdge <= 0.4) {
+            stateMachine.fireTransition(Transition.IS_AT_POSITION);
+        } else {
+            PlayerUtils.getMovement().moveTowards(getTo().getPos(), true);
+        }
+        return ProcState.EXECUTING;
     }
-
-
 
 
     private enum Transition {
@@ -101,17 +109,8 @@ public class ActionDropDown extends Action {
     }
 
 
-    /**
-     * Walk towards the edge but do not fall off.
-     */
-    private ProcState tickWalkTowardsEdge() {
-        final double distToEdge = BlockUtils.distToEdge(PlayerUtils.getPlayerPosition(), direction);
-        if (distToEdge <= 0.4) {
-            stateMachine.fireTransition(Transition.IS_AT_POSITION);
-        } else {
-            PlayerUtils.getMovement().moveTowards(getTo().getPos(), true);
-        }
-        return ProcState.EXECUTING;
+    private enum State {
+        WALK_TOWARDS_EDGE, SLIDE_OFF_EDGE, FALLING
     }
 
 

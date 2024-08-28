@@ -2,6 +2,7 @@ package stevebot.core.pathfinding.actions.playeractions;
 
 import stevebot.core.data.blockpos.BaseBlockPos;
 import stevebot.core.data.blocks.BlockUtils;
+import stevebot.core.math.vectors.vec3.Vector3d;
 import stevebot.core.misc.Direction;
 import stevebot.core.misc.ProcState;
 import stevebot.core.misc.StateMachine;
@@ -16,11 +17,21 @@ import stevebot.core.player.PlayerUtils;
 public class ActionSprintJump extends Action {
 
 
-    private enum State {
-        PREPARING, JUMPING, LANDING;
+    /**
+     * Move into position and jump.
+     */
+    private ProcState tickJump() {
+        PlayerUtils.getMovement().moveTowards(getTo().getPos(), true);
+        PlayerUtils.getInput().setSprint();
+        final double distToCenter = BlockUtils.distToCenter(getFrom().getPos(), new Vector3d(PlayerUtils.getPlayerPosition().x, PlayerUtils.getPlayerPosition().y, PlayerUtils.getPlayerPosition().z));
+        if (distToCenter > 0.4) {
+            PlayerUtils.getInput().setJump();
+        }
+        if (PlayerUtils.isOnGround() && PlayerUtils.getPlayerBlockPos().equals(getTo().getPos())) {
+            stateMachine.fireTransition(Transition.TOUCHED_GROUND);
+        }
+        return ProcState.EXECUTING;
     }
-
-
 
 
     private enum Transition {
@@ -83,20 +94,8 @@ public class ActionSprintJump extends Action {
     }
 
 
-    /**
-     * Move into position and jump.
-     */
-    private ProcState tickJump() {
-        PlayerUtils.getMovement().moveTowards(getTo().getPos(), true);
-        PlayerUtils.getInput().setSprint();
-        final double distToCenter = BlockUtils.distToCenter(getFrom().getPos(), PlayerUtils.getPlayerPosition());
-        if (distToCenter > 0.4) {
-            PlayerUtils.getInput().setJump();
-        }
-        if (PlayerUtils.isOnGround() && PlayerUtils.getPlayerBlockPos().equals(getTo().getPos())) {
-            stateMachine.fireTransition(Transition.TOUCHED_GROUND);
-        }
-        return ProcState.EXECUTING;
+    private enum State {
+        PREPARING, JUMPING, LANDING
     }
 
 

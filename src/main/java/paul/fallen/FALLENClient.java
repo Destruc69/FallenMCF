@@ -2,8 +2,16 @@ package paul.fallen;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import paul.fallen.clickgui.ClickGui;
 import paul.fallen.command.CommandManager;
 import paul.fallen.events.AutoJoin;
@@ -15,9 +23,25 @@ import paul.fallen.module.ModuleManager;
 import paul.fallen.music.MusicManager;
 import paul.fallen.packetevent.ChannelHandlerInput;
 import paul.fallen.setting.SettingManager;
+import paul.fallen.stevebot.mod.adapter.MinecraftAdapterImpl;
+import paul.fallen.stevebot.mod.adapter.OpenGLAdapterImpl;
+import paul.fallen.stevebot.mod.events.*;
 import paul.fallen.utils.client.Logger;
 import paul.fallen.utils.client.Logger.LogState;
 import paul.fallen.waypoint.WaypointManager;
+import stevebot.core.StevebotApi;
+import stevebot.core.data.blocks.BlockLibrary;
+import stevebot.core.data.blocks.BlockProvider;
+import stevebot.core.data.blocks.BlockUtils;
+import stevebot.core.data.items.ItemLibrary;
+import stevebot.core.data.items.ItemUtils;
+import stevebot.core.math.vectors.vec3.Vector3d;
+import stevebot.core.minecraft.MinecraftAdapter;
+import stevebot.core.minecraft.OpenGLAdapter;
+import stevebot.core.pathfinding.PathHandler;
+import stevebot.core.pathfinding.actions.ActionUtils;
+import stevebot.core.player.*;
+import stevebot.core.rendering.Renderer;
 
 @Mod("fallen")
 public class FALLENClient implements ClientSupport {
@@ -35,6 +59,122 @@ public class FALLENClient implements ClientSupport {
     private final ClickGui clickgui;
     private final IRC irc;
     private final Gson gson;
+    //SteveBot
+    private static EventManager eventManager;
+    private static ModEventProducer eventProducer;
+    private static BlockLibrary blockLibrary;
+    private static BlockProvider blockProvider;
+    private static ItemLibrary itemLibrary;
+    private static PlayerCamera playerCamera;
+    private static PlayerMovement playerMovement;
+    private static PlayerInput playerInput;
+    private static PlayerInventory playerInventory;
+    private static Renderer renderer;
+    private static PathHandler pathHandler;
+    private final StevebotApi stevebotApi;
+    private final EventListener<PostInitEvent> listenerPostInit = new EventListener<PostInitEvent>() {
+        @Override
+        public Class<PostInitEvent> getEventClass() {
+            return PostInitEvent.class;
+        }
+
+        @Override
+        public void onEvent(PostInitEvent event) {
+            blockLibrary.onEventInitialize();
+            itemLibrary.onEventInitialize();
+        }
+    };
+
+    private final EventListener<BlockEvent.BreakEvent> listenerBreakBlock = new EventListener<BlockEvent.BreakEvent>() {
+        @Override
+        public Class<BlockEvent.BreakEvent> getEventClass() {
+            return BlockEvent.BreakEvent.class;
+        }
+
+
+        @Override
+        public void onEvent(BlockEvent.BreakEvent event) {
+            blockProvider.getBlockCache().onEventBlockBreak(event.getPos().getX(), event.getPos().getY(), event.getPos().getZ());
+        }
+    };
+
+    private final EventListener<BlockEvent.EntityPlaceEvent> listenerPlaceBlock = new EventListener<BlockEvent.EntityPlaceEvent>() {
+        @Override
+        public Class<BlockEvent.EntityPlaceEvent> getEventClass() {
+            return BlockEvent.EntityPlaceEvent.class;
+        }
+
+        @Override
+        public void onEvent(BlockEvent.EntityPlaceEvent event) {
+            blockProvider.getBlockCache().onEventBlockPlace(event.getPos().getX(), event.getPos().getY(), event.getPos().getZ());
+        }
+    };
+
+    private final EventListener<TickEvent.RenderTickEvent> listenerRenderTick = new EventListener<TickEvent.RenderTickEvent>() {
+        @Override
+        public Class<TickEvent.RenderTickEvent> getEventClass() {
+            return TickEvent.RenderTickEvent.class;
+        }
+
+        @Override
+        public void onEvent(TickEvent.RenderTickEvent event) {
+            playerCamera.onRenderTickEvent(event.phase == TickEvent.Phase.START);
+        }
+    };
+
+    private final EventListener<TickEvent.ClientTickEvent> listenerClientTick = new EventListener<TickEvent.ClientTickEvent>() {
+        @Override
+        public Class<TickEvent.ClientTickEvent> getEventClass() {
+            return TickEvent.ClientTickEvent.class;
+        }
+
+
+        @Override
+        public void onEvent(TickEvent.ClientTickEvent event) {
+            pathHandler.onEventClientTick();
+        }
+
+    };
+
+    private final EventListener<RenderWorldLastEvent> listenerRenderWorld = new EventListener<RenderWorldLastEvent>() {
+        @Override
+        public Class<RenderWorldLastEvent> getEventClass() {
+            return RenderWorldLastEvent.class;
+        }
+
+        @Override
+        public void onEvent(RenderWorldLastEvent event) {
+            renderer.onEventRender(new Vector3d(PlayerUtils.getPlayerPosition().x, PlayerUtils.getPlayerPosition().y, PlayerUtils.getPlayerPosition().z));
+        }
+    };
+
+    private final EventListener<TickEvent.PlayerTickEvent> listenerPlayerTick = new EventListener<TickEvent.PlayerTickEvent>() {
+        @Override
+        public Class<TickEvent.PlayerTickEvent> getEventClass() {
+            return TickEvent.PlayerTickEvent.class;
+        }
+
+
+        @Override
+        public void onEvent(TickEvent.PlayerTickEvent event) {
+            if (event.phase == TickEvent.Phase.START) {
+                playerInput.onEventPlayerTick();
+            }
+        }
+    };
+
+    private final EventListener<ModConfig.ModConfigEvent> listenerConfigChanged = new EventListener<ModConfig.ModConfigEvent>() {
+        @Override
+        public Class<ModConfig.ModConfigEvent> getEventClass() {
+            return ModConfig.ModConfigEvent.class;
+        }
+
+        @Override
+        public void onEvent(ModConfig.ModConfigEvent event) {
+            playerInput.onEventConfigChanged();
+        }
+    };
+
 
     public FALLENClient() {
         Logger.log(LogState.Normal, "Starting " + this.name + " Client | Version " + this.version);
@@ -121,6 +261,83 @@ public class FALLENClient implements ClientSupport {
                 INSTANCE.waypointManager.saveConfig(gson);
             }
         });
+
+        // SteveBot
+
+        // minecraft
+        MinecraftAdapter minecraftAdapter = new MinecraftAdapterImpl();
+        OpenGLAdapter openGLAdapter = new OpenGLAdapterImpl();
+
+        ActionUtils.initMinecraftAdapter(minecraftAdapter);
+
+        // events
+        eventManager = new EventManagerImpl();
+        eventProducer = new ModEventProducer(eventManager);
+
+        eventManager.addListener(listenerPostInit);
+        eventManager.addListener(listenerBreakBlock);
+        eventManager.addListener(listenerPlaceBlock);
+        eventManager.addListener(listenerRenderTick);
+        eventManager.addListener(listenerRenderWorld);
+        eventManager.addListener(listenerPlayerTick);
+        eventManager.addListener(listenerClientTick);
+        eventManager.addListener(listenerConfigChanged);
+
+        // block library
+        blockLibrary = new BlockLibrary(minecraftAdapter);
+
+        // block provider
+        blockProvider = new BlockProvider(minecraftAdapter, blockLibrary);
+
+        // block utils
+        BlockUtils.initialize(minecraftAdapter, blockProvider, blockLibrary);
+
+        // item library
+        itemLibrary = new ItemLibrary(minecraftAdapter);
+
+        // item utils
+        ItemUtils.initialize(minecraftAdapter, itemLibrary);
+
+        // renderer
+        renderer = new Renderer(openGLAdapter, blockProvider);
+
+        // player camera
+        playerCamera = new PlayerCamera(minecraftAdapter);
+
+        // player input
+        playerInput = new PlayerInput(minecraftAdapter);
+
+        // player movement
+        playerMovement = new PlayerMovement(playerInput, playerCamera);
+
+        // player inventory
+        playerInventory = new PlayerInventory(minecraftAdapter);
+
+        // player utils
+        PlayerUtils.initialize(minecraftAdapter, playerInput, playerCamera, playerMovement, playerInventory);
+
+        // path handler
+        pathHandler = new PathHandler(minecraftAdapter, renderer);
+
+        //API
+        stevebotApi = new StevebotApi(pathHandler);
+    }
+
+    @SubscribeEvent
+    public void preInit(FMLClientSetupEvent event) {
+        eventProducer.onPreInit();
+    }
+
+    @SubscribeEvent
+    public void init(FMLCommonSetupEvent event) {
+        eventProducer.onInit();
+    }
+
+    @SubscribeEvent
+    public void postInit(FMLLoadCompleteEvent event) {
+        eventProducer.onPostInit();
+        itemLibrary.insertBlocks(blockLibrary.getAllBlocks());
+        blockLibrary.insertItems(itemLibrary.getAllItems());
     }
 
     public String getName() {
@@ -169,5 +386,9 @@ public class FALLENClient implements ClientSupport {
 
     public IRC getIrc() {
         return this.irc;
+    }
+
+    public StevebotApi getStevebotApi() {
+        return this.stevebotApi;
     }
 }

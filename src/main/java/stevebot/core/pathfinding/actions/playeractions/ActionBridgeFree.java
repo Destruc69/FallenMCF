@@ -3,6 +3,7 @@ package stevebot.core.pathfinding.actions.playeractions;
 import stevebot.core.data.blockpos.BaseBlockPos;
 import stevebot.core.data.blocks.BlockUtils;
 import stevebot.core.data.modification.Modification;
+import stevebot.core.math.vectors.vec3.Vector3d;
 import stevebot.core.misc.Direction;
 import stevebot.core.misc.ProcState;
 import stevebot.core.misc.StateMachine;
@@ -74,7 +75,7 @@ public class ActionBridgeFree extends Action {
     private ProcState tickPrepare() {
         PlayerUtils.getInput().holdSneak();
         PlayerUtils.getMovement().moveTowards(getTo().getPos(), true);
-        if (getTo().getPos().equals(PlayerUtils.getPlayerBlockPos()) && BlockUtils.distToEdge(PlayerUtils.getPlayerPosition(), direction.opposite()) > 0.2) {
+        if (getTo().getPos().equals(PlayerUtils.getPlayerBlockPos()) && BlockUtils.distToEdge(new Vector3d(PlayerUtils.getPlayerPosition().x, PlayerUtils.getPlayerPosition().y, PlayerUtils.getPlayerPosition().z), direction.opposite()) > 0.2) {
             stateMachine.fireTransition(Transition.PREPARED);
         }
         return ProcState.EXECUTING;
