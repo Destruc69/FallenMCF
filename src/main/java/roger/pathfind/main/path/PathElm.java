@@ -1,9 +1,9 @@
 package roger.pathfind.main.path;
 
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.vector.Vector3d;
 
 public interface PathElm {
 
 
-    public boolean playerOn(Vec3 playerPos);
+    boolean playerOn(Vector3d playerPos);
 }

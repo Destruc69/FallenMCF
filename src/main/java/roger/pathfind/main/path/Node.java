@@ -1,6 +1,6 @@
 package roger.pathfind.main.path;
 
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 
 public abstract class Node {
 
@@ -33,6 +33,4 @@ public abstract class Node {
     public BlockPos getBlockPosUnder() {
         return new BlockPos(x, y-1, z);
     }
-
-
 }

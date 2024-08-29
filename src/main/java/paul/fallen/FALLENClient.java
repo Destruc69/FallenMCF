@@ -18,6 +18,9 @@ import paul.fallen.setting.SettingManager;
 import paul.fallen.utils.client.Logger;
 import paul.fallen.utils.client.Logger.LogState;
 import paul.fallen.waypoint.WaypointManager;
+import roger.pathfind.main.LookManager;
+import roger.pathfind.main.PathRenderer;
+import roger.pathfind.main.walk.Walker;
 
 @Mod("fallen")
 public class FALLENClient implements ClientSupport {
@@ -35,6 +38,10 @@ public class FALLENClient implements ClientSupport {
     private final ClickGui clickgui;
     private final IRC irc;
     private final Gson gson;
+
+    private final PathRenderer pathRenderer;
+    private final Walker walker;
+    private final LookManager lookManager;
 
     public FALLENClient() {
         Logger.log(LogState.Normal, "Starting " + this.name + " Client | Version " + this.version);
@@ -106,6 +113,18 @@ public class FALLENClient implements ClientSupport {
         Logger.log(LogState.Normal, "Initializing ImGui");
         this.clickgui = new ClickGui();
 
+        Logger.log(LogState.Normal, "Initializing PathRenderer");
+        pathRenderer = new PathRenderer();
+        MinecraftForge.EVENT_BUS.register(pathRenderer);
+
+        Logger.log(LogState.Normal, "Initializing Walker");
+        walker = new Walker();
+        MinecraftForge.EVENT_BUS.register(walker);
+
+        Logger.log(LogState.Normal, "Initializing LookManager");
+        lookManager = new LookManager();
+        MinecraftForge.EVENT_BUS.register(lookManager);
+
         Runtime.getRuntime().addShutdownHook(new Thread("Fallen Client shutdown thread") {
             public void run() {
                 Logger.log(LogState.Normal, "Saving FriendManager config");
@@ -121,6 +140,8 @@ public class FALLENClient implements ClientSupport {
                 INSTANCE.waypointManager.saveConfig(gson);
             }
         });
+
+
     }
 
     public String getName() {

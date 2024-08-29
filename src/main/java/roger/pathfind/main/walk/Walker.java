@@ -2,17 +2,14 @@ package roger.pathfind.main.walk;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.util.BlockPos;
+import net.minecraft.client.util.InputMappings;
 import net.minecraft.util.Tuple;
-import net.minecraft.util.Vec3;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import org.lwjgl.input.Keyboard;
-import roger.util.LookUtil;
-import roger.util.Util;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import roger.pathfind.main.LookManager;
 import roger.pathfind.main.PathRenderer;
-import roger.pathfind.main.processor.ProcessorManager;
 import roger.pathfind.main.astar.AStarNode;
 import roger.pathfind.main.astar.AStarPathFinder;
 import roger.pathfind.main.path.PathElm;
@@ -20,11 +17,14 @@ import roger.pathfind.main.path.impl.FallNode;
 import roger.pathfind.main.path.impl.JumpNode;
 import roger.pathfind.main.path.impl.TravelNode;
 import roger.pathfind.main.path.impl.TravelVector;
+import roger.pathfind.main.processor.ProcessorManager;
 import roger.pathfind.main.walk.target.WalkTarget;
 import roger.pathfind.main.walk.target.impl.FallTarget;
 import roger.pathfind.main.walk.target.impl.JumpTarget;
 import roger.pathfind.main.walk.target.impl.TravelTarget;
 import roger.pathfind.main.walk.target.impl.TravelVectorTarget;
+import roger.util.LookUtil;
+import roger.util.Util;
 
 import java.util.List;
 
@@ -60,7 +60,7 @@ public class Walker {
     // Key press in here
     @SubscribeEvent
     public void onClientTickPre(TickEvent.ClientTickEvent event) {
-        if(event.phase == TickEvent.Phase.END || Minecraft.getMinecraft().thePlayer == null)
+        if (event.phase == TickEvent.Phase.END || Minecraft.getInstance().player == null)
             return;
 
 
@@ -89,10 +89,10 @@ public class Walker {
             if(path.isEmpty()) {
                 isActive = false;
                 currentTarget = null;
-                KeyBinding.setKeyBindState(Keyboard.KEY_W, false);
-                KeyBinding.setKeyBindState(Keyboard.KEY_A, false);
-                KeyBinding.setKeyBindState(Keyboard.KEY_D, false);
-                KeyBinding.setKeyBindState(Keyboard.KEY_S, false);
+                KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindForward.getKey().getKeyCode(), 0), false);
+                KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindLeft.getKey().getKeyCode(), 0), false);
+                KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindRight.getKey().getKeyCode(), 0), false);
+                KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindBack.getKey().getKeyCode(), 0), false);
                 LookManager.getInstance().cancel();
 
                 return;
@@ -101,65 +101,79 @@ public class Walker {
             currentTarget = getCurrentTarget(path.get(0));
         }
 
-        KeyBinding.setKeyBindState(Keyboard.KEY_LCONTROL, true);
+        //KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindSneak.getKey().getKeyCode(), 0), true);
         Tuple<Double, Double> angles = LookUtil.getAngles(currentTarget.getCurrentTarget());
-        LookManager.getInstance().setTarget(angles.getFirst().floatValue(), currentTarget instanceof JumpTarget ? -10 : 10);
+        LookManager.getInstance().setTarget(angles.getA(), currentTarget instanceof JumpTarget ? -10 : 10);
 
-        pressKeys(angles.getFirst().floatValue());
+        float yawDifference = Math.abs(Math.round(angles.getA()) - Math.round(Minecraft.getInstance().player.rotationYaw));
+
+        if (yawDifference <= 5) {
+            pressKeys(angles.getA());
+        } else {
+            stopMovement();
+        }
     }
 
 
     private void pressKeys(double targetYaw) {
-        double difference = targetYaw - Minecraft.getMinecraft().thePlayer.rotationYaw;
-        KeyBinding.setKeyBindState(Keyboard.KEY_W, false);
-        KeyBinding.setKeyBindState(Keyboard.KEY_A, false);
-        KeyBinding.setKeyBindState(Keyboard.KEY_S, false);
-        KeyBinding.setKeyBindState(Keyboard.KEY_D, false);
+        double difference = targetYaw - Minecraft.getInstance().player.rotationYaw;
+        KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindForward.getKey().getKeyCode(), 0), false);
+        KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindLeft.getKey().getKeyCode(), 0), false);
+        KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindRight.getKey().getKeyCode(), 0), false);
+        KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindBack.getKey().getKeyCode(), 0), false);
 
-        if(22.5 > difference && difference > -22.5) {   // Forwards
+        if (22.5 > difference && difference > -22.5) {   // Forwards
 
-            KeyBinding.setKeyBindState(Keyboard.KEY_W, true);
-        } else if(-22.5 > difference && difference > -67.5) {   // Forwards+Right
+            KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindForward.getKey().getKeyCode(), 0), true);
+        } else if (-22.5 > difference && difference > -67.5) {   // Forwards+Right
 
-            KeyBinding.setKeyBindState(Keyboard.KEY_W, true);
-            KeyBinding.setKeyBindState(Keyboard.KEY_A, true);
-        } else if(-67.5 > difference && difference > -112.5) { // Right
+            KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindForward.getKey().getKeyCode(), 0), true);
+            KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindLeft.getKey().getKeyCode(), 0), true);
+        } else if (-67.5 > difference && difference > -112.5) { // Right
 
-            KeyBinding.setKeyBindState(Keyboard.KEY_A, true);
+            KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindRight.getKey().getKeyCode(), 0), true);
         } else if(-112.5 > difference && difference > -157.5) { // Backwards + Right
 
-            KeyBinding.setKeyBindState(Keyboard.KEY_A, true);
-            KeyBinding.setKeyBindState(Keyboard.KEY_S, true);
+            KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindRight.getKey().getKeyCode(), 0), true);
+            KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindBack.getKey().getKeyCode(), 0), true);
         } else if((-157.5 > difference && difference > -180) || (180 > difference && difference > 157.5)) { // Backwards
 
-            KeyBinding.setKeyBindState(Keyboard.KEY_S, true);
+            KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindBack.getKey().getKeyCode(), 0), true);
         } else if(67.5 > difference && difference > 22.5) { // Forwards + Left
 
-            KeyBinding.setKeyBindState(Keyboard.KEY_W, true);
-            KeyBinding.setKeyBindState(Keyboard.KEY_D, true);
+            KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindForward.getKey().getKeyCode(), 0), true);
+            KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindLeft.getKey().getKeyCode(), 0), true);
 
-        } else if(112.5 > difference && difference > 67.5) { // Left
+        } else if (112.5 > difference && difference > 67.5) { // Left
 
-            KeyBinding.setKeyBindState(Keyboard.KEY_D, true);
-        } else if(157.5 > difference && difference > 112.5) {  // Backwards+Left
+            KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindLeft.getKey().getKeyCode(), 0), true);
+        } else if (157.5 > difference && difference > 112.5) {  // Backwards+Left
 
-            KeyBinding.setKeyBindState(Keyboard.KEY_S, true);
-            KeyBinding.setKeyBindState(Keyboard.KEY_D, true);
+            KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindBack.getKey().getKeyCode(), 0), true);
+            KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindLeft.getKey().getKeyCode(), 0), true);
         }
+    }
+
+    private void stopMovement() {
+        KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindForward.getKey().getKeyCode(), 0), false);
+        KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindLeft.getKey().getKeyCode(), 0), false);
+        KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindRight.getKey().getKeyCode(), 0), false);
+        KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindBack.getKey().getKeyCode(), 0), false);
+        KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindJump.getKey().getKeyCode(), 0), false);
+        KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindSneak.getKey().getKeyCode(), 0), false);
     }
 
     // This checks if the player is on any nodes further in the queue, which means the player, due to probably high speed, has skipped some. Then
     // this removes the nodes behind it and sets it as the current target.
     private WalkTarget onTarget() {
-        for(int i = 0 ; i < path.size() ; i++) {
+        for (int i = 0; i < path.size(); i++) {
             PathElm elm = path.get(i);
 
-            if(elm.playerOn(Minecraft.getMinecraft().thePlayer.getPositionVector())) {
+            if (elm.playerOn(Minecraft.getInstance().player.getPositionVec())) {
                 System.out.println("Returned true: " + elm);
 
-                if(elm == currentTarget.getElm())
+                if (elm == currentTarget.getElm())
                     return null;
-
 
 
                 // Get the next one if the player is on it
@@ -173,7 +187,7 @@ public class Walker {
                 }
 
                 // cutting off might end jump target so stop jumping
-                KeyBinding.setKeyBindState(Keyboard.KEY_SPACE, false);
+                KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindBack.getKey().getKeyCode(), 0), false);
 
 
                 return getCurrentTarget(path.get(0));
@@ -187,17 +201,17 @@ public class Walker {
     private boolean tick(WalkTarget current) {
 
         // We should improve the predicted motion calculation. Right now it's based on the estimate that the motion will last for 12 ticks, but this is different across speeds.
-        Vec3 offset = new Vec3(Minecraft.getMinecraft().thePlayer.motionX, 0, Minecraft.getMinecraft().thePlayer.motionZ);
-        Vec3 temp = offset;
+        Vector3d offset = new Vector3d(Minecraft.getInstance().player.getMotion().x, 0, Minecraft.getInstance().player.getMotion().z);
+        Vector3d temp = offset;
         offset.add(temp);
 
-        for(int i = 0 ; i < 12 ; i++) {
+        for (int i = 0; i < 12; i++) {
 
             // 0.54600006f is how much the motion stops after every tick after not moving.
             offset = offset.add((temp = Util.vecMultiply(temp, 0.54600006f)));
         }
 
-        return current.tick(offset, Minecraft.getMinecraft().thePlayer.getPositionVector());
+        return current.tick(offset, Minecraft.getInstance().player.getPositionVec());
     }
 
     private WalkTarget getCurrentTarget(PathElm elm) {

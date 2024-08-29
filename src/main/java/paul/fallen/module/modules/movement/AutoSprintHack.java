@@ -7,20 +7,13 @@
  */
 package paul.fallen.module.modules.movement;
 
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
-import paul.fallen.pathfinding.Pathfinder;
-import paul.fallen.utils.render.RenderUtils;
-
-import java.util.List;
+import roger.pathfind.main.walk.Walker;
 
 public final class AutoSprintHack extends Module {
-
-    private Pathfinder pathfinder;
-    private List<BlockPos> blockPosList;
 
     public AutoSprintHack(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
@@ -31,8 +24,7 @@ public final class AutoSprintHack extends Module {
         try {
             super.onEnable();
 
-            pathfinder = new Pathfinder();
-            blockPosList = pathfinder.findPath(mc.player.getPosition(), mc.player.getPosition().add(10, 0, 10));
+            Walker.getInstance().walk(mc.player.getPosition(), mc.player.getPosition().add(10, -10, 10), 1000);
         } catch (Exception ignored) {
         }
     }
@@ -41,8 +33,6 @@ public final class AutoSprintHack extends Module {
     public void onTick(TickEvent.PlayerTickEvent event) throws Exception {
         try {
             mc.gameSettings.keyBindSprint.setPressed(true);
-
-            pathfinder.updatePathPosition(blockPosList);
         } catch (Exception ignored) {
         }
     }
@@ -50,9 +40,6 @@ public final class AutoSprintHack extends Module {
     @SubscribeEvent
     public void onRender(RenderWorldLastEvent event) {
         try {
-            for (BlockPos p : blockPosList) {
-                RenderUtils.drawOutlinedBox(p, 0, 1, 0, event);
-            }
         } catch (Exception ignored) {
         }
     }

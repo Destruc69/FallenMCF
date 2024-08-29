@@ -1,23 +1,25 @@
 package roger.pathfind.main.walk.target.impl;
 
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
-import roger.util.Util;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import roger.pathfind.main.path.PathElm;
 import roger.pathfind.main.path.impl.TravelNode;
 import roger.pathfind.main.walk.target.WalkTarget;
+import roger.util.Util;
 
 public class TravelTarget extends WalkTarget {
 
     TravelNode node;
+
     public TravelTarget(TravelNode node) {
         this.node = node;
     }
+
     @Override
-    public boolean tick(Vec3 predictedMotionOnStop, Vec3 playerPos) {
+    public boolean tick(Vector3d predictedMotionOnStop, Vector3d playerPos) {
         setCurrentTarget(node.getBlockPos());
 
-        Vec3 dest = new Vec3(node.getBlockPos()).addVector(0.5d, 0d, 0.5d);
+        Vector3d dest = new Vector3d(node.getBlockPos().getX(), node.getBlockPos().getY(), node.getBlockPos().getZ()).add(0.5d, 0d, 0.5d);
         double predicatedPositionDistance = playerPos.distanceTo(playerPos.add(predictedMotionOnStop));
         double destPositionDistance = playerPos.distanceTo(dest);
 

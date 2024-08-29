@@ -1,11 +1,11 @@
 package roger.pathfind.main.walk.target.impl;
 
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
-import roger.util.Util;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import roger.pathfind.main.path.PathElm;
 import roger.pathfind.main.path.impl.TravelVector;
 import roger.pathfind.main.walk.target.WalkTarget;
+import roger.util.Util;
 
 public class TravelVectorTarget extends WalkTarget {
 
@@ -17,12 +17,12 @@ public class TravelVectorTarget extends WalkTarget {
 
 
     @Override
-    public boolean tick(Vec3 predictedMotionOnStop, Vec3 playerPos) {
+    public boolean tick(Vector3d predictedMotionOnStop, Vector3d playerPos) {
 
-        if(!baseReached) {
+        if (!baseReached) {
 
             // this means that the player is already on the vector and is suitable for skipping the base node.
-            if(node.playerOn(playerPos)) {
+            if (node.playerOn(playerPos)) {
                 baseReached = true;
             }
         }
@@ -31,7 +31,7 @@ public class TravelVectorTarget extends WalkTarget {
         BlockPos destBlockPos = baseReached ? node.getTo().getBlockPos() : node.getFrom().getBlockPos();
 
         setCurrentTarget(destBlockPos);
-        Vec3 dest = new Vec3(destBlockPos).addVector(0.5d, 0d, 0.5d);
+        Vector3d dest = new Vector3d(destBlockPos.getX(), destBlockPos.getY(), destBlockPos.getZ()).add(0.5d, 0d, 0.5d);
 
         double predicatedPositionDistance = playerPos.distanceTo(playerPos.add(predictedMotionOnStop));
         double destPositionDistance = playerPos.distanceTo(dest);

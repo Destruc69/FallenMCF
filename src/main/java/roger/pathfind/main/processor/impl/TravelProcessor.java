@@ -1,13 +1,13 @@
 package roger.pathfind.main.processor.impl;
 
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
-import net.minecraft.util.Vec3i;
-import roger.util.Util;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3i;
 import roger.pathfind.main.path.PathElm;
 import roger.pathfind.main.path.impl.TravelNode;
 import roger.pathfind.main.path.impl.TravelVector;
 import roger.pathfind.main.processor.Processor;
+import roger.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,23 +61,23 @@ public class TravelProcessor extends Processor {
 
     // instead of getting surrounding blocks we could just shoot 2 vectors at an offset to each other
     public boolean shouldOptimise(TravelNode start, TravelNode end) {
-        if(start.getY() != end.getY())
+        if (start.getY() != end.getY())
             return false;
 
-        Vec3 startVec = new Vec3(start.getBlockPos());
-        Vec3 endVec = new Vec3(end.getBlockPos());
+        Vector3d startVec = new Vector3d(start.getBlockPos().getX(), start.getBlockPos().getY(), start.getBlockPos().getZ());
+        Vector3d endVec = new Vector3d(end.getBlockPos().getX(), end.getBlockPos().getY(), end.getBlockPos().getZ());
 
-        Vec3 differenceVector = endVec.subtract(startVec);
-        Vec3 normalDelta = differenceVector.normalize();
+        Vector3d differenceVector = endVec.subtract(startVec);
+        Vector3d normalDelta = differenceVector.normalize();
 
         List<BlockPos> blocksWithinVector = new ArrayList<>();
 
         // populate the blocks in the path in the vector
-        for(int scale = 0 ; scale < endVec.distanceTo(startVec) ; scale++) {
-            Vec3 blockVec = startVec.add(Util.vecMultiply(normalDelta, scale));
+        for (int scale = 0; scale < endVec.distanceTo(startVec); scale++) {
+            Vector3d blockVec = startVec.add(Util.vecMultiply(normalDelta, scale));
             BlockPos blockPos = Util.toBlockPos(blockVec);
 
-            if(!blocksWithinVector.contains(blockPos))
+            if (!blocksWithinVector.contains(blockPos))
                 blocksWithinVector.add(blockPos);
         }
         if(!blocksWithinVector.contains(Util.toBlockPos(endVec)))
@@ -123,7 +123,7 @@ public class TravelProcessor extends Processor {
                 }
             }
 
-            if(!Util.isBlockSolid(block.subtract(new Vec3i(0, 1, 0))))
+            if (!Util.isBlockSolid(block.subtract(new Vector3i(0, 1, 0))))
                 return false;
 
         }

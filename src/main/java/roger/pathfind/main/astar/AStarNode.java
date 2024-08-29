@@ -2,8 +2,9 @@ package roger.pathfind.main.astar;
 
 import net.minecraft.block.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
+import roger.util.Util;
 
 public class AStarNode {
     private double hCost;
@@ -56,23 +57,26 @@ public class AStarNode {
     }
 
     public boolean canBeTraversed() {
-        if(isBlockSolid(blockPos) || isBlockSolid(new BlockPos(x, y+1, z)))
+        if (isBlockSolid(blockPos) || isBlockSolid(new BlockPos(x, y + 1, z)))
             return false;
 
         // fall node and not falling return false
-        if(parent.isFallNode() && parent.getY() == y)
+        if (parent.isFallNode() && parent.getY() == y)
             return false;
 
-        if(isBlockSolid(new BlockPos(x, y-1, z)))
+        if (isBlockSolid(new BlockPos(x, y - 1, z)))
             return true;
 
+        if (parent.isFallNode && Util.getFallDistance(blockPos) > 4 && !Minecraft.getInstance().world.getBlockState(Util.getNextBlockUnder(blockPos)).getBlock().equals(Blocks.WATER)) {
+            return false;
+        }
 
-        if(parent == null) {
+        if (parent == null) {
             return false;
         }
 
         // jump
-        if(parent.blockPos.getY()-1 == y-2 && isBlockSolid(new BlockPos(x, y-2, z))) {
+        if (parent.blockPos.getY() - 1 == y - 2 && isBlockSolid(new BlockPos(x, y - 2, z))) {
             setJumpNode(true);
             return true;
         }
@@ -89,28 +93,27 @@ public class AStarNode {
             return true;
         }
 
-
         return false;
     }
 
     private boolean isBlockSolid(BlockPos block) {
-        return Minecraft.getMinecraft().theWorld.getBlockState(block)
-                .getBlock().isBlockSolid(Minecraft.getMinecraft().theWorld, block, null) ||
-                Minecraft.getMinecraft().theWorld.getBlockState(block).getBlock() instanceof BlockSlab ||
-                Minecraft.getMinecraft().theWorld.getBlockState(block).getBlock() instanceof BlockStainedGlass ||
-                Minecraft.getMinecraft().theWorld.getBlockState(block).getBlock() instanceof BlockPane ||
-                Minecraft.getMinecraft().theWorld.getBlockState(block).getBlock() instanceof BlockFence ||
-                Minecraft.getMinecraft().theWorld.getBlockState(block).getBlock() instanceof BlockPistonExtension ||
-                Minecraft.getMinecraft().theWorld.getBlockState(block).getBlock() instanceof BlockEnderChest ||
-                Minecraft.getMinecraft().theWorld.getBlockState(block).getBlock() instanceof BlockTrapDoor ||
-                Minecraft.getMinecraft().theWorld.getBlockState(block).getBlock() instanceof BlockPistonBase ||
-                Minecraft.getMinecraft().theWorld.getBlockState(block).getBlock() instanceof BlockChest ||
-                Minecraft.getMinecraft().theWorld.getBlockState(block).getBlock() instanceof BlockStairs ||
-                Minecraft.getMinecraft().theWorld.getBlockState(block).getBlock() instanceof BlockCactus ||
-                Minecraft.getMinecraft().theWorld.getBlockState(block).getBlock() instanceof BlockWall ||
-                Minecraft.getMinecraft().theWorld.getBlockState(block).getBlock() instanceof BlockGlass ||
-                Minecraft.getMinecraft().theWorld.getBlockState(block).getBlock() instanceof BlockSkull ||
-                Minecraft.getMinecraft().theWorld.getBlockState(block).getBlock() instanceof BlockSand;
+        return Minecraft.getInstance().world.getBlockState(block)
+                .getBlock().getDefaultState().isSolid() ||
+                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof SlabBlock ||
+                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof StainedGlassBlock ||
+                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof PaneBlock ||
+                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof FenceBlock ||
+                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof PistonBlock ||
+                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof EnderChestBlock ||
+                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof TrapDoorBlock ||
+                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof PistonBlock ||
+                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof ChestBlock ||
+                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof StairsBlock ||
+                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof CactusBlock ||
+                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof WallBlock ||
+                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof GlassBlock ||
+                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof SkullBlock ||
+                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof SandBlock;
     }
     private void calculateHeuristic(AStarNode endNode) {
         this.hCost = (Math.abs(endNode.getX() - x) + Math.abs(endNode.getY() - y) + Math.abs(endNode.getZ() - z)) * 10;
@@ -132,9 +135,6 @@ public class AStarNode {
         return hCost + gCost;
     }
 
-
-
-
     public int getX() {
         return x;
     }
@@ -155,16 +155,16 @@ public class AStarNode {
         return parent;
     }
 
-    public Vec3 asVec3(double xAdd, double yAdd, double zAdd) {
-        return new Vec3(x + xAdd, y + yAdd, z + zAdd);
+    public Vector3d asVec3(double xAdd, double yAdd, double zAdd) {
+        return new Vector3d(x + xAdd, y + yAdd, z + zAdd);
     }
 
     @Override
     public boolean equals(Object o) {
-        if(!(o instanceof AStarNode))
+        if (!(o instanceof AStarNode))
             return false;
 
-        AStarNode other = (AStarNode)o;
+        AStarNode other = (AStarNode) o;
 
         return x == other.getX() && y == other.getY() && z == other.getZ();
     }

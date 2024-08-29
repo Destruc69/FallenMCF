@@ -1,9 +1,10 @@
 package roger.pathfind.main.path.impl;
 
-import net.minecraft.util.Vec3;
-import roger.util.Util;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 import roger.pathfind.main.path.Node;
 import roger.pathfind.main.path.PathElm;
+import roger.util.Util;
 
 public class TravelVector implements PathElm {
 
@@ -24,22 +25,22 @@ public class TravelVector implements PathElm {
     }
 
     @Override
-    public boolean playerOn(Vec3 playerPos) {
-        Vec3 fromVec = new Vec3(from.getBlockPos()).add(new Vec3(0.5, 0, 0.5));
-        Vec3 toVec = new Vec3(to.getBlockPos()).add(new Vec3(0.5, 0, 0.5));
+    public boolean playerOn(Vector3d playerPos) {
+        Vector3d fromVec = new Vector3d(new Vector3f(from.getBlockPos().getX(), from.getBlockPos().getY(), from.getBlockPos().getZ())).add(new Vector3d(0.5, 0, 0.5));
+        Vector3d toVec = new Vector3d(to.getBlockPos().getX(), to.getBlockPos().getY(), to.getBlockPos().getZ()).add(new Vector3d(0.5, 0, 0.5));
 
-        Vec3 travelVec = toVec.subtract(fromVec);
-        Vec3 playerVecFrom = playerPos.subtract(fromVec);
+        Vector3d travelVec = toVec.subtract(fromVec);
+        Vector3d playerVecFrom = playerPos.subtract(fromVec);
 
-        double playerMagnitude = playerVecFrom.distanceTo(new Vec3(0, 0, 0));
-        double destMagnitude = travelVec.distanceTo(new Vec3(0, 0, 0));
+        double playerMagnitude = playerVecFrom.distanceTo(new Vector3d(0, 0, 0));
+        double destMagnitude = travelVec.distanceTo(new Vector3d(0, 0, 0));
         double angle = Util.calculateAngleVec2D(travelVec, playerVecFrom);
 
         // if the magnitude of the vector of the base to the player is greater than the magnitude of the vector of the base to the dest, it is clear that it has already been exceeded.
         // Then if the magnitude is less and the two vectors are more or less in the same direction we can tell the player is on the path element.
 
-        if(playerMagnitude <= destMagnitude && angle < 20) {
-            System.out.println("thingy: " + playerMagnitude + " " + destMagnitude + " " + angle + " for " + this.toString());
+        if (playerMagnitude <= destMagnitude && angle < 20) {
+            System.out.println("thingy: " + playerMagnitude + " " + destMagnitude + " " + angle + " for " + this);
             return true;
         }
         return false;

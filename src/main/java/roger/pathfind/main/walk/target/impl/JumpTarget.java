@@ -1,14 +1,15 @@
 package roger.pathfind.main.walk.target.impl;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
-import net.minecraft.util.Vec3i;
-import org.lwjgl.input.Keyboard;
-import roger.util.Util;
+import net.minecraft.client.util.InputMappings;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3i;
 import roger.pathfind.main.path.PathElm;
 import roger.pathfind.main.path.impl.JumpNode;
 import roger.pathfind.main.walk.target.WalkTarget;
+import roger.util.Util;
 
 public class JumpTarget extends WalkTarget {
 
@@ -24,14 +25,15 @@ public class JumpTarget extends WalkTarget {
         this.node = node;
         this.next = next;
     }
+
     @Override
-    public boolean tick(Vec3 predictedMotionOnStop, Vec3 playerPos) {
-        if(!originalYSet) {
+    public boolean tick(Vector3d predictedMotionOnStop, Vector3d playerPos) {
+        if (!originalYSet) {
             originalYSet = true;
-            originalY = (int)playerPos.yCoord;
+            originalY = (int) playerPos.y;
         }
         // last one
-        if(next == null)
+        if (next == null)
             return true;
 
         setCurrentTarget(next.getNodeBlockPos());
@@ -39,14 +41,14 @@ public class JumpTarget extends WalkTarget {
         wait++;
 
         // change value and stuff
-        if(wait < 2)
+        if (wait < 2)
             return false;
 
 
-        KeyBinding.setKeyBindState(Keyboard.KEY_SPACE, true);
+        KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindJump.getKey().getKeyCode(), 0), true);
 
-        if((int)playerPos.yCoord - originalY == 1 && Util.isBlockSolid(new BlockPos(playerPos).subtract(new Vec3i(0, 1, 0)))) {
-            KeyBinding.setKeyBindState(Keyboard.KEY_SPACE, false);
+        if ((int) playerPos.y - originalY == 1 && Util.isBlockSolid(new BlockPos(playerPos).subtract(new Vector3i(0, 1, 0)))) {
+            KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindJump.getKey().getKeyCode(), 0), false);
             return true;
         }
 

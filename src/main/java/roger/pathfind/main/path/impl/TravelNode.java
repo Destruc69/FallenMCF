@@ -1,9 +1,9 @@
 package roger.pathfind.main.path.impl;
 
-import net.minecraft.util.Vec3;
-import roger.util.Util;
+import net.minecraft.util.math.vector.Vector3d;
 import roger.pathfind.main.path.Node;
 import roger.pathfind.main.path.PathElm;
+import roger.util.Util;
 
 public class TravelNode extends Node implements PathElm {
 
@@ -12,7 +12,7 @@ public class TravelNode extends Node implements PathElm {
     }
 
     @Override
-    public boolean playerOn(Vec3 playerPos) {
+    public boolean playerOn(Vector3d playerPos) {
         return Util.toBlockPos(playerPos).equals(getBlockPos());
     }
 }

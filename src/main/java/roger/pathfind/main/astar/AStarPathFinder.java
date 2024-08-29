@@ -1,8 +1,12 @@
 package roger.pathfind.main.astar;
 
-import net.minecraft.util.BlockPos;
 
-import java.util.*;
+import net.minecraft.util.math.BlockPos;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.PriorityQueue;
 
 public class AStarPathFinder {
     public static List<AStarNode> compute(BlockPos start, BlockPos end, int depth) {
