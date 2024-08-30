@@ -40,6 +40,7 @@ public class Walker {
     }
 
     public void walk(BlockPos start, BlockPos end, int nodeCount) {
+
         isActive = true;
 
         List<AStarNode> nodes = AStarPathFinder.compute(start, end, nodeCount);
@@ -74,11 +75,11 @@ public class Walker {
         if(!isActive)
             return;
 
-        if(currentTarget == null)
+        if (currentTarget == null && path != null)
             currentTarget = getCurrentTarget(path.get(0));
 
         WalkTarget playerOnTarget;
-        if(!((playerOnTarget = onTarget()) == null))
+        if (!((playerOnTarget = onTarget()) == null) && onTarget() != null)
             currentTarget = playerOnTarget;
 
         // while, so we don't skip ticks
@@ -105,9 +106,14 @@ public class Walker {
         Tuple<Double, Double> angles = LookUtil.getAngles(currentTarget.getCurrentTarget());
         LookManager.getInstance().setTarget(angles.getA(), currentTarget instanceof JumpTarget ? -10 : 10);
 
+        // This is to prevent the player from falling when not facing accurate enough
+        if (currentTarget.getCurrentTarget().getY() == Minecraft.getInstance().player.getPosY()) {
+            KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindSneak.getKey().getKeyCode(), 0), Minecraft.getInstance().player.isOnGround() && Minecraft.getInstance().world.getBlockState(Minecraft.getInstance().player.getPosition().down()).isAir());
+        }
+
         float yawDifference = Math.abs(Math.round(angles.getA()) - Math.round(Minecraft.getInstance().player.rotationYaw));
 
-        if (yawDifference <= 5) {
+        if (yawDifference <= 15) {
             pressKeys(angles.getA());
         } else {
             stopMovement();
@@ -166,34 +172,35 @@ public class Walker {
     // This checks if the player is on any nodes further in the queue, which means the player, due to probably high speed, has skipped some. Then
     // this removes the nodes behind it and sets it as the current target.
     private WalkTarget onTarget() {
-        for (int i = 0; i < path.size(); i++) {
-            PathElm elm = path.get(i);
+        if (path != null) {
+            for (int i = 0; i < path.size(); i++) {
+                PathElm elm = path.get(i);
 
-            if (elm.playerOn(Minecraft.getInstance().player.getPositionVec())) {
-                System.out.println("Returned true: " + elm);
+                if (elm.playerOn(Minecraft.getInstance().player.getPositionVec())) {
+                    System.out.println("Returned true: " + elm);
 
-                if (elm == currentTarget.getElm())
-                    return null;
+                    if (elm == currentTarget.getElm())
+                        return null;
 
 
-                // Get the next one if the player is on it
-                // if its travel vector, we don't get the next one, cos we need to go to the dest.
-                // if its jump, we don't get the next one, cos we need to jump.
-                if(path.size() > i + 1 && !(elm instanceof TravelVector) && !(elm instanceof JumpNode)) {
-                    System.out.println("E");
-                    path.subList(0, i + 1).clear();
-                } else {
-                    path.subList(0, i).clear();
+                    // Get the next one if the player is on it
+                    // if its travel vector, we don't get the next one, cos we need to go to the dest.
+                    // if its jump, we don't get the next one, cos we need to jump.
+                    if (path.size() > i + 1 && !(elm instanceof TravelVector) && !(elm instanceof JumpNode)) {
+                        System.out.println("E");
+                        path.subList(0, i + 1).clear();
+                    } else {
+                        path.subList(0, i).clear();
+                    }
+
+                    // cutting off might end jump target so stop jumping
+                    KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindBack.getKey().getKeyCode(), 0), false);
+
+
+                    return getCurrentTarget(path.get(0));
                 }
-
-                // cutting off might end jump target so stop jumping
-                KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindBack.getKey().getKeyCode(), 0), false);
-
-
-                return getCurrentTarget(path.get(0));
             }
         }
-
         return null;
     }
 
@@ -229,11 +236,16 @@ public class Walker {
         System.out.println("Wrong walk target");
         return null;
     }
+
     public boolean isActive() {
         return isActive;
     }
 
     public static Walker getInstance() {
         return instance;
+    }
+
+    public void setActive(boolean active) {
+        this.isActive = active;
     }
 }

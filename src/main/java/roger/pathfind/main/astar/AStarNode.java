@@ -64,7 +64,8 @@ public class AStarNode {
         if (parent.isFallNode() && parent.getY() == y)
             return false;
 
-        if (isBlockSolid(new BlockPos(x, y - 1, z)))
+        // We should always have enough space to move
+        if (isBlockSolid(new BlockPos(x, y - 1, z)) && !isBlockSolid(new BlockPos(x, y, z)) && !isBlockSolid(new BlockPos(x, y + 1, z)))
             return true;
 
         if (parent.isFallNode && Util.getFallDistance(blockPos) > 4 && !Minecraft.getInstance().world.getBlockState(Util.getNextBlockUnder(blockPos)).getBlock().equals(Blocks.WATER)) {

@@ -7,6 +7,7 @@
  */
 package paul.fallen.module.modules.movement;
 
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -24,7 +25,16 @@ public final class AutoSprintHack extends Module {
         try {
             super.onEnable();
 
-            Walker.getInstance().walk(mc.player.getPosition(), mc.player.getPosition().add(10, -10, 10), 1000);
+            Walker.getInstance().walk(mc.player.getPosition(), new BlockPos(0, 64, 0), 1000);
+        } catch (Exception ignored) {
+        }
+    }
+
+    @Override
+    public void onDisable() {
+        try {
+            super.onDisable();
+            Walker.getInstance().setActive(false);
         } catch (Exception ignored) {
         }
     }

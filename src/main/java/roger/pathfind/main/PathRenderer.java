@@ -48,7 +48,7 @@ public class PathRenderer {
                         List<Vector3d> lines = new ArrayList<>();
                         lines.add(new Vector3d(lastNode.getBlockPos().getX(), lastNode.getBlockPos().getY(), lastNode.getBlockPos().getZ()).subtract(0, 0.5, 0));
                         lines.add(new Vector3d(((Node) elm).getBlockPos().getX(), ((Node) elm).getBlockPos().getY(), ((Node) elm).getBlockPos().getZ()).subtract(0, 0.5, 0));
-                        RenderUtil.drawLines(lines, 2f, event.getPartialTicks(), new Color(138, 206, 255).getRGB());
+                        RenderUtil.drawLines(lines, 2f, event.getPartialTicks(), new Color(138, 206, 255).getRGB(), event);
                     }
 
                     lastNode = (Node) elm;
@@ -65,7 +65,7 @@ public class PathRenderer {
                     lines.add(new Vector3d(from.getBlockPos().getX(), from.getBlockPos().getY(), from.getBlockPos().getZ()).subtract(0, 0.5, 0));
                     lines.add(new Vector3d(to.getBlockPos().getX(), to.getBlockPos().getY(), to.getBlockPos().getZ()).subtract(0, 0.5, 0));
 
-                    RenderUtil.drawLines(lines, 2f, event.getPartialTicks(), new Color(138, 206, 255).getRGB());
+                    RenderUtil.drawLines(lines, 2f, event.getPartialTicks(), new Color(138, 206, 255).getRGB(), event);
 
                     RenderUtil.drawFilledEsp(from.getBlockPosUnder(), new Color(138, 206, 255), event);
                     RenderUtil.drawFilledEsp(to.getBlockPosUnder(), new Color(138, 206, 255), event);
