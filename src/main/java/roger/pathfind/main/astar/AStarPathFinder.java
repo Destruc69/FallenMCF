@@ -46,14 +46,8 @@ public class AStarPathFinder {
             if (closedList.contains(neighbour)) continue;
 
             boolean canBeTraversed = neighbour.canBeTraversed();
-            boolean canBePlaced = neighbour.canBePlaced();
 
             if (canBeTraversed) {
-                if (neighbour.getTotalCost() < current.getTotalCost() || !openQueue.contains(neighbour)) {
-                    openQueue.remove(neighbour);
-                    openQueue.add(neighbour);
-                }
-            } else if (canBePlaced) {
                 if (neighbour.getTotalCost() < current.getTotalCost() || !openQueue.contains(neighbour)) {
                     openQueue.remove(neighbour);
                     openQueue.add(neighbour);
