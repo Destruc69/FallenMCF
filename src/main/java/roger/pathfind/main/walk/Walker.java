@@ -13,16 +13,10 @@ import roger.pathfind.main.PathRenderer;
 import roger.pathfind.main.astar.AStarNode;
 import roger.pathfind.main.astar.AStarPathFinder;
 import roger.pathfind.main.path.PathElm;
-import roger.pathfind.main.path.impl.FallNode;
-import roger.pathfind.main.path.impl.JumpNode;
-import roger.pathfind.main.path.impl.TravelNode;
-import roger.pathfind.main.path.impl.TravelVector;
+import roger.pathfind.main.path.impl.*;
 import roger.pathfind.main.processor.ProcessorManager;
 import roger.pathfind.main.walk.target.WalkTarget;
-import roger.pathfind.main.walk.target.impl.FallTarget;
-import roger.pathfind.main.walk.target.impl.JumpTarget;
-import roger.pathfind.main.walk.target.impl.TravelTarget;
-import roger.pathfind.main.walk.target.impl.TravelVectorTarget;
+import roger.pathfind.main.walk.target.impl.*;
 import roger.util.LookUtil;
 import roger.util.Util;
 
@@ -222,14 +216,16 @@ public class Walker {
     }
 
     private WalkTarget getCurrentTarget(PathElm elm) {
-        if(elm instanceof FallNode)
+        if (elm instanceof FallNode)
             return new FallTarget((FallNode) elm);
-        if(elm instanceof TravelNode)
+        if (elm instanceof TravelNode)
             return new TravelTarget((TravelNode) elm);
-        if(elm instanceof TravelVector)
+        if (elm instanceof TravelVector)
             return new TravelVectorTarget((TravelVector) elm);
-        if(elm instanceof JumpNode) {
-            if(path.size() > 1)
+        if (elm instanceof PlaceNode)
+            return new PlaceTarget((PlaceNode) elm);
+        if (elm instanceof JumpNode) {
+            if (path.size() > 1)
                 return new JumpTarget((JumpNode) elm, getCurrentTarget(path.get(1)));
             return new JumpTarget((JumpNode) elm, null);
         }

@@ -21,6 +21,8 @@ public class AStarNode {
 
     private boolean isFallNode;
 
+    private boolean isPlaceNode;
+
     public AStarNode(BlockPos pos, AStarNode parentNode, AStarNode endNode) {
         this.x = pos.getX();
         this.y = pos.getY();
@@ -57,11 +59,11 @@ public class AStarNode {
     }
 
     public boolean canBeTraversed() {
-        if (isBlockSolid(blockPos) || isBlockSolid(new BlockPos(x, y + 1, z)))
-            return false;
-
         // fall node and not falling return false
         if (parent.isFallNode() && parent.getY() == y)
+            return false;
+
+        if (isBlockSolid(blockPos) || isBlockSolid(new BlockPos(x, y + 1, z)))
             return false;
 
         // We should always have enough space to move
@@ -89,8 +91,27 @@ public class AStarNode {
         }
 
         // fall origin
-        if(parent.blockPos.getY() == y && isBlockSolid(new BlockPos(parent.blockPos.getX(), parent.blockPos.getY() - 1, parent.blockPos.getZ()))) {
+        if (parent.blockPos.getY() == y && isBlockSolid(new BlockPos(parent.blockPos.getX(), parent.blockPos.getY() - 1, parent.blockPos.getZ()))) {
             setFallNode(true);
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean canBePlaced() {
+        if (parent == null)
+            return false;
+
+        // Initial bridging up
+        if (isBlockSolid(blockPos.down()) && !isBlockSolid(blockPos)) {
+            setPlaceNode(true);
+            return true;
+        }
+
+        // We can assume the next block up is continuing to bridge up
+        if (parent.isPlaceNode() && y > parent.getY() && !isBlockSolid(blockPos)) {
+            setPlaceNode(true);
             return true;
         }
 
@@ -178,12 +199,20 @@ public class AStarNode {
         isFallNode = fallNode;
     }
 
+    public boolean isPlaceNode() {
+        return isPlaceNode;
+    }
+
     public boolean isFallNode() {
         return isFallNode;
     }
 
     public boolean isJumpNode() {
         return isJumpNode;
+    }
+
+    public void setPlaceNode(boolean placeNode) {
+        isPlaceNode = placeNode;
     }
 }
 

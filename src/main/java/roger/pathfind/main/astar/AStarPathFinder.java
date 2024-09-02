@@ -19,16 +19,13 @@ public class AStarPathFinder {
         // add start node
         openQueue.add(startNode);
 
-        for(int i = 0 ; i < depth ; i++) {
-
-            if(openQueue.isEmpty())
-                return new ArrayList<>();
+        for (int i = 0; i < depth; i++) {
+            if (openQueue.isEmpty()) return new ArrayList<>();
 
             AStarNode currentNode = openQueue.poll();
             closedList.add(currentNode);
 
-            if(currentNode.equals(endNode))
-                return getPath(currentNode);
+            if (currentNode.equals(endNode)) return getPath(currentNode);
 
             populateNeighbours(openQueue, closedList, currentNode, startNode, endNode);
         }
@@ -43,15 +40,21 @@ public class AStarPathFinder {
         neighbours.add(new AStarNode(0, 0, -1, current, endNode));
         neighbours.add(new AStarNode(1, 0, 0, current, endNode));
         neighbours.add(new AStarNode(0, 1, 0, current, endNode));
-        neighbours.add(new AStarNode(0,-1,0, current, endNode));
+        neighbours.add(new AStarNode(0, -1, 0, current, endNode));
 
-        for(AStarNode neighbour : neighbours) {
+        for (AStarNode neighbour : neighbours) {
+            if (closedList.contains(neighbour)) continue;
 
-            if(closedList.contains(neighbour))
-                continue;
+            boolean canBeTraversed = neighbour.canBeTraversed();
+            boolean canBePlaced = neighbour.canBePlaced();
 
-            if(neighbour.getTotalCost() < current.getTotalCost() || !openQueue.contains(neighbour)) {
-                if(neighbour.canBeTraversed()) {
+            if (canBeTraversed) {
+                if (neighbour.getTotalCost() < current.getTotalCost() || !openQueue.contains(neighbour)) {
+                    openQueue.remove(neighbour);
+                    openQueue.add(neighbour);
+                }
+            } else if (canBePlaced) {
+                if (neighbour.getTotalCost() < current.getTotalCost() || !openQueue.contains(neighbour)) {
                     openQueue.remove(neighbour);
                     openQueue.add(neighbour);
                 }

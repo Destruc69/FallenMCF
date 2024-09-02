@@ -4,9 +4,11 @@ import roger.pathfind.main.astar.AStarNode;
 import roger.pathfind.main.path.PathElm;
 import roger.pathfind.main.path.impl.FallNode;
 import roger.pathfind.main.path.impl.JumpNode;
+import roger.pathfind.main.path.impl.PlaceNode;
 import roger.pathfind.main.path.impl.TravelNode;
 import roger.pathfind.main.processor.impl.FallProcessor;
 import roger.pathfind.main.processor.impl.JumpProcessor;
+import roger.pathfind.main.processor.impl.PlaceProcessor;
 import roger.pathfind.main.processor.impl.TravelProcessor;
 
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ public class ProcessorManager {
         processors.add(new TravelProcessor());
         processors.add(new FallProcessor());
         processors.add(new JumpProcessor());
+        processors.add(new PlaceProcessor());
 
         for(Processor processor : processors) {
             processor.process(pathElms);
@@ -43,17 +46,22 @@ public class ProcessorManager {
         for(int i = 0 ; i < aStarNodes.size() ; i++) {
             AStarNode node = aStarNodes.get(i);
 
-            if(node.isJumpNode()) {
+            if (node.isJumpNode()) {
                 pathElms.add(new JumpNode(node.getX(), node.getY(), node.getZ()));
                 continue;
             }
 
-            if(node.isFallNode()) {
+            if (node.isPlaceNode()) {
+                pathElms.add(new PlaceNode(node.getX(), node.getY(), node.getZ()));
+                continue;
+            }
+
+            if (node.isFallNode()) {
                 pathElms.add(new FallNode(node.getX(), node.getY(), node.getZ()));
 
                 // skip directly in front of fall, unless if its the last node
-                if(i != aStarNodes.size() - 1)
-                    i+=1;
+                if (i != aStarNodes.size() - 1)
+                    i += 1;
                 continue;
             }
 
