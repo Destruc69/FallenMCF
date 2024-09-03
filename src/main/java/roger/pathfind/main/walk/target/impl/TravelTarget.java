@@ -10,11 +10,9 @@ import roger.util.Util;
 public class TravelTarget extends WalkTarget {
 
     TravelNode node;
-
     public TravelTarget(TravelNode node) {
         this.node = node;
     }
-
     @Override
     public boolean tick(Vector3d predictedMotionOnStop, Vector3d playerPos) {
         setCurrentTarget(node.getBlockPos());

@@ -185,7 +185,6 @@ public class AStarNode {
     public boolean isJumpNode() {
         return isJumpNode;
     }
-
 }
 
 

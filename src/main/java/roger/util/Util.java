@@ -24,6 +24,15 @@ public class Util {
         return pos;
     }
 
+    public static BlockPos getNextAirBlockUp(BlockPos blockPos) {
+        BlockPos currentPos = blockPos;
+        while (!Minecraft.getInstance().world.isAirBlock(currentPos)) {
+            currentPos = currentPos.up();
+        }
+
+        return currentPos;
+    }
+
     public static int getFallDistance(BlockPos blockPos) {
         int fallDistance = 0;
         int y = blockPos.getY();
