@@ -62,6 +62,9 @@ public class ModuleManager implements ClientSupport {
 		addModule(new LegitFightBot(0, "LegitFightBot", "LegitFightBot", Category.Combat));
 		addModule(new CrystalAuraReWrite(0, "CrystalAuraReWrite", "CrystalAuraReWrite", Category.Combat));
 		addModule(new TriggerBot(0, "TriggerBot", "TriggerBot", Category.Combat));
+		addModule(new AutoTNT(0, "AutoTNT", "AutoTNT", Category.Combat));
+		addModule(new Arson(0, "Arson", "Arson", Category.Combat));
+
 
 		addModule(new AutoPilot(0, "AutoPilot", "AutoPilot", Category.Pathing));
 		addModule(new AutoMine(0, "AutoMine", "AutoMine", Category.Pathing));
@@ -109,6 +112,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new MoreInv(0, "MoreInv", "MoreInv", Category.Player));
 		addModule(new NoFall(0, "NoFall", "NoFall", Category.Player));
 		addModule(new FakeHackers(0, "FakeHackers", "FakeHackers", Category.Player));
+		addModule(new PacketTimer(0, "PacketTimer", "PacketTimer", Category.Player));
 
 		addModule(new AntiForge(0, "AntiForge", "AntiForge", Category.Player));
 		addModule(new ServerCrasher(0, "ServerCrasher", "ServerCrasher", Category.Player));

@@ -181,6 +181,32 @@ public class BlockUtils implements ClientSupport {
         return false;
     }
 
+    public static boolean clickBlock(BlockPos pos, int slot, boolean rotate, boolean rotateBack) {
+        int old_slot = -1;
+        if (slot != mc.player.inventory.currentItem) {
+            old_slot = mc.player.inventory.currentItem;
+            mc.player.inventory.currentItem = slot;
+        }
+        Direction[] facings = Direction.values();
+        for (Direction f : facings) {
+            Vector3d vec = new Vector3d(pos.getX() + 0.5D + (double) f.getXOffset() * 0.5D, pos.getY() + 0.5D + (double) f.getYOffset() * 0.5D, pos.getZ() + 0.5D + (double) f.getZOffset() * 0.5D);
+            float[] rot = new float[]{mc.player.rotationYaw, mc.player.rotationPitch};
+            if (rotate) {
+                rotatePacket(vec.x, vec.y, vec.z);
+            }
+            mc.playerController.clickBlock(pos, f);
+            if (rotateBack) {
+                mc.player.connection.sendPacket(new RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
+            }
+            mc.player.swingArm(Hand.MAIN_HAND);
+            if (old_slot != -1) {
+                mc.player.inventory.currentItem = old_slot;
+            }
+            return true;
+        }
+
+        return false;
+    }
 
     public static AxisAlignedBB getBoundingBox(BlockPos pos) {
         assert mc.world != null;
