@@ -64,6 +64,12 @@ public class AStarNode {
         if (isBlockSolid(blockPos) || isBlockSolid(new BlockPos(x, y + 1, z)))
             return false;
 
+        if (Minecraft.getInstance().world.getBlockState(blockPos).getBlock().equals(Blocks.WATER) && Minecraft.getInstance().world.getBlockState(blockPos.up()).getBlock().equals(Blocks.WATER))
+            return false;
+
+        if (Minecraft.getInstance().world.getBlockState(blockPos).getBlock().equals(Blocks.WATER) && Minecraft.getInstance().world.getBlockState(blockPos.up()).getBlock().equals(Blocks.AIR))
+            return true;
+
         // We should always have enough space to move
         if (isBlockSolid(new BlockPos(x, y - 1, z)) && !isBlockSolid(new BlockPos(x, y, z)) && !isBlockSolid(new BlockPos(x, y + 1, z)))
             return true;

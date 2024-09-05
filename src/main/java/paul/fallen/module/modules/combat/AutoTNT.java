@@ -22,6 +22,7 @@ import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
 import paul.fallen.utils.entity.PlayerControllerUtils;
 import paul.fallen.utils.entity.RotationUtils;
+import paul.fallen.utils.world.BlockUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -126,6 +127,7 @@ public final class AutoTNT extends Module {
             if (mc.player.ticksExisted % 5 == 0) {
                 //PlayerControllerUtils.rightClickBlock(tntPos, Direction.DOWN);
                 PlayerControllerUtils.rightClickBlock(new Vector3d(0.5, 0, 0.5), Direction.DOWN, tntPos);
+                BlockUtils.clickBlock(tntPos, mc.player.inventory.currentItem, true, true);
                 mc.player.swingArm(Hand.MAIN_HAND);
 
                 float[] rot = RotationUtils.getYawAndPitch(new Vector3d(tntPos.getX() + 0.5, tntPos.getY(), tntPos.getZ() + 0.5));

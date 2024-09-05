@@ -20,8 +20,9 @@ public class TravelTarget extends WalkTarget {
         Vector3d dest = new Vector3d(node.getBlockPos().getX(), node.getBlockPos().getY(), node.getBlockPos().getZ()).add(0.5d, 0d, 0.5d);
         double predicatedPositionDistance = playerPos.distanceTo(playerPos.add(predictedMotionOnStop));
         double destPositionDistance = playerPos.distanceTo(dest);
-
         double angle = calculateAnglePredictionDest(predictedMotionOnStop, dest.subtract(playerPos));
+
+        //KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindJump.getKey().getKeyCode(), 0), Minecraft.getInstance().world.getBlockState(Minecraft.getInstance().player.getPosition()).getBlock().equals(Blocks.WATER));
 
         return (predicatedPositionDistance > destPositionDistance && angle < PREDICTED_MOTION_ANGLE) || Util.getPlayerBlockPos().equals(Util.toBlockPos(dest));
     }
