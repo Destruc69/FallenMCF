@@ -1,5 +1,8 @@
 package roger.pathfind.main.walk.target.impl;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.util.InputMappings;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import roger.pathfind.main.path.PathElm;
@@ -23,6 +26,9 @@ public class FallTarget extends WalkTarget {
         Vector3d dest = new Vector3d(node.getX(), 0, node.getZ()).add(0.5d, 0d, 0.5d);
         double predicatedPositionDistance = playerPos.distanceTo(playerPos.add(predictedMotionOnStop));
         double destPositionDistance = playerPos.distanceTo(dest);
+
+        // Just stop moving this tick, will refresh next tick
+        KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindForward.getKey().getKeyCode(), 0), false);
 
         double angle = calculateAnglePredictionDest(predictedMotionOnStop, dest.subtract(playerPos));
         System.out.println("TEST" + " " + Util.toBlockPos(playerPos) + " " + (Util.toBlockPos(dest)));

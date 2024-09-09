@@ -222,6 +222,8 @@ public class Walker {
             return new TravelTarget((TravelNode) elm);
         if (elm instanceof TravelVector)
             return new TravelVectorTarget((TravelVector) elm);
+        if (elm instanceof LadderNode)
+            return new LadderTarget((LadderNode) elm);
         if (elm instanceof JumpNode) {
             if (path.size() > 1)
                 return new JumpTarget((JumpNode) elm, getCurrentTarget(path.get(1)));

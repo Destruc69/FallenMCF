@@ -1,13 +1,12 @@
 package roger.pathfind.main.astar;
 
-
 import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
 
 public class AStarPathFinder {
 
-    private static final int MAX_SEARCHES = 500;
+    private static final int MAX_SEARCHES = 1000;
 
     public static List<AStarNode> compute(BlockPos start, BlockPos end, int depth) {
         PriorityQueue<AStarNode> openQueue = new PriorityQueue<>(Comparator.comparingDouble(AStarNode::getTotalCost));

@@ -21,6 +21,8 @@ public class AStarNode {
 
     private boolean isFallNode;
 
+    private boolean isLadderNode;
+
     public AStarNode(BlockPos pos, AStarNode parentNode, AStarNode endNode) {
         this.x = pos.getX();
         this.y = pos.getY();
@@ -57,45 +59,67 @@ public class AStarNode {
     }
 
     public boolean canBeTraversed() {
-        // fall node and not falling return false
-        if (parent.isFallNode() && parent.getY() == y)
-            return false;
-
-        if (isBlockSolid(blockPos) || isBlockSolid(new BlockPos(x, y + 1, z)))
-            return false;
-
-        if (Minecraft.getInstance().world.getBlockState(blockPos).getBlock().equals(Blocks.WATER) && Minecraft.getInstance().world.getBlockState(blockPos.up()).getBlock().equals(Blocks.WATER))
-            return false;
-
-        if (Minecraft.getInstance().world.getBlockState(blockPos).getBlock().equals(Blocks.WATER) && Minecraft.getInstance().world.getBlockState(blockPos.up()).getBlock().equals(Blocks.AIR))
-            return true;
-
-        // We should always have enough space to move
-        if (isBlockSolid(new BlockPos(x, y - 1, z)) && !isBlockSolid(new BlockPos(x, y, z)) && !isBlockSolid(new BlockPos(x, y + 1, z)))
-            return true;
-
-        if (parent.isFallNode && Util.getFallDistance(blockPos) > 4 && !Minecraft.getInstance().world.getBlockState(Util.getNextBlockUnder(blockPos)).getBlock().equals(Blocks.WATER)) {
-            return false;
-        }
+        BlockState currentState = Minecraft.getInstance().world.getBlockState(blockPos);
+        Block currentBlock = currentState.getBlock();
 
         if (parent == null) {
             return false;
         }
 
-        // jump
-        if (parent.blockPos.getY() - 1 == y - 2 && isBlockSolid(new BlockPos(x, y - 2, z))) {
+        // Check for ladder node
+        if (currentBlock == Blocks.LADDER) {
+            setLadderNode(true);
+            return true;
+        }
+
+        // Check for fall node conditions
+        if (parent.isFallNode() && parent.getY() == y) {
+            return false;
+        }
+
+        if (parent.isFallNode() && Util.getFallDistance(blockPos) > 4
+                && Minecraft.getInstance().world.getBlockState(Util.getNextBlockUnder(blockPos)).getBlock() != Blocks.WATER) {
+            return false;
+        }
+
+        // Check water conditions
+        if (currentBlock == Blocks.WATER) {
+            BlockState aboveState = Minecraft.getInstance().world.getBlockState(blockPos.up());
+            Block aboveBlock = aboveState.getBlock();
+            if (aboveBlock == Blocks.WATER) return false;
+            if (aboveBlock == Blocks.AIR) return true;
+        }
+
+        // Check if the current or next block is solid
+        if (isBlockSolid(blockPos) || isBlockSolid(blockPos.up())) {
+            return false;
+        }
+
+        // Ensure enough space to move
+        if (isBlockSolid(blockPos.down()) && !isBlockSolid(blockPos) && !isBlockSolid(blockPos.up())) {
+            return true;
+        }
+
+        // Check if we need to jump
+        if (parent.blockPos.getY() - 1 == y - 2 && isBlockSolid(blockPos.down(2))) {
             setJumpNode(true);
             return true;
         }
 
-        // Since we already know the block directly under this node is not solid due to the guard clause above, assume still falling
-        if(parent.isFallNode() && y == parent.getY() - 1) {
+        // Travelling on ladders
+        if (parent.isLadderNode()) {
+            setLadderNode(true);
+            return true;
+        }
+
+        // Handle falling
+        if (parent.isFallNode() && y == parent.getY() - 1) {
             setFallNode(true);
             return true;
         }
 
-        // fall origin
-        if (parent.blockPos.getY() == y && isBlockSolid(new BlockPos(parent.blockPos.getX(), parent.blockPos.getY() - 1, parent.blockPos.getZ()))) {
+        // Handle fall origin
+        if (parent.blockPos.getY() == y && isBlockSolid(parent.blockPos.down())) {
             setFallNode(true);
             return true;
         }
@@ -184,12 +208,20 @@ public class AStarNode {
         isFallNode = fallNode;
     }
 
+    public void setLadderNode(boolean ladderNode) {
+        isLadderNode = ladderNode;
+    }
+
     public boolean isFallNode() {
         return isFallNode;
     }
 
     public boolean isJumpNode() {
         return isJumpNode;
+    }
+
+    public boolean isLadderNode() {
+        return isLadderNode;
     }
 }
 
