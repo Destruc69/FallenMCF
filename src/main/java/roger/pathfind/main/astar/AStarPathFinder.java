@@ -7,7 +7,7 @@ import java.util.*;
 
 public class AStarPathFinder {
 
-    private static final int MAX_SEARCHES = 5;
+    private static final int MAX_SEARCHES = 500;
 
     public static List<AStarNode> compute(BlockPos start, BlockPos end, int depth) {
         PriorityQueue<AStarNode> openQueue = new PriorityQueue<>(Comparator.comparingDouble(AStarNode::getTotalCost));
