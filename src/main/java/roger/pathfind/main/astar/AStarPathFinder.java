@@ -6,7 +6,7 @@ import java.util.*;
 
 public class AStarPathFinder {
 
-    private static final int MAX_SEARCHES = 1000;
+    private static final int MAX_SEARCHES = 5500;
 
     public static List<AStarNode> compute(BlockPos start, BlockPos end, int depth) {
         PriorityQueue<AStarNode> openQueue = new PriorityQueue<>(Comparator.comparingDouble(AStarNode::getTotalCost));
@@ -18,7 +18,7 @@ public class AStarPathFinder {
 
         openQueue.add(startNode);
         List<AStarNode> closestPath = null;
-        double closestDistance = Double.MAX_VALUE;
+        double closestDistanceToGoal = Double.MAX_VALUE;
 
         for (int i = 0; i < depth; i++) {
             if (openQueue.isEmpty()) break;
@@ -26,9 +26,9 @@ public class AStarPathFinder {
             AStarNode currentNode = openQueue.poll();
             closedSet.add(currentNode);
 
-            double currentDistance = currentNode.getHeuristicCost();
-            if (currentDistance < closestDistance) {
-                closestDistance = currentDistance;
+            double distanceToGoal = currentNode.calculateHeuristicDouble(endNode);
+            if (distanceToGoal < closestDistanceToGoal) {
+                closestDistanceToGoal = distanceToGoal;
                 closestPath = getPath(currentNode);
             }
 
@@ -43,11 +43,7 @@ public class AStarPathFinder {
             populateNeighbours(openQueue, closedSet, currentNode, startNode, endNode);
         }
 
-        if (allPaths.isEmpty() && closestPath != null) {
-            allPaths.add(closestPath);
-        }
-
-        return getBestPath(allPaths);
+        return allPaths.isEmpty() ? closestPath : getBestPath(allPaths);
     }
 
     private static void populateNeighbours(PriorityQueue<AStarNode> openQueue, Set<AStarNode> closedSet, AStarNode current, AStarNode startNode, AStarNode endNode) {

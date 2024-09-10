@@ -132,9 +132,12 @@ public class AStarNode {
                 Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof SkullBlock ||
                 Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof SandBlock;
     }
-    private void calculateHeuristic(AStarNode endNode) {
+    public void calculateHeuristic(AStarNode endNode) {
         this.hCost = (Math.abs(endNode.getX() - x) + Math.abs(endNode.getY() - y) + Math.abs(endNode.getZ() - z)) * 10;
+    }
 
+    public double calculateHeuristicDouble(AStarNode endNode) {
+        return (Math.abs(endNode.getX() - x) + Math.abs(endNode.getY() - y) + Math.abs(endNode.getZ() - z)) * 10;
     }
 
     public void setParent(AStarNode parent) {
