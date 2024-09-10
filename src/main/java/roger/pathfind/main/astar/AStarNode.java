@@ -21,8 +21,6 @@ public class AStarNode {
 
     private boolean isFallNode;
 
-    private boolean isLadderNode;
-
     public AStarNode(BlockPos pos, AStarNode parentNode, AStarNode endNode) {
         this.x = pos.getX();
         this.y = pos.getY();
@@ -66,12 +64,6 @@ public class AStarNode {
             return false;
         }
 
-        // Check for ladder node
-        if (currentBlock == Blocks.LADDER) {
-            setLadderNode(true);
-            return true;
-        }
-
         // Check for fall node conditions
         if (parent.isFallNode() && parent.getY() == y) {
             return false;
@@ -103,12 +95,6 @@ public class AStarNode {
         // Check if we need to jump
         if (parent.blockPos.getY() - 1 == y - 2 && isBlockSolid(blockPos.down(2))) {
             setJumpNode(true);
-            return true;
-        }
-
-        // Travelling on ladders
-        if (parent.isLadderNode()) {
-            setLadderNode(true);
             return true;
         }
 
@@ -208,20 +194,12 @@ public class AStarNode {
         isFallNode = fallNode;
     }
 
-    public void setLadderNode(boolean ladderNode) {
-        isLadderNode = ladderNode;
-    }
-
     public boolean isFallNode() {
         return isFallNode;
     }
 
     public boolean isJumpNode() {
         return isJumpNode;
-    }
-
-    public boolean isLadderNode() {
-        return isLadderNode;
     }
 }
 

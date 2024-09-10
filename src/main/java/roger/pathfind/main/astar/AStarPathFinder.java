@@ -17,12 +17,20 @@ public class AStarPathFinder {
         AStarNode startNode = new AStarNode(start, endNode);
 
         openQueue.add(startNode);
+        List<AStarNode> closestPath = null;
+        double closestDistance = Double.MAX_VALUE;
 
         for (int i = 0; i < depth; i++) {
             if (openQueue.isEmpty()) break;
 
             AStarNode currentNode = openQueue.poll();
             closedSet.add(currentNode);
+
+            double currentDistance = currentNode.getHeuristicCost();
+            if (currentDistance < closestDistance) {
+                closestDistance = currentDistance;
+                closestPath = getPath(currentNode);
+            }
 
             if (currentNode.equals(endNode)) {
                 allPaths.add(getPath(currentNode));
@@ -33,6 +41,10 @@ public class AStarPathFinder {
             }
 
             populateNeighbours(openQueue, closedSet, currentNode, startNode, endNode);
+        }
+
+        if (allPaths.isEmpty() && closestPath != null) {
+            allPaths.add(closestPath);
         }
 
         return getBestPath(allPaths);

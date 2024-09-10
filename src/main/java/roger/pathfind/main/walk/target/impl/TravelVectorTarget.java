@@ -18,7 +18,6 @@ public class TravelVectorTarget extends WalkTarget {
 
     @Override
     public boolean tick(Vector3d predictedMotionOnStop, Vector3d playerPos) {
-
         if (!baseReached) {
 
             // this means that the player is already on the vector and is suitable for skipping the base node.

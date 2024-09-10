@@ -3,6 +3,7 @@ package roger.util;
 import net.minecraft.block.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import paul.fallen.utils.client.ClientUtils;
@@ -31,6 +32,19 @@ public class Util {
         }
 
         return currentPos;
+    }
+
+    public static BlockPos getBlockAgainstLadder(BlockPos ladderPos) {
+        // Check if the block at ladderPos is a ladder
+        if (Minecraft.getInstance().world.getBlockState(ladderPos).getBlock() instanceof LadderBlock) {
+            // Get the direction the ladder is facing
+            Direction ladderFacing = Minecraft.getInstance().world.getBlockState(ladderPos).get(LadderBlock.FACING);
+
+            // Return the position of the block the ladder is placed against
+            return ladderPos.offset(ladderFacing.getOpposite());
+        }
+        // Return null if the block is not a ladder
+        return null;
     }
 
     public static int getFallDistance(BlockPos blockPos) {
