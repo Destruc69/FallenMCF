@@ -11,6 +11,7 @@ public class AStarPathFinder {
     public static List<AStarNode> compute(BlockPos start, BlockPos end, int depth) {
         PriorityQueue<AStarNode> openQueue = new PriorityQueue<>(Comparator.comparingDouble(AStarNode::getTotalCost));
         Set<AStarNode> closedSet = new HashSet<>();
+        Set<List<AStarNode>> uniquePaths = new HashSet<>();
         PriorityQueue<List<AStarNode>> allPaths = new PriorityQueue<>(Comparator.comparingDouble(AStarPathFinder::getPathCost));
 
         AStarNode endNode = new AStarNode(end);
@@ -33,9 +34,12 @@ public class AStarPathFinder {
             }
 
             if (currentNode.equals(endNode)) {
-                allPaths.add(getPath(currentNode));
-                if (allPaths.size() > MAX_SEARCHES) {
-                    allPaths.poll();
+                List<AStarNode> path = getPath(currentNode);
+                if (uniquePaths.add(path)) {
+                    allPaths.add(path);
+                    if (allPaths.size() > MAX_SEARCHES) {
+                        allPaths.poll();
+                    }
                 }
                 continue;
             }
