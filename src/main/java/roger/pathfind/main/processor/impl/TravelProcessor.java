@@ -10,24 +10,25 @@ import roger.pathfind.main.processor.Processor;
 import roger.util.Util;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class TravelProcessor extends Processor {
 
-    private final Map<BlockPos, Boolean> blockSolidityCache = new HashMap<>();
-    private final Map<BlockPos, BlockPos[]> surroundingsCache = new HashMap<>();
+
+
+
+    // Here we detect paths on the same y level with ray trace to shorten the route (travel nodes)
+
 
     @Override
     public void process(List<PathElm> elms) {
         List<PathElm> newPath = new ArrayList<>();
 
         PathIter:
-        for (int a = 0; a < elms.size(); a++) {
+        for(int a = 0 ; a < elms.size() ; a++) {
             PathElm elm = elms.get(a);
 
-            if (!(elm instanceof TravelNode)) {
+            if(!(elm instanceof TravelNode)) {
                 newPath.add(elm);
                 continue;
             }
@@ -55,10 +56,13 @@ public class TravelProcessor extends Processor {
         elms.addAll(newPath);
     }
 
+
+
+
+    // instead of getting surrounding blocks we could just shoot 2 vectors at an offset to each other
     public boolean shouldOptimise(TravelNode start, TravelNode end) {
-        if (start.getY() != end.getY()) {
+        if (start.getY() != end.getY())
             return false;
-        }
 
         Vector3d startVec = new Vector3d(start.getBlockPos().getX(), start.getBlockPos().getY(), start.getBlockPos().getZ());
         Vector3d endVec = new Vector3d(end.getBlockPos().getX(), end.getBlockPos().getY(), end.getBlockPos().getZ());
@@ -68,6 +72,7 @@ public class TravelProcessor extends Processor {
 
         List<BlockPos> blocksWithinVector = new ArrayList<>();
 
+        // populate the blocks in the path in the vector
         for (int scale = 0; scale < endVec.distanceTo(startVec); scale++) {
             Vector3d blockVec = startVec.add(Util.vecMultiply(normalDelta, scale));
             BlockPos blockPos = Util.toBlockPos(blockVec);
@@ -75,73 +80,56 @@ public class TravelProcessor extends Processor {
             if (!blocksWithinVector.contains(blockPos))
                 blocksWithinVector.add(blockPos);
         }
-        if (!blocksWithinVector.contains(Util.toBlockPos(endVec)))
+        if(!blocksWithinVector.contains(Util.toBlockPos(endVec)))
             blocksWithinVector.add(Util.toBlockPos(endVec));
 
         blocksWithinVector.remove(Util.toBlockPos(startVec));
 
-        for (BlockPos block : blocksWithinVector) {
-            if (!isBlockSurroundingsOptimizable(block)) {
-                return false;
+        for(BlockPos block : blocksWithinVector) {
+            int x = block.getX();
+            int y = block.getY();
+            int z = block.getZ();
+
+            // can optimise this by caching state
+            BlockPos[] surroundings = new BlockPos[] {
+                    new BlockPos(x+1, y, z+1),
+                    new BlockPos(x, y, z+1),
+                    new BlockPos(x-1, y, z+1),
+
+                    new BlockPos(x+1, y, z),
+                    new BlockPos(x, y, z),
+                    new BlockPos(x-1, y, z),
+
+                    new BlockPos(x+1, y, z-1),
+                    new BlockPos(x, y, z-1),
+                    new BlockPos(x-1, y, z-1),
+
+                    new BlockPos(x+1, y+1, z+1),
+                    new BlockPos(x, y+1, z+1),
+                    new BlockPos(x-1, y+1, z+1),
+
+                    new BlockPos(x+1, y+1, z),
+                    new BlockPos(x, y+1, z),
+                    new BlockPos(x-1, y+1, z),
+
+                    new BlockPos(x+1, y+1, z-1),
+                    new BlockPos(x, y+1, z-1),
+                    new BlockPos(x-1, y+1, z-1),
+            };
+
+            for(BlockPos surroundingBlock : surroundings) {
+                if(Util.isBlockSolid(surroundingBlock)) {
+                    return false;
+                }
             }
 
-            if (!isBlockSolidCached(block.subtract(new Vector3i(0, 1, 0)))) {
+            if (!Util.isBlockSolid(block.subtract(new Vector3i(0, 1, 0))))
                 return false;
-            }
+
         }
 
         return true;
     }
 
-    private boolean isBlockSolidCached(BlockPos pos) {
-        return blockSolidityCache.computeIfAbsent(pos, Util::isBlockSolid);
-    }
 
-    private BlockPos[] getSurroundings(BlockPos block) {
-        return surroundingsCache.computeIfAbsent(block, this::calculateSurroundings);
-    }
-
-    private BlockPos[] calculateSurroundings(BlockPos block) {
-        int x = block.getX();
-        int y = block.getY();
-        int z = block.getZ();
-
-        return new BlockPos[]{
-                new BlockPos(x + 1, y, z + 1),
-                new BlockPos(x, y, z + 1),
-                new BlockPos(x - 1, y, z + 1),
-
-                new BlockPos(x + 1, y, z),
-                new BlockPos(x, y, z),
-                new BlockPos(x - 1, y, z),
-
-                new BlockPos(x + 1, y, z - 1),
-                new BlockPos(x, y, z - 1),
-                new BlockPos(x - 1, y, z - 1),
-
-                new BlockPos(x + 1, y + 1, z + 1),
-                new BlockPos(x, y + 1, z + 1),
-                new BlockPos(x - 1, y + 1, z + 1),
-
-                new BlockPos(x + 1, y + 1, z),
-                new BlockPos(x, y + 1, z),
-                new BlockPos(x - 1, y + 1, z),
-
-                new BlockPos(x + 1, y + 1, z - 1),
-                new BlockPos(x, y + 1, z - 1),
-                new BlockPos(x - 1, y + 1, z - 1),
-        };
-    }
-
-    private boolean isBlockSurroundingsOptimizable(BlockPos block) {
-        BlockPos[] surroundings = getSurroundings(block);
-
-        for (BlockPos surroundingBlock : surroundings) {
-            if (isBlockSolidCached(surroundingBlock)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
 }

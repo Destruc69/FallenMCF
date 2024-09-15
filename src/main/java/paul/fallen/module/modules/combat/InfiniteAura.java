@@ -66,7 +66,7 @@ public class InfiniteAura extends Module {
                 }
 
                 // Look at entity
-                float[] rot = RotationUtils.getYawAndPitch(new Vector3d(aStarCustomPathFinder.getPath().get(pathSize - 1).getX(), aStarCustomPathFinder.getPath().get(pathSize - 1).getY(), aStarCustomPathFinder.getPath().get(pathSize - 1).getZ()), entity.getBoundingBox().getCenter());
+                float[] rot = RotationUtils.getYawAndPitch(new Vector3d(aStarCustomPathFinder.getPath().get(pathSize - 1).getX() + 0.5, aStarCustomPathFinder.getPath().get(pathSize - 1).getY() + 1.5, aStarCustomPathFinder.getPath().get(pathSize - 1).getZ() + 0.5), entity.getBoundingBox().getCenter());
                 mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], true));
 
                 // Attack entity

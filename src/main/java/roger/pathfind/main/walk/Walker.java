@@ -127,7 +127,6 @@ public class Walker {
         KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindLeft.getKey().getKeyCode(), 0), false);
         KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindRight.getKey().getKeyCode(), 0), false);
         KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindBack.getKey().getKeyCode(), 0), false);
-        KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindJump.getKey().getKeyCode(), 0), false);
 
         if (22.5 > difference && difference > -22.5) {   // Forwards
 
@@ -159,8 +158,6 @@ public class Walker {
             KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindBack.getKey().getKeyCode(), 0), true);
             KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindLeft.getKey().getKeyCode(), 0), true);
         }
-
-        KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindJump.getKey().getKeyCode(), 0), Minecraft.getInstance().player.isSwimming());
     }
 
     private void stopMovement() {
@@ -168,7 +165,6 @@ public class Walker {
         KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindLeft.getKey().getKeyCode(), 0), false);
         KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindRight.getKey().getKeyCode(), 0), false);
         KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindBack.getKey().getKeyCode(), 0), false);
-        KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindJump.getKey().getKeyCode(), 0), false);
         KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindSneak.getKey().getKeyCode(), 0), false);
     }
 

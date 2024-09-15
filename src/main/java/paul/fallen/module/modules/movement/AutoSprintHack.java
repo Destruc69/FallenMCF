@@ -7,12 +7,9 @@
  */
 package paul.fallen.module.modules.movement;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
-import roger.pathfind.main.walk.Walker;
 
 public final class AutoSprintHack extends Module {
 
@@ -20,36 +17,10 @@ public final class AutoSprintHack extends Module {
         super(bind, name, displayName, category);
     }
 
-    @Override
-    public void onEnable() {
-        try {
-            super.onEnable();
-
-            Walker.getInstance().walk(mc.player.getPosition(), new BlockPos(0, 64, 0), 1000);
-        } catch (Exception ignored) {
-        }
-    }
-
-    @Override
-    public void onDisable() {
-        try {
-            super.onDisable();
-            Walker.getInstance().setActive(false);
-        } catch (Exception ignored) {
-        }
-    }
-
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) throws Exception {
         try {
             mc.gameSettings.keyBindSprint.setPressed(true);
-        } catch (Exception ignored) {
-        }
-    }
-
-    @SubscribeEvent
-    public void onRender(RenderWorldLastEvent event) {
-        try {
         } catch (Exception ignored) {
         }
     }

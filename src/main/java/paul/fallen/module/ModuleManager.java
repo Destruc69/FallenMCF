@@ -64,7 +64,8 @@ public class ModuleManager implements ClientSupport {
 		addModule(new TriggerBot(0, "TriggerBot", "TriggerBot", Category.Combat));
 		addModule(new AutoTNT(0, "AutoTNT", "AutoTNT", Category.Combat));
 		addModule(new Arson(0, "Arson", "Arson", Category.Combat));
-
+		addModule(new Surround(0, "Surround", "Surround", Category.Combat));
+		addModule(new Untrap(0, "UnTrap", "UnTrap", Category.Combat));
 
 		addModule(new AutoPilot(0, "AutoPilot", "AutoPilot", Category.Pathing));
 		addModule(new AutoMine(0, "AutoMine", "AutoMine", Category.Pathing));
@@ -100,6 +101,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new TridentFlight(0, "TridentFlight", "TridentFlight", Category.Movement));
 		addModule(new LongJump(0, "LongJump", "LongJump", Category.Movement));
 		addModule(new Jesus(0, "Jesus", "Jesus", Category.Movement));
+		addModule(new FallFly(0, "FallFly", "FallFly", Category.Movement));
 
 		addModule(new HandPosition(0, "HandPosition", "HandPosition", Category.Player));
 		addModule(new AntiCollide(0, "AntiCollide", "AntiCollide", Category.Player));
@@ -113,6 +115,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new NoFall(0, "NoFall", "NoFall", Category.Player));
 		addModule(new FakeHackers(0, "FakeHackers", "FakeHackers", Category.Player));
 		addModule(new PacketTimer(0, "PacketTimer", "PacketTimer", Category.Player));
+		addModule(new AttributeModifier(0, "AttributeModifier", "AttributeModifier", Category.Player));
 
 		addModule(new AntiForge(0, "AntiForge", "AntiForge", Category.Player));
 		addModule(new ServerCrasher(0, "ServerCrasher", "ServerCrasher", Category.Player));
