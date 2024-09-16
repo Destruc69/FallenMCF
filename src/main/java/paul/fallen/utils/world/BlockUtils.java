@@ -1,7 +1,9 @@
 package paul.fallen.utils.world;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.CropsBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -291,5 +293,22 @@ public class BlockUtils implements ClientSupport {
         }
 
         return blockPosList;
+    }
+
+    public static boolean isCropFullyGrown(BlockPos pos) {
+        BlockState state = mc.world.getBlockState(pos);
+
+        // Check if the block at the position is a CropBlock
+        if (state.getBlock() instanceof CropsBlock) {
+            CropsBlock crop = (CropsBlock) state.getBlock();
+            int maxAge = crop.getMaxAge();
+            int currentAge = state.get(crop.getAgeProperty());
+
+            // Check if the crop is at its maximum age
+            return currentAge == maxAge;
+        }
+
+        // If it's not a crop block, return false
+        return false;
     }
 }

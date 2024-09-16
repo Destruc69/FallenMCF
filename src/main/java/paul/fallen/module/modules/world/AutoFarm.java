@@ -30,22 +30,28 @@ public class AutoFarm extends Module {
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) {
-            if (targetPosition == null || !isValidTarget(targetPosition)) {
-                targetPosition = findNextTargetPosition();
-            }
+        try {
+            if (event.phase == TickEvent.Phase.START) {
+                if (targetPosition == null || !isValidTarget(targetPosition) || mc.player.ticksExisted % 20 == 0) {
+                    targetPosition = findNextTargetPosition();
+                }
 
-            if (targetPosition != null) {
-                processTargetPosition();
-            } else {
-                switchMode();
+                if (targetPosition != null) {
+                    processTargetPosition();
+                } else {
+                    switchMode();
+                }
             }
+        } catch (Exception ignored) {
         }
     }
 
     @SubscribeEvent
     public void onRender(RenderWorldLastEvent event) {
-        RenderUtils.drawOutlinedBox(targetPosition, 0, 1, 0, event);
+        try {
+            RenderUtils.drawOutlinedBox(targetPosition, 0, 1, 0, event);
+        } catch (Exception ignored) {
+        }
     }
 
     private void processTargetPosition() {
@@ -54,8 +60,8 @@ public class AutoFarm extends Module {
 
         if (isHarvesting && block instanceof CropsBlock) {
             CropsBlock cropsBlock = (CropsBlock) block;
-            if (!cropsBlock.canGrow(mc.world, targetPosition, state, true)) {
-                BlockUtils.breakBlock(targetPosition, mc.player.inventory.currentItem, true, true);
+            if (BlockUtils.isCropFullyGrown(targetPosition.up())) {
+                BlockUtils.breakBlock(targetPosition.up(), mc.player.inventory.currentItem, true, true);
                 markAsChecked();
             }
         } else if (!isHarvesting && block instanceof FarmlandBlock) {
