@@ -50,7 +50,7 @@ public final class Disabler extends Module {
         if (event.getPacket() instanceof CPlayerPacket) {
             CPlayerPacket packet = (CPlayerPacket) event.getPacket();
             packets.put(packet, System.currentTimeMillis() + 1000);
-            event.setCanceled(true); // Cancel the packet from being processed immediately
+            event.setCanceled(true);
         }
     }
 

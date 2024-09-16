@@ -18,14 +18,14 @@ import java.util.ArrayList;
 
 public class AutoMine extends Module {
 
-    Setting x1;
-    Setting y1;
-    Setting z1;
-    Setting x2;
-    Setting y2;
-    Setting z2;
-    Setting setone;
-    Setting setsecond;
+    private final Setting x1;
+    private final Setting y1;
+    private final Setting z1;
+    private final Setting x2;
+    private final Setting y2;
+    private final Setting z2;
+    private final Setting setone;
+    private final Setting setsecond;
     private ArrayList<BlockPos> blocksToDestroy = new ArrayList<>();
     private int initialSize = 0;
 
@@ -35,7 +35,6 @@ public class AutoMine extends Module {
         x1 = new Setting("X-1", this, 0, -32000000, 32000000, true);
         y1 = new Setting("Y-1", this, 64, 0, 255, true);
         z1 = new Setting("Z-1", this, 0, -32000000, 32000000, true);
-
         addSetting(x1);
         addSetting(y1);
         addSetting(z1);
@@ -43,7 +42,6 @@ public class AutoMine extends Module {
         x2 = new Setting("X-2", this, 0, -32000000, 32000000, true);
         y2 = new Setting("Y-2", this, 64, 0, 255, true);
         z2 = new Setting("Z-2", this, 0, -32000000, 32000000, true);
-
         addSetting(x2);
         addSetting(y2);
         addSetting(z2);
@@ -80,23 +78,25 @@ public class AutoMine extends Module {
     public void onEnable() {
         super.onEnable();
 
-        if (setone.getValBoolean() || setsecond.getValBoolean())
+        if (setone.getValBoolean() || setsecond.getValBoolean()) {
             return;
+        }
 
-        blocksToDestroy = getAllBlocksBetween(new BlockPos(x1.getValDouble(), y1.getValDouble(), z1.getValDouble()), new BlockPos(x2.getValDouble(), y2.getValDouble(), z2.getValDouble()));
+        blocksToDestroy = getAllBlocksBetween(
+                new BlockPos(x1.getValDouble(), y1.getValDouble(), z1.getValDouble()),
+                new BlockPos(x2.getValDouble(), y2.getValDouble(), z2.getValDouble())
+        );
 
         blocksToDestroy.sort((pos1, pos2) -> {
             double distSq1 = mc.player.getDistanceSq(pos1.getX(), pos1.getY(), pos1.getZ());
             double distSq2 = mc.player.getDistanceSq(pos2.getX(), pos2.getY(), pos2.getZ());
 
-            // If distances are equal, compare directions
             if (distSq1 == distSq2) {
                 Direction dir1 = getDirection(mc.player.getPosition(), pos1);
                 Direction dir2 = getDirection(mc.player.getPosition(), pos2);
                 return dir1.compareTo(dir2);
             }
 
-            // Otherwise, compare distances
             return Double.compare(distSq1, distSq2);
         });
 
@@ -105,9 +105,10 @@ public class AutoMine extends Module {
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.START) return;
+
         try {
             if (setone.getValBoolean()) {
-                // Update position settings and reset path
                 x1.setValDouble(mc.player.getPosX());
                 y1.setValDouble(mc.player.getPosY());
                 z1.setValDouble(mc.player.getPosZ());
@@ -117,7 +118,6 @@ public class AutoMine extends Module {
             }
 
             if (setsecond.getValBoolean()) {
-                // Update position settings and reset path
                 x2.setValDouble(mc.player.getPosX());
                 y2.setValDouble(mc.player.getPosY());
                 z2.setValDouble(mc.player.getPosZ());
@@ -126,10 +126,9 @@ public class AutoMine extends Module {
                 return;
             }
 
-            if (setone.getValBoolean() || setsecond.getValBoolean())
-                return;
+            if (setone.getValBoolean() || setsecond.getValBoolean()) return;
 
-            blocksToDestroy.removeIf(blockPos -> mc.world.getBlockState(blockPos).getBlock().equals(Blocks.AIR));
+            blocksToDestroy.removeIf(blockPos -> mc.world.getBlockState(blockPos).getBlock() == Blocks.AIR);
 
             if (!blocksToDestroy.isEmpty()) {
                 BlockPos targetPos = blocksToDestroy.get(0);
@@ -155,28 +154,15 @@ public class AutoMine extends Module {
             int screenWidth = mc.getMainWindow().getScaledWidth();
             int screenHeight = mc.getMainWindow().getScaledHeight();
 
-            // Inside your rendering method
-            int destroyedBlocks = initialSize - blocksToDestroy.size(); // Calculate the number of destroyed blocks
-            double percentage = Math.round((double) destroyedBlocks / initialSize * 100); // Calculate the percentage
+            int destroyedBlocks = initialSize - blocksToDestroy.size();
+            double percentage = Math.round((double) destroyedBlocks / initialSize * 100);
 
-            UIUtils.drawTextOnScreenWithShadow(blocksToDestroy.size() + "/" + initialSize + " [" + percentage + "%]", screenWidth / 3, screenHeight / 3, Color.WHITE.getRGB());
-        }
-    }
-
-    @SubscribeEvent
-    public void onRender(RenderWorldLastEvent event) {
-        if (blocksToDestroy.size() > 0) {
-            for (int i = 0; i < blocksToDestroy.size(); i++) {
-                BlockPos blockPos = blocksToDestroy.get(i);
-
-                // Calculate color components for a gradient from green to red
-                float green = (float) Math.min(1.0, Math.max(0.0, i / (float) blocksToDestroy.size()));  // Green component
-                float red = 1.0f - green; // Red component
-                float blue = 0.0f; // Blue component
-
-                // Render the box with the calculated color
-                RenderUtils.drawOutlinedBox(blockPos, red, green, blue, event);
-            }
+            UIUtils.drawTextOnScreenWithShadow(
+                    blocksToDestroy.size() + "/" + initialSize + " [" + percentage + "%]",
+                    screenWidth / 3,
+                    screenHeight / 3,
+                    Color.WHITE.getRGB()
+            );
         }
     }
 
@@ -194,13 +180,30 @@ public class AutoMine extends Module {
         }
     }
 
+    @SubscribeEvent
+    public void onRender(RenderWorldLastEvent event) {
+        if (blocksToDestroy.size() > 0) {
+            for (int i = 0; i < blocksToDestroy.size(); i++) {
+                BlockPos blockPos = blocksToDestroy.get(i);
+
+                float green = (float) Math.min(1.0, Math.max(0.0, i / (float) blocksToDestroy.size()));
+                float red = 1.0f - green;
+                float blue = 0.0f;
+
+                RenderUtils.drawOutlinedBox(blockPos, red, green, blue, event);
+            }
+        }
+    }
+
     private double[] getYP(BlockPos pos) {
-        double var4 = pos.getX() + 0.25D - mc.player.getPosX();
-        double var6 = pos.getZ() + 0.25D - mc.player.getPosZ();
-        double var8 = pos.getY() + 0.25D - (mc.player.getPosY() + mc.player.getEyeHeight());
-        double var14 = MathHelper.sqrt(var4 * var4 + var6 * var6);
-        double yaw = (float) (Math.atan2(var6, var4) * 180.0D / Math.PI) - 90.0F;
-        double pitch = (float) -(Math.atan2(var8, var14) * 180.0D / Math.PI);
+        double dx = pos.getX() + 0.25D - mc.player.getPosX();
+        double dz = pos.getZ() + 0.25D - mc.player.getPosZ();
+        double dy = pos.getY() + 0.25D - (mc.player.getPosY() + mc.player.getEyeHeight());
+        double distance = MathHelper.sqrt(dx * dx + dz * dz);
+
+        double yaw = Math.toDegrees(Math.atan2(dz, dx)) - 90.0D;
+        double pitch = -Math.toDegrees(Math.atan2(dy, distance));
+
         return new double[]{yaw, pitch};
     }
 }

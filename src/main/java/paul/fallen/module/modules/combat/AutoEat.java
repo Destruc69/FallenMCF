@@ -4,7 +4,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.ContainerBlock;
 import net.minecraft.block.CraftingTableBlock;
 import net.minecraft.client.Minecraft;
-import net.minecraft.item.Food;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CHeldItemChangePacket;
 import net.minecraft.network.play.client.CPlayerTryUseItemOnBlockPacket;
@@ -23,25 +22,20 @@ import java.util.Arrays;
 
 public class AutoEat extends Module {
     private final Setting mode;
-
-    private int oldSlot;
-    private int bestSlot;
+    private int oldSlot = -1;
+    private int bestSlot = -1;
 
     public AutoEat(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-
         mode = new Setting("Mode", this, "packet", new ArrayList<>(Arrays.asList("packet", "legit")));
         addSetting(mode);
-
-        this.oldSlot = -1;
-        this.bestSlot = -1;
     }
 
     @Override
     public void onEnable() {
         super.onEnable();
-        this.oldSlot = -1;
-        this.bestSlot = -1;
+        oldSlot = -1;
+        bestSlot = -1;
     }
 
     @Override
@@ -53,42 +47,37 @@ public class AutoEat extends Module {
     @SubscribeEvent
     public void onUpdate(TickEvent.PlayerTickEvent event) {
         try {
-            if (this.oldSlot == -1) {
-                if (!this.canEat()) {
-                    return;
-                }
+            if (oldSlot == -1) {
+                if (!canEat()) return;
+
                 float bestSaturation = 0.0f;
-                for (int i = 0; i < 9; ++i) {
-                    final ItemStack stack = mc.player.inventory.getStackInSlot(i);
-                    if (this.isFood(stack)) {
-                        Food food = stack.getItem().getFood();
-                        assert food != null;
-                        final float saturation = food.getSaturation();
+                for (int i = 0; i < 9; i++) {
+                    ItemStack stack = mc.player.inventory.getStackInSlot(i);
+                    if (isFood(stack)) {
+                        float saturation = stack.getItem().getFood().getSaturation();
                         if (saturation > bestSaturation) {
                             bestSaturation = saturation;
-                            this.bestSlot = i;
+                            bestSlot = i;
                         }
                     }
                 }
-                if (this.bestSlot != -1) {
-                    this.oldSlot = mc.player.inventory.currentItem;
+
+                if (bestSlot != -1) {
+                    oldSlot = mc.player.inventory.currentItem;
                 }
             } else {
-                if (!this.canEat()) {
-                    this.stop();
-                    return;
-                }
-                if (!this.isFood(mc.player.inventory.getStackInSlot(this.bestSlot))) {
-                    this.stop();
+                if (!canEat() || !isFood(mc.player.inventory.getStackInSlot(bestSlot))) {
+                    stop();
                     return;
                 }
 
-                if (mode.getValString() == "legit") {
-                    mc.player.inventory.currentItem = this.bestSlot;
+                if ("legit".equals(mode.getValString())) {
+                    mc.player.inventory.currentItem = bestSlot;
                     mc.gameSettings.keyBindUseItem.setPressed(true);
                 } else {
                     mc.player.connection.sendPacket(new CHeldItemChangePacket(bestSlot));
-                    mc.player.connection.sendPacket(new CPlayerTryUseItemOnBlockPacket(Hand.MAIN_HAND,
+                    mc.player.connection.sendPacket(new CPlayerTryUseItemOnBlockPacket(
+                            Hand.MAIN_HAND,
                             new BlockRayTraceResult(new Vector3d(mc.player.getPosX(), mc.player.getPosY(), mc.player.getPosZ()), Direction.DOWN, mc.player.getPosition(), false)));
                 }
             }
@@ -97,30 +86,28 @@ public class AutoEat extends Module {
     }
 
     private boolean canEat() {
-        if (!mc.player.canEat(false)) {
-            return false;
-        }
+        if (!mc.player.canEat(false)) return false;
         if (Minecraft.getInstance().objectMouseOver != null) {
-            final BlockPos pos = new BlockPos(Minecraft.getInstance().objectMouseOver.getHitVec().x, Minecraft.getInstance().objectMouseOver.getHitVec().y, Minecraft.getInstance().objectMouseOver.getHitVec().z);
-            final Block block = mc.world.getBlockState(pos).getBlock();
-            return !(block instanceof ContainerBlock) && !(block instanceof CraftingTableBlock);
+            BlockPos pos = new BlockPos(Minecraft.getInstance().objectMouseOver.getHitVec());
+            Block block = mc.world.getBlockState(pos).getBlock();
+            return !(block instanceof ContainerBlock || block instanceof CraftingTableBlock);
         }
         return true;
     }
 
-    private boolean isFood(final ItemStack stack) {
+    private boolean isFood(ItemStack stack) {
         return !stack.isEmpty() && stack.getItem().isFood();
     }
 
     private void stop() {
         try {
-            if (mode.getValString() == "legit") {
+            if ("legit".equals(mode.getValString())) {
                 mc.gameSettings.keyBindUseItem.setPressed(false);
-                mc.player.inventory.currentItem = this.oldSlot;
+                mc.player.inventory.currentItem = oldSlot;
             } else {
                 mc.player.connection.sendPacket(new CHeldItemChangePacket(oldSlot));
             }
-            this.oldSlot = -1;
+            oldSlot = -1;
         } catch (Exception ignored) {
         }
     }

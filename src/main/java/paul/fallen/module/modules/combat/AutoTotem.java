@@ -7,6 +7,7 @@
  */
 package paul.fallen.module.modules.combat;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ClickType;
@@ -40,10 +41,9 @@ public final class AutoTotem extends Module {
         try {
             finishMovingTotem();
 
-            PlayerEntity player = mc.player;
+            PlayerEntity player = Minecraft.getInstance().player;
             assert player != null;
             PlayerInventory inventory = player.inventory;
-            int nextTotemSlot = searchForTotems(inventory);
 
             ItemStack offhandStack = inventory.getStackInSlot(40);
             if (isTotem(offhandStack.getItem())) {
@@ -56,14 +56,13 @@ public final class AutoTotem extends Module {
                 wasTotemInOffhand = false;
             }
 
-            float healthF = (float) health.getValDouble();
-            if (healthF > 0 && player.getHealth() > healthF * 2F)
+            float healthThreshold = (float) health.getValDouble();
+            if (healthThreshold > 0 && player.getHealth() > healthThreshold * 2F) {
                 return;
+            }
 
-            if (nextTotemSlot == -1)
-                return;
-
-            if (timer > 0) {
+            int nextTotemSlot = searchForTotems(inventory);
+            if (nextTotemSlot == -1 || timer > 0) {
                 timer--;
                 return;
             }
@@ -74,41 +73,38 @@ public final class AutoTotem extends Module {
     }
 
     private void moveTotem(int nextTotemSlot, ItemStack offhandStack) {
-        boolean offhandEmpty = offhandStack.isEmpty();
-
-        PlayerEntity player = mc.player;
-        assert mc.playerController != null;
+        PlayerEntity player = Minecraft.getInstance().player;
         assert player != null;
-        mc.playerController.windowClick(player.container.windowId, nextTotemSlot, 0, ClickType.PICKUP, player);
-        mc.playerController.windowClick(player.container.windowId, 45, 0, ClickType.PICKUP, player);
+        assert Minecraft.getInstance().playerController != null;
 
-        if (!offhandEmpty)
+        Minecraft.getInstance().playerController.windowClick(player.container.windowId, nextTotemSlot, 0, ClickType.PICKUP, player);
+        Minecraft.getInstance().playerController.windowClick(player.container.windowId, 45, 0, ClickType.PICKUP, player);
+
+        if (!offhandStack.isEmpty()) {
             nextTickSlot = nextTotemSlot;
+        }
     }
 
     private void finishMovingTotem() {
-        if (nextTickSlot == -1)
+        if (nextTickSlot == -1) {
             return;
+        }
 
-        PlayerEntity player = mc.player;
-        assert mc.playerController != null;
+        PlayerEntity player = Minecraft.getInstance().player;
         assert player != null;
-        mc.playerController.windowClick(player.container.windowId, nextTickSlot, 0, ClickType.PICKUP, player);
+        assert Minecraft.getInstance().playerController != null;
+
+        Minecraft.getInstance().playerController.windowClick(player.container.windowId, nextTickSlot, 0, ClickType.PICKUP, player);
         nextTickSlot = -1;
     }
 
     private int searchForTotems(PlayerInventory inventory) {
-        int nextTotemSlot = -1;
-
-        for (int slot = 0; slot <= 36; slot++) {
-            if (!isTotem(inventory.getStackInSlot(slot).getItem()))
-                continue;
-
-            if (nextTotemSlot == -1)
-                nextTotemSlot = slot < 9 ? slot + 36 : slot;
+        for (int slot = 0; slot < 36; slot++) {
+            if (isTotem(inventory.getStackInSlot(slot).getItem())) {
+                return slot < 9 ? slot + 36 : slot;
+            }
         }
-
-        return nextTotemSlot;
+        return -1;
     }
 
     private boolean isTotem(Item item) {

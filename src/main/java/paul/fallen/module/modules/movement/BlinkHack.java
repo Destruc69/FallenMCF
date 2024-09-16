@@ -31,6 +31,7 @@ public final class BlinkHack extends Module {
 
     @Override
     public void onDisable() {
+        super.onDisable();
         packets.forEach(p -> Objects.requireNonNull(mc.getConnection()).sendPacket(p));
         packets.clear();
     }

@@ -142,6 +142,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new AutoHighway(0, "AutoHighway", "AutoHighway", Category.World));
 		addModule(new OverKill(0, "OverKill", "OverKill", Category.World));
 		addModule(new FastBreak(0, "FastBreak", "FastBreak", Category.World));
+		addModule(new AutoFarm(0, "AutoFarm", "AutoFarm", Category.World));
 	}
 
 	public ArrayList<Module> getModules() {

@@ -7,6 +7,7 @@
  */
 package paul.fallen.module.modules.movement;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -15,8 +16,6 @@ import paul.fallen.module.Module;
 import paul.fallen.utils.client.MathUtils;
 import paul.fallen.utils.entity.EntityUtils;
 
-import java.util.Objects;
-
 public final class EntitySpeed extends Module {
 
     private final Setting speed;
@@ -24,7 +23,7 @@ public final class EntitySpeed extends Module {
 
     public EntitySpeed(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-        speed = new Setting("Speed",  this, 0.1f, 0.05f, 10, false);
+        speed = new Setting("Speed", this, 0.1f, 0.05f, 10, false);
         bypass = new Setting("Bypass", this, false);
         addSetting(speed);
         addSetting(bypass);
@@ -33,36 +32,29 @@ public final class EntitySpeed extends Module {
     @SubscribeEvent
     public void onUpdate(TickEvent.ClientTickEvent event) {
         try {
-            assert mc.player != null;
-            if (mc.player.getRidingEntity() != null) {
-                if (Objects.requireNonNull(mc.player.getRidingEntity()).isAlive()) {
-                    if (!bypass.getValBoolean()) {
-                        double[] dir = MathUtils.directionSpeed(speed.getValDouble());
-                        assert mc.player.getRidingEntity() != null;
-                        EntityUtils.setEMotionX(mc.player.getRidingEntity(), dir[0]);
-                        EntityUtils.setEMotionZ(mc.player.getRidingEntity(), dir[1]);
-                    } else {
-                        if (mc.player.ticksExisted % 5 == 0) {
-                            double[] dir = MathUtils.directionSpeed(speed.getValDouble() - Math.random() * 0.02);
-                            assert mc.player.getRidingEntity() != null;
-                            EntityUtils.setEMotionX(mc.player.getRidingEntity(), dir[0]);
-                            EntityUtils.setEMotionZ(mc.player.getRidingEntity(), dir[1]);
-                        } else {
-                            EntityUtils.setEMotionX(mc.player.getRidingEntity(), mc.player.getRidingEntity().getMotion().x / 2);
-                            EntityUtils.setEMotionZ(mc.player.getRidingEntity(), mc.player.getRidingEntity().getMotion().z / 2);
-                        }
-                    }
+            if (mc.player == null || mc.player.getRidingEntity() == null) return;
 
-                    if (mc.gameSettings.keyBindJump.isKeyDown()) {
-                        if (mc.player.ticksExisted % 20 == 0) {
-                            mc.player.connection.sendPacket(new CEntityActionPacket(mc.player, CEntityActionPacket.Action.START_RIDING_JUMP, 100));
-                        }
-                    }
+            Entity ridingEntity = mc.player.getRidingEntity();
+            if (!ridingEntity.isAlive()) return;
 
-                    Objects.requireNonNull(mc.player.getRidingEntity()).rotationYaw = mc.player.rotationYaw;
-                    Objects.requireNonNull(mc.player.getRidingEntity()).rotationPitch = mc.player.rotationPitch;
+            double[] dir = MathUtils.directionSpeed(speed.getValDouble());
+
+            if (bypass.getValBoolean()) {
+                if (mc.player.ticksExisted % 5 == 0) {
+                    dir[0] -= Math.random() * 0.02;
+                    dir[1] -= Math.random() * 0.02;
                 }
             }
+
+            EntityUtils.setEMotionX(ridingEntity, dir[0]);
+            EntityUtils.setEMotionZ(ridingEntity, dir[1]);
+
+            if (mc.gameSettings.keyBindJump.isKeyDown() && mc.player.ticksExisted % 20 == 0) {
+                mc.player.connection.sendPacket(new CEntityActionPacket(mc.player, CEntityActionPacket.Action.START_RIDING_JUMP, 100));
+            }
+
+            ridingEntity.rotationYaw = mc.player.rotationYaw;
+            ridingEntity.rotationPitch = mc.player.rotationPitch;
         } catch (Exception ignored) {
         }
     }

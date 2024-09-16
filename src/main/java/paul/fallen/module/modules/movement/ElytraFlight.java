@@ -25,16 +25,17 @@ public final class ElytraFlight extends Module {
     private final Setting downSpeed;
     private final Setting easyTakeoff;
 
-    private boolean a = false;
+    private boolean isTakingOff = false;
 
     public ElytraFlight(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
 
         ncp = new Setting("NCP", this, false);
-        upSpeed = new Setting("Up-Speed", this, 0.05F, (float) 0.005, 10, false);
+        upSpeed = new Setting("Up-Speed", this, 0.05F, 0.005F, 10, false);
         baseSpeed = new Setting("Base-Speed", this, 0.05, 0.02, 10, false);
-        downSpeed = new Setting( "Down-Speed", this, 0.0F, 0.002, 10, false);
-        easyTakeoff = new Setting("EasyTakeOff", this,false);
+        downSpeed = new Setting("Down-Speed", this, 0.0F, 0.002F, 10, false);
+        easyTakeoff = new Setting("EasyTakeOff", this, false);
+
         addSetting(ncp);
         addSetting(upSpeed);
         addSetting(baseSpeed);
@@ -44,71 +45,80 @@ public final class ElytraFlight extends Module {
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
-        try {
-            if (mc.player.isElytraFlying()) {
-                if (!ncp.getValBoolean()) {
-                    if (mc.gameSettings.keyBindJump.isKeyDown()) {
-                        mc.player.setMotion(mc.player.getMotion().x, upSpeed.getValDouble(), mc.player.getMotion().z);
-                    } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
-                        mc.player.setMotion(mc.player.getMotion().x, -downSpeed.getValDouble(), mc.player.getMotion().z);
-                    } else {
-                        mc.player.setMotion(mc.player.getMotion().x, 0, mc.player.getMotion().z);
-                    }
-                    if (mc.gameSettings.keyBindForward.isKeyDown() ||
-                            mc.gameSettings.keyBindRight.isKeyDown() ||
-                            mc.gameSettings.keyBindBack.isKeyDown() ||
-                            mc.gameSettings.keyBindLeft.isKeyDown()) {
-                        MathUtils.setSpeed(baseSpeed.getValDouble());
-                    } else {
-                        mc.player.setMotion(0, mc.player.getMotion().y, 0);
-                    }
-                } else {
-                    Vector3d vector3d = mc.player.getMotion();
+        if (mc.player == null || !mc.player.isElytraFlying()) return;
 
-                    if (mc.gameSettings.keyBindForward.isKeyDown()) {
-                        double[] dir = MathUtils.directionSpeed(baseSpeed.getValDouble());
-                        vector3d = mc.player.getMotion().add(dir[0], 0, dir[1]);
-                    }
-
-                    Vector3d vector3d1 = mc.player.getLookVec();
-                    double d0 = 0.08D;
-                    float f = mc.player.rotationPitch * ((float) Math.PI / 180F);
-                    double d1 = Math.sqrt(vector3d1.x * vector3d1.x + vector3d1.z * vector3d1.z);
-                    double d3 = Math.sqrt(Entity.horizontalMag(vector3d));
-                    double d4 = vector3d1.length();
-                    float f1 = MathHelper.cos(f);
-                    f1 = (float) ((double) f1 * (double) f1 * Math.min(1.0D, d4 / 0.4D));
-                    vector3d = mc.player.getMotion().add(0.0D, d0 * (-1.0D + (double) f1 * 0.75D), 0.0D);
-                    if (vector3d.y < 0.0D && d1 > 0.0D) {
-                        double d5 = vector3d.y * -0.1D * (double) f1;
-                        vector3d = vector3d.add(vector3d1.x * d5 / d1, d5, vector3d1.z * d5 / d1);
-                    }
-
-                    if (f < 0.0F && d1 > 0.0D) {
-                        double d9 = d3 * (double) (-MathHelper.sin(f)) * 0.04D;
-                        vector3d = vector3d.add(-vector3d1.x * d9 / d1, d9 * 3.2D, -vector3d1.z * d9 / d1);
-                    }
-
-                    if (d1 > 0.0D) {
-                        vector3d = vector3d.add((vector3d1.x / d1 * d3 - vector3d.x) * 0.1D, 0.0D, (vector3d1.z / d1 * d3 - vector3d.z) * 0.1D);
-                    }
-
-                    mc.player.setMotion(vector3d.mul((double) 0.99F, (double) 0.98F, (double) 0.99F));
-                }
-            } else {
-                if (easyTakeoff.getValBoolean()) {
-                    if (mc.world.getBlockState(mc.player.getPosition().down()).getBlock().isAir(mc.world.getBlockState(mc.player.getPosition().down()), mc.world, mc.player.getPosition().down()) && mc.player.getMotion().y < 0) {
-                        if (!a) {
-                            mc.player.connection.sendPacket(new CEntityActionPacket(mc.player, CEntityActionPacket.Action.START_FALL_FLYING));
-                            mc.player.startFallFlying();
-                            a = true;
-                        }
-                    } else {
-                        a = false;
-                    }
-                }
-            }
-        } catch (Exception ignored) {
+        if (!ncp.getValBoolean()) {
+            handleNonNCPFlight();
+        } else {
+            handleNCPFlight();
         }
+
+        handleEasyTakeoff();
+    }
+
+    private void handleNonNCPFlight() {
+        Vector3d motion = mc.player.getMotion();
+        if (mc.gameSettings.keyBindJump.isKeyDown()) {
+            mc.player.setMotion(motion.x, upSpeed.getValDouble(), motion.z);
+        } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
+            mc.player.setMotion(motion.x, -downSpeed.getValDouble(), motion.z);
+        } else {
+            mc.player.setMotion(motion.x, 0, motion.z);
+        }
+
+        if (isAnyMovementKeyDown()) {
+            MathUtils.setSpeed(baseSpeed.getValDouble());
+        } else {
+            mc.player.setMotion(0, mc.player.getMotion().y, 0);
+        }
+    }
+
+    private void handleNCPFlight() {
+        Vector3d motion = mc.player.getMotion();
+        Vector3d lookVec = mc.player.getLookVec();
+        double speed = baseSpeed.getValDouble();
+        float pitchRadians = (float) Math.toRadians(mc.player.rotationPitch);
+        double horizontalDistance = Math.sqrt(lookVec.x * lookVec.x + lookVec.z * lookVec.z);
+        double motionLength = Entity.horizontalMag(motion);
+        double lookVecLength = lookVec.length();
+
+        // Calculate vertical adjustment
+        double verticalAdjustment = 0.08 * (-1.0 + Math.pow(Math.min(1.0, lookVecLength / 0.4), 2)) * 0.75;
+        motion = motion.add(0, verticalAdjustment, 0);
+
+        if (motion.y < 0 && horizontalDistance > 0) {
+            double horizontalAdjustment = motion.y * -0.1 * (MathHelper.cos(pitchRadians));
+            motion = motion.add(lookVec.x * horizontalAdjustment / horizontalDistance, horizontalAdjustment, lookVec.z * horizontalAdjustment / horizontalDistance);
+        }
+
+        if (pitchRadians < 0 && horizontalDistance > 0) {
+            double pitchAdjustment = horizontalDistance * -MathHelper.sin(pitchRadians) * 0.04;
+            motion = motion.add(-lookVec.x * pitchAdjustment / horizontalDistance, pitchAdjustment * 3.2, -lookVec.z * pitchAdjustment / horizontalDistance);
+        }
+
+        if (horizontalDistance > 0) {
+            motion = motion.add((lookVec.x / horizontalDistance * motionLength - motion.x) * 0.1, 0, (lookVec.z / horizontalDistance * motionLength - motion.z) * 0.1);
+        }
+
+        mc.player.setMotion(motion.mul(0.99F, 0.98F, 0.99F));
+    }
+
+    private void handleEasyTakeoff() {
+        if (easyTakeoff.getValBoolean() && mc.world.getBlockState(mc.player.getPosition().down()).getBlock().isAir(mc.world.getBlockState(mc.player.getPosition().down()), mc.world, mc.player.getPosition().down()) && mc.player.getMotion().y < 0) {
+            if (!isTakingOff) {
+                mc.player.connection.sendPacket(new CEntityActionPacket(mc.player, CEntityActionPacket.Action.START_FALL_FLYING));
+                mc.player.startFallFlying();
+                isTakingOff = true;
+            }
+        } else {
+            isTakingOff = false;
+        }
+    }
+
+    private boolean isAnyMovementKeyDown() {
+        return mc.gameSettings.keyBindForward.isKeyDown() ||
+                mc.gameSettings.keyBindRight.isKeyDown() ||
+                mc.gameSettings.keyBindBack.isKeyDown() ||
+                mc.gameSettings.keyBindLeft.isKeyDown();
     }
 }

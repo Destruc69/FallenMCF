@@ -7,6 +7,7 @@
  */
 package paul.fallen.module.modules.combat;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
@@ -22,11 +23,9 @@ import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
 import paul.fallen.utils.entity.PlayerControllerUtils;
 import paul.fallen.utils.entity.RotationUtils;
-import paul.fallen.utils.world.BlockUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Objects;
 
 public final class AutoTNT extends Module {
 
@@ -43,10 +42,8 @@ public final class AutoTNT extends Module {
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
             Entity closestEntity = findClosestEntity();
-
             if (closestEntity != null) {
                 BlockPos tntPos = findTNTPlacementPosition(closestEntity);
-
                 if (tntPos != null) {
                     placeTNTAndIgnite(tntPos);
                 }
@@ -57,26 +54,29 @@ public final class AutoTNT extends Module {
 
     private BlockPos findTNTPlacementPosition(Entity entity) {
         BlockPos enBP = entity.getPosition().add(0.5, 0, 0.5);
-        BlockPos blockPos = null;
-        assert mc.world != null;
-        if (mc.world.getBlockState(enBP.add(0, 0, 1)).getBlock().equals(Blocks.AIR) || mc.world.getBlockState(enBP.add(0, 0, 1)).getBlock().equals(Blocks.TNT)) {
-            blockPos = enBP.add(0, 0, 1);
-        } else if (mc.world.getBlockState(enBP.add(0, 0, -1)).getBlock().equals(Blocks.AIR) || mc.world.getBlockState(enBP.add(0, 0, -1)).getBlock().equals(Blocks.TNT)) {
-            blockPos = enBP.add(0, 0, -1);
-        } else if (mc.world.getBlockState(enBP.add(1, 0, 0)).getBlock().equals(Blocks.AIR) || mc.world.getBlockState(enBP.add(1, 0, 0)).getBlock().equals(Blocks.TNT)) {
-            blockPos = enBP.add(1, 0, 0);
-        } else if (mc.world.getBlockState(enBP.add(-1, 0, 0)).getBlock().equals(Blocks.AIR) || mc.world.getBlockState(enBP.add(-1, 0, 0)).getBlock().equals(Blocks.TNT)) {
-            blockPos = enBP.add(-1, 0, 0);
-        } else if (mc.world.getBlockState(enBP.add(1, 1, 0)).getBlock().equals(Blocks.AIR) && !mc.world.getBlockState(enBP.add(1, 0, 0)).getBlock().equals(Blocks.AIR) || mc.world.getBlockState(enBP.add(-1, 1, 0)).getBlock().equals(Blocks.TNT)) {
-            blockPos = enBP.add(1, 1, 0);
-        } else if (mc.world.getBlockState(enBP.add(-1, 1, 0)).getBlock().equals(Blocks.AIR) && !mc.world.getBlockState(enBP.add(-1, 0, 0)).getBlock().equals(Blocks.AIR) || mc.world.getBlockState(enBP.add(1, 1, 0)).getBlock().equals(Blocks.TNT)) {
-            blockPos = enBP.add(-1, 1, 0);
-        } else if (mc.world.getBlockState(enBP.add(0, 1, 1)).getBlock().equals(Blocks.AIR) && !mc.world.getBlockState(enBP.add(0, 0, 1)).getBlock().equals(Blocks.AIR) || mc.world.getBlockState(enBP.add(0, 1, 1)).getBlock().equals(Blocks.TNT)) {
-            blockPos = enBP.add(0, 1, 1);
-        } else if (mc.world.getBlockState(enBP.add(0, 1, -1)).getBlock().equals(Blocks.AIR) && !mc.world.getBlockState(enBP.add(0, 0, -1)).getBlock().equals(Blocks.AIR) || mc.world.getBlockState(enBP.add(0, 1, -1)).getBlock().equals(Blocks.TNT)) {
-            blockPos = enBP.add(0, 1, -1);
+        BlockPos[] offsets = {
+                new BlockPos(0, 0, 1),
+                new BlockPos(0, 0, -1),
+                new BlockPos(1, 0, 0),
+                new BlockPos(-1, 0, 0),
+                new BlockPos(1, 1, 0),
+                new BlockPos(-1, 1, 0),
+                new BlockPos(0, 1, 1),
+                new BlockPos(0, 1, -1)
+        };
+
+        for (BlockPos offset : offsets) {
+            BlockPos pos = enBP.add(offset);
+            if (isValidPlacementPosition(pos)) {
+                return pos;
+            }
         }
-        return blockPos;
+        return null;
+    }
+
+    private boolean isValidPlacementPosition(BlockPos pos) {
+        Block block = mc.world.getBlockState(pos).getBlock();
+        return block.equals(Blocks.AIR) || block.equals(Blocks.TNT);
     }
 
     private Entity findClosestEntity() {
@@ -86,67 +86,50 @@ public final class AutoTNT extends Module {
         assert mc.world != null;
         for (Entity entity : mc.world.getAllEntities()) {
             if (entity != null && entity != mc.player) {
-                assert mc.player != null;
-                double distance = mc.player.getDistanceSq(entity.getPosX(), entity.getPosY(), entity.getPosZ());
+                double distance = mc.player.getDistanceSq(entity);
                 if (distance < closestDistance) {
                     closestDistance = distance;
                     closestEntity = entity;
                 }
             }
         }
-        assert closestEntity != null;
-        if (mc.player.getDistance(closestEntity) < 5) {
-            return closestEntity;
-        } else {
-            return null;
-        }
+        return (closestEntity != null && mc.player.getDistance(closestEntity) < 5) ? closestEntity : null;
     }
 
     private void placeTNTAndIgnite(BlockPos tntPos) {
         assert mc.world != null;
         if (mc.world.getBlockState(tntPos).getBlock() == Blocks.TNT) {
-            assert mc.player != null;
             mc.player.inventory.currentItem = getSlot(Items.FLINT_AND_STEEL);
             if (mc.player.ticksExisted % 5 == 0) {
-                //PlayerControllerUtils.rightClickBlock(tntPos, Direction.DOWN);
-                //mc.playerController.clickBlock(tntPos, Direction.DOWN);
-                PlayerControllerUtils.rightClickBlock(new Vector3d(0.5, 0.5, 0.5), Direction.DOWN, tntPos);
-                mc.player.swingArm(Hand.MAIN_HAND);
-
-                float[] rot = RotationUtils.getYawAndPitch(new Vector3d(tntPos.getX() + 0.5, tntPos.getY() + 0.5, tntPos.getZ() + 0.5));
-                if (mode.getValString() == "packet") {
-                    mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
-                } else {
-                    mc.player.rotationYaw = rot[0];
-                    mc.player.rotationPitch = rot[1];
-                }
+                placeBlock(tntPos);
             }
         } else {
-            assert mc.player != null;
             mc.player.inventory.currentItem = getSlot(Item.getItemFromBlock(Blocks.TNT));
             if (mc.player.ticksExisted % 5 == 0) {
-                //PlayerControllerUtils.rightClickBlock(tntPos, Direction.DOWN);
-                PlayerControllerUtils.rightClickBlock(new Vector3d(0.5, 0, 0.5), Direction.DOWN, tntPos);
-                BlockUtils.clickBlock(tntPos, mc.player.inventory.currentItem, true, true);
-                mc.player.swingArm(Hand.MAIN_HAND);
-
-                float[] rot = RotationUtils.getYawAndPitch(new Vector3d(tntPos.getX() + 0.5, tntPos.getY(), tntPos.getZ() + 0.5));
-                if (mode.getValString() == "packet") {
-                    mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
-                } else {
-                    mc.player.rotationYaw = rot[0];
-                    mc.player.rotationPitch = rot[1];
-                }
+                placeBlock(tntPos);
             }
         }
     }
 
+    private void placeBlock(BlockPos pos) {
+        PlayerControllerUtils.rightClickBlock(new Vector3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5), Direction.DOWN, pos);
+        mc.player.swingArm(Hand.MAIN_HAND);
+
+        float[] rot = RotationUtils.getYawAndPitch(new Vector3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5));
+        if ("packet".equals(mode.getValString())) {
+            mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
+        } else {
+            mc.player.rotationYaw = rot[0];
+            mc.player.rotationPitch = rot[1];
+        }
+    }
+
     private int getSlot(Item item) {
-        for (int i = 0; i < Objects.requireNonNull(mc.player).inventory.mainInventory.size(); i++) {
-            if (mc.player.inventory.getStackInSlot(i).getItem().equals(item)) {
+        for (int i = 0; i < mc.player.inventory.mainInventory.size(); i++) {
+            if (mc.player.inventory.getStackInSlot(i).getItem() == item) {
                 return i;
             }
         }
-        return 0;
+        return 0; // Default slot if item not found
     }
 }

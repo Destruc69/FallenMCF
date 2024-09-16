@@ -7,13 +7,13 @@
  */
 package paul.fallen.module.modules.movement;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityMountEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-
-import java.util.Objects;
 
 public final class EntityFlight extends Module {
 
@@ -36,60 +36,47 @@ public final class EntityFlight extends Module {
 
     @SubscribeEvent
     public void onUpdate(TickEvent.ClientTickEvent event) {
-        try {
-            assert mc.player != null;
-            if (mc.player.getRidingEntity() != null) {
-                if (Objects.requireNonNull(mc.player.getRidingEntity()).isAlive()) {
-                    if (!bypass.getValBoolean()) {
-                        assert mc.player.getRidingEntity() != null;
-                        if (mc.gameSettings.keyBindJump.isKeyDown()) {
-                            Objects.requireNonNull(mc.player.getRidingEntity()).setMotion(Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().x, Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().y + upSpeed.getValDouble(), Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().z);
-                        } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
-                            Objects.requireNonNull(mc.player.getRidingEntity()).setMotion(Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().x, Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().y - downSpeed.getValDouble(), Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().z);
-                        }
-                    } else {
-                        if (mc.player.ticksExisted % 5 == 0) {
-                            assert mc.player.getRidingEntity() != null;
-                            if (mc.gameSettings.keyBindJump.isKeyDown()) {
-                                Objects.requireNonNull(mc.player.getRidingEntity()).setMotion(Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().x, Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().y + upSpeed.getValDouble(), Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().z);
-                            } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
-                                Objects.requireNonNull(mc.player.getRidingEntity()).setMotion(Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().x, Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().y - downSpeed.getValDouble(), Objects.requireNonNull(mc.player.getRidingEntity()).getMotion().z);
-                            }
-                        } else {
-                            if (mc.gameSettings.keyBindJump.isKeyDown()) {
-                                mc.player.getRidingEntity().setMotion(mc.player.getRidingEntity().getMotion().x, mc.player.getRidingEntity().getMotion().y / 2, mc.player.getMotion().z);
-                            }
-                        }
-                    }
-                    if (velocity.getValBoolean()) {
-                        if (!mc.gameSettings.keyBindJump.isKeyDown() && !mc.gameSettings.keyBindSneak.isKeyDown()) {
-                            mc.player.getRidingEntity().setMotion(mc.player.getRidingEntity().getMotion().x, 0.04, mc.player.getRidingEntity().getMotion().z);
-                        }
-                    }
+        Entity ridingEntity = mc.player != null ? mc.player.getRidingEntity() : null;
+        if (ridingEntity == null || !ridingEntity.isAlive()) return;
 
-                    //lil anti kick
-                    if (!(mc.player.getRidingEntity().isOnGround())) {
-                        if (mc.player.ticksExisted % 2 == 0) {
-                            mc.player.getRidingEntity().setPosition(mc.player.getRidingEntity().getPosX() + 0.00000001, mc.player.getRidingEntity().getPosY() + 0.00000001, mc.player.getRidingEntity().getPosZ() - 0.00000001);
-                        } else {
-                            mc.player.getRidingEntity().setPosition(mc.player.getRidingEntity().getPosX() - 0.00000001, mc.player.getRidingEntity().getPosY() - 0.00000001, mc.player.getRidingEntity().getPosZ() + 0.00000001);
-                        }
-                    }
-                }
-                //I find you can fly better when collided
-                mc.player.getRidingEntity().collidedHorizontally = true;
-                mc.player.getRidingEntity().collidedVertically = true;
+        Vector3d motion = ridingEntity.getMotion();
+        if (bypass.getValBoolean() && mc.player.ticksExisted % 5 == 0) {
+            adjustMotion(motion);
+        } else {
+            adjustMotion(motion);
+            if (bypass.getValBoolean() && mc.player.ticksExisted % 5 != 0 && mc.gameSettings.keyBindJump.isKeyDown()) {
+                ridingEntity.setMotion(motion.x, motion.y / 2, motion.z);
             }
-        } catch (Exception e) {
+        }
+
+        if (velocity.getValBoolean() && !mc.gameSettings.keyBindJump.isKeyDown() && !mc.gameSettings.keyBindSneak.isKeyDown()) {
+            ridingEntity.setMotion(motion.x, 0.04, motion.z);
+        }
+
+        // Anti-kick mechanism
+        if (!ridingEntity.isOnGround() && mc.player.ticksExisted % 2 == 0) {
+            ridingEntity.setPosition(ridingEntity.getPosX() + 0.00000001, ridingEntity.getPosY() + 0.00000001, ridingEntity.getPosZ() - 0.00000001);
+        } else if (!ridingEntity.isOnGround()) {
+            ridingEntity.setPosition(ridingEntity.getPosX() - 0.00000001, ridingEntity.getPosY() - 0.00000001, ridingEntity.getPosZ() + 0.00000001);
+        }
+
+        // Improve collision handling
+        ridingEntity.collidedHorizontally = true;
+        ridingEntity.collidedVertically = true;
+    }
+
+    private void adjustMotion(Vector3d motion) {
+        if (mc.gameSettings.keyBindJump.isKeyDown()) {
+            mc.player.getRidingEntity().setMotion(motion.x, motion.y + upSpeed.getValDouble(), motion.z);
+        } else if (mc.gameSettings.keyBindSneak.isKeyDown()) {
+            mc.player.getRidingEntity().setMotion(motion.x, motion.y - downSpeed.getValDouble(), motion.z);
         }
     }
 
     @SubscribeEvent
     public void onExitVehicle(EntityMountEvent event) {
-        if (event.isDismounting()) {
-            if (!(event.getEntityBeingMounted().isOnGround())) {
-                event.setCanceled(true);
-            }
+        if (event.isDismounting() && !event.getEntityBeingMounted().isOnGround()) {
+            event.setCanceled(true);
         }
     }
 }

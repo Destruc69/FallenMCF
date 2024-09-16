@@ -2,11 +2,13 @@ package paul.fallen.utils.world;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.network.play.client.CEntityActionPacket.Action;
+import net.minecraft.network.play.client.CPlayerDiggingPacket;
 import net.minecraft.network.play.client.CPlayerPacket.RotationPacket;
 import net.minecraft.network.play.client.CPlayerTryUseItemOnBlockPacket;
 import net.minecraft.util.Direction;
@@ -220,6 +222,54 @@ public class BlockUtils implements ClientSupport {
 
     private static VoxelShape getOutlineShape(BlockPos pos) {
         return mc.world.getBlockState(pos).getShape(mc.world, pos);
+    }
+
+    public static void breakBlocksPacketSpam(ArrayList<BlockPos> blocks) {
+        Minecraft mc = Minecraft.getInstance();
+        Vector3d eyesPos = mc.gameRenderer.getActiveRenderInfo().getProjectedView();
+
+        for (BlockPos pos : blocks) {
+            Vector3d posVec = new Vector3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+            double distanceSqPosVec = eyesPos.squareDistanceTo(posVec);
+
+            for (Direction side : Direction.values()) {
+                Vector3d hitVec = posVec.add(new Vector3d(side.getDirectionVec().getX(), side.getDirectionVec().getY(), side.getDirectionVec().getZ()).scale(0.5));
+
+                // Check if side is facing towards player
+                if (eyesPos.squareDistanceTo(hitVec) >= distanceSqPosVec) {
+                    continue;
+                }
+
+                // Break block
+                Minecraft.getInstance().player.connection.sendPacket(new CPlayerDiggingPacket(CPlayerDiggingPacket.Action.START_DESTROY_BLOCK, pos, side));
+                Minecraft.getInstance().player.connection.sendPacket(new CPlayerDiggingPacket(CPlayerDiggingPacket.Action.ABORT_DESTROY_BLOCK, pos, side));
+
+                break;
+            }
+        }
+    }
+
+    public static void breakBlockPacketSpam(BlockPos blockPos) {
+        Minecraft mc = Minecraft.getInstance();
+        Vector3d eyesPos = mc.gameRenderer.getActiveRenderInfo().getProjectedView();
+
+        Vector3d posVec = new Vector3d(blockPos.getX() + 0.5, blockPos.getY() + 0.5, blockPos.getZ() + 0.5);
+        double distanceSqPosVec = eyesPos.squareDistanceTo(posVec);
+
+        for (Direction side : Direction.values()) {
+            Vector3d hitVec = posVec.add(new Vector3d(side.getDirectionVec().getX(), side.getDirectionVec().getY(), side.getDirectionVec().getZ()).scale(0.5));
+
+            // Check if side is facing towards player
+            if (eyesPos.squareDistanceTo(hitVec) >= distanceSqPosVec) {
+                continue;
+            }
+
+            // Break block
+            Minecraft.getInstance().player.connection.sendPacket(new CPlayerDiggingPacket(CPlayerDiggingPacket.Action.START_DESTROY_BLOCK, blockPos, side));
+            Minecraft.getInstance().player.connection.sendPacket(new CPlayerDiggingPacket(CPlayerDiggingPacket.Action.ABORT_DESTROY_BLOCK, blockPos, side));
+
+            break;
+        }
     }
 
     public static ArrayList<BlockPos> getAllBlocksBetween(BlockPos posA, BlockPos posB) {

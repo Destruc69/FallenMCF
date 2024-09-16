@@ -52,24 +52,24 @@ public final class AntiHunger extends Module {
             if (MathUtils.calculateFallDistance(x, y, z) > 0.5)
                 return;
 
-            if (changesPosition() && changesLook())
+            if (changesPosition(x, y, z) && changesLook(yaw, pitch))
                 event.setPacket(new CPlayerPacket.PositionRotationPacket(x, y, z, yaw, pitch, false));
-            else if (changesPosition())
+            else if (changesPosition(x, y, z))
                 event.setPacket(new CPlayerPacket.PositionPacket(x, y, z, false));
-            else if (changesLook())
+            else if (changesLook(yaw, pitch))
                 event.setPacket(new CPlayerPacket.RotationPacket(yaw, pitch, false));
             else
                 event.setPacket(new CPlayerPacket(false));
         }
     }
 
-    private boolean changesPosition() {
+    private boolean changesPosition(double x, double y, double z) {
         assert mc.player != null;
-        return mc.player.getPosX() != mc.player.prevPosX || mc.player.getPosZ() != mc.player.prevPosZ || mc.player.getPosY() != mc.player.prevPosY;
+        return mc.player.getPosX() != x || mc.player.getPosY() != y || mc.player.getPosZ() != z;
     }
 
-    private boolean changesLook() {
+    private boolean changesLook(float yaw, float pitch) {
         assert mc.player != null;
-        return mc.player.rotationYaw != mc.player.prevRotationYaw || mc.player.rotationPitch != mc.player.prevRotationPitch;
+        return mc.player.rotationYaw != yaw || mc.player.rotationPitch != pitch;
     }
 }

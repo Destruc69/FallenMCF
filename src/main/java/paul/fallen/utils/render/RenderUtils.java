@@ -16,7 +16,6 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import org.lwjgl.opengl.GL11;
 import paul.fallen.ClientSupport;
 
 import java.util.ArrayList;
@@ -26,8 +25,8 @@ public class RenderUtils implements ClientSupport {
     public static void renderBox(AxisAlignedBB bb, float red, float green, float blue, int width, float alpha, RenderWorldLastEvent event) {
         RenderSystem.lineWidth(width);
         IRenderTypeBuffer.Impl buffer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
-        if (buffer == null)
-            return;
+        if (buffer == null) return;
+
         IVertexBuilder builder = buffer.getBuffer(RenderType.getLines());
         MatrixStack matrixStack = event.getMatrixStack();
         ClientPlayerEntity player = Minecraft.getInstance().player;
@@ -39,25 +38,78 @@ public class RenderUtils implements ClientSupport {
         matrixStack.translate(-x, -y, -z);
         RenderSystem.disableDepthTest(); // Disable depth testing to render through blocks
         WorldRenderer.drawBoundingBox(matrixStack, builder, bb.minX, bb.minY, bb.minZ, bb.maxX, bb.maxY, bb.maxZ, red, green, blue, alpha);
-        matrixStack.pop();
         RenderSystem.enableDepthTest(); // Re-enable depth testing after rendering
-        buffer.finish(RenderType.getLines());
+        matrixStack.pop();
+        buffer.finish(RenderType.getLines()); // Finish buffer to avoid state issues
     }
 
     public static void drawOutlinedBox(BlockPos pos, float red, float green, float blue, RenderWorldLastEvent event) {
-        final GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
-        gameRenderer.resetProjectionMatrix(event.getProjectionMatrix());
-
-        final AxisAlignedBB aab = new AxisAlignedBB(0, 0, 0, 1, 1, 1);
-        drawBoundingBoxAtBlockPos(event.getMatrixStack(), aab, red, green, blue, 1.0F, pos);
+        drawOutlinedBox(pos, new AxisAlignedBB(0, 0, 0, 1, 1, 1), red, green, blue, event);
     }
 
-    public static void drawOutlinedBox(BlockPos pos, AxisAlignedBB axisAlignedBB, int red, int green, int blue, RenderWorldLastEvent event) {
+    public static void drawOutlinedBox(BlockPos pos, AxisAlignedBB axisAlignedBB, float red, float green, float blue, RenderWorldLastEvent event) {
         final GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
         gameRenderer.resetProjectionMatrix(event.getProjectionMatrix());
 
-        final AxisAlignedBB aab = axisAlignedBB;
-        drawBoundingBoxAtBlockPos(event.getMatrixStack(), aab, red, green, blue, 1.0F, pos);
+        drawBoundingBoxAtBlockPos(event.getMatrixStack(), axisAlignedBB, red, green, blue, 1.0F, pos);
+    }
+
+    public static void drawPath(ArrayList<Vector3d> vecPosArrayList, float red, float green, float blue, RenderWorldLastEvent event) {
+        for (int i = 0; i < vecPosArrayList.size() - 1; i++) {
+            drawLine(new BlockPos(vecPosArrayList.get(i).x + 0.5, vecPosArrayList.get(i).y, vecPosArrayList.get(i).z + 0.5),
+                    new BlockPos(vecPosArrayList.get(i + 1).x + 0.5, vecPosArrayList.get(i + 1).y, vecPosArrayList.get(i + 1).z + 0.5),
+                    red, green, blue, event);
+        }
+    }
+
+    private static void drawBoundingBoxAtBlockPos(MatrixStack matrixStack, AxisAlignedBB aabb, float red, float green, float blue, float alpha, BlockPos pos) {
+        Vector3d cam = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
+        double camX = cam.getX(), camY = cam.getY(), camZ = cam.getZ();
+
+        matrixStack.push();
+        RenderSystem.disableDepthTest();
+        drawShapeOutline(matrixStack, VoxelShapes.create(aabb), pos.getX() - camX, pos.getY() - camY, pos.getZ() - camZ, red, green, blue, alpha);
+        RenderSystem.enableDepthTest();
+        matrixStack.pop();
+    }
+
+    private static void drawShapeOutline(MatrixStack matrixStack, VoxelShape voxelShape, double originX, double originY, double originZ, float red, float green, float blue, float alpha) {
+        Matrix4f matrix4f = matrixStack.getLast().getMatrix();
+        IRenderTypeBuffer.Impl renderTypeBuffer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
+        IVertexBuilder bufferIn = renderTypeBuffer.getBuffer(RenderType.LINES);
+
+        voxelShape.forEachEdge((x0, y0, z0, x1, y1, z1) -> {
+            bufferIn.pos(matrix4f, (float) (x0 + originX), (float) (y0 + originY), (float) (z0 + originZ)).color(red, green, blue, alpha).endVertex();
+            bufferIn.pos(matrix4f, (float) (x1 + originX), (float) (y1 + originY), (float) (z1 + originZ)).color(red, green, blue, alpha).endVertex();
+        });
+
+        renderTypeBuffer.finish(RenderType.LINES);
+    }
+
+    public static void drawLine(BlockPos a, BlockPos b, float red, float green, float blue, RenderWorldLastEvent event) {
+        drawLineBoundingBox(event.getMatrixStack(), new AxisAlignedBB(0, 0, 0, 1, 1, 1), red, green, blue, 1.0F, a, b);
+    }
+
+    private static void drawLineBoundingBox(MatrixStack matrixStack, AxisAlignedBB aabb, float red, float green, float blue, float alpha, BlockPos posA, BlockPos posB) {
+        Vector3d cam = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
+        double camX = cam.getX(), camY = cam.getY(), camZ = cam.getZ();
+
+        matrixStack.push();
+        RenderSystem.disableDepthTest();
+        drawLineShapeOutline(matrixStack, VoxelShapes.create(aabb), posA, posB, camX, camY, camZ, red, green, blue, alpha);
+        RenderSystem.enableDepthTest();
+        matrixStack.pop();
+    }
+
+    private static void drawLineShapeOutline(MatrixStack matrixStack, VoxelShape voxelShape, BlockPos posA, BlockPos posB, double camX, double camY, double camZ, float red, float green, float blue, float alpha) {
+        Matrix4f matrix4f = matrixStack.getLast().getMatrix();
+        IRenderTypeBuffer.Impl renderTypeBuffer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
+        IVertexBuilder bufferIn = renderTypeBuffer.getBuffer(RenderType.LINES);
+
+        bufferIn.pos(matrix4f, (float) (posA.getX() - camX), (float) (posA.getY() - camY), (float) (posA.getZ() - camZ)).color(red, green, blue, alpha).endVertex();
+        bufferIn.pos(matrix4f, (float) (posB.getX() - camX), (float) (posB.getY() - camY), (float) (posB.getZ() - camZ)).color(red, green, blue, alpha).endVertex();
+
+        renderTypeBuffer.finish(RenderType.LINES);
     }
 
     public static void drawPath(ArrayList<Vector3d> vecPosArrayList, int red, int green, int blue, RenderWorldLastEvent event) {
@@ -69,36 +121,6 @@ public class RenderUtils implements ClientSupport {
         for (Vector3d v : vecPosArrayList) {
             drawBoundingBoxAtBlockPos(event.getMatrixStack(), aab, red, green, blue, 1.0F, new BlockPos(v.x, v.y, v.z));
         }
-    }
-
-    private static void drawBoundingBoxAtBlockPos(MatrixStack matrixStackIn, AxisAlignedBB aabbIn, float red, float green, float blue, float alpha, BlockPos pos) {
-        Vector3d cam = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
-
-        double camX = cam.getX(), camY = cam.getY(), camZ = cam.getZ();
-
-        matrixStackIn.push();
-
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-        RenderSystem.disableDepthTest();
-        drawShapeOutline(matrixStackIn, VoxelShapes.create(aabbIn), pos.getX() - camX, pos.getY() - camY, pos.getZ() - camZ, red, green, blue, alpha);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        RenderSystem.enableDepthTest();
-
-        matrixStackIn.pop();
-    }
-
-    private static void drawShapeOutline(MatrixStack matrixStack, VoxelShape voxelShape, double originX, double originY, double originZ, float red, float green, float blue, float alpha) {
-        Matrix4f matrix4f = matrixStack.getLast().getMatrix();
-
-        IRenderTypeBuffer.Impl renderTypeBuffer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
-        IVertexBuilder bufferIn = renderTypeBuffer.getBuffer(RenderType.LINES);
-
-        voxelShape.forEachEdge((x0, y0, z0, x1, y1, z1) -> {
-            bufferIn.pos(matrix4f, (float) (x0 + originX), (float) (y0 + originY), (float) (z0 + originZ)).color(red, green, blue, alpha).endVertex();
-            bufferIn.pos(matrix4f, (float) (x1 + originX), (float) (y1 + originY), (float) (z1 + originZ)).color(red, green, blue, alpha).endVertex();
-        });
-
-        renderTypeBuffer.finish(RenderType.LINES);
     }
 
     public static void renderPath(ArrayList<Vector3d> path, RenderWorldLastEvent event) {
@@ -119,42 +141,5 @@ public class RenderUtils implements ClientSupport {
                 }
             }
         }
-    }
-
-    public static void drawLine(BlockPos a, BlockPos b, int red, int green, int blue, RenderWorldLastEvent event) {
-        final GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
-        gameRenderer.resetProjectionMatrix(event.getProjectionMatrix());
-
-        final AxisAlignedBB lineAABB = new AxisAlignedBB(0, 0, 0, 1, 1, 1);
-
-        drawLineBoundingBox(event.getMatrixStack(), lineAABB, red, green, blue, 1.0F, a, b);
-    }
-
-    private static void drawLineBoundingBox(MatrixStack matrixStackIn, AxisAlignedBB aabbIn, float red, float green, float blue, float alpha, BlockPos posA, BlockPos posB) {
-        Vector3d cam = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
-
-        double camX = cam.getX(), camY = cam.getY(), camZ = cam.getZ();
-
-        matrixStackIn.push();
-
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-
-        drawLineShapeOutline(matrixStackIn, VoxelShapes.create(aabbIn), posA, posB, camX, camY, camZ, red, green, blue, alpha);
-
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-
-        matrixStackIn.pop();
-    }
-
-    private static void drawLineShapeOutline(MatrixStack matrixStack, VoxelShape voxelShape, BlockPos posA, BlockPos posB, double camX, double camY, double camZ, float red, float green, float blue, float alpha) {
-        Matrix4f matrix4f = matrixStack.getLast().getMatrix();
-
-        IRenderTypeBuffer.Impl renderTypeBuffer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
-        IVertexBuilder bufferIn = renderTypeBuffer.getBuffer(RenderType.LINES);
-
-        bufferIn.pos(matrix4f, (float) (posA.getX() - camX), (float) (posA.getY() - camY), (float) (posA.getZ() - camZ)).color(red, green, blue, alpha).endVertex();
-        bufferIn.pos(matrix4f, (float) (posB.getX() - camX), (float) (posB.getY() - camY), (float) (posB.getZ() - camZ)).color(red, green, blue, alpha).endVertex();
-
-        renderTypeBuffer.finish(RenderType.LINES);
     }
 }

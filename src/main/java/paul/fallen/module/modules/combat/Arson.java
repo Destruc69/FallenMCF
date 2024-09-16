@@ -2,6 +2,7 @@ package paul.fallen.module.modules.combat;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.network.play.client.CPlayerPacket;
@@ -18,7 +19,6 @@ import paul.fallen.utils.entity.RotationUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Objects;
 
 public final class Arson extends Module {
 
@@ -26,9 +26,7 @@ public final class Arson extends Module {
 
     public Arson(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
-
         mode = new Setting("Mode", this, "packet", new ArrayList<>(Arrays.asList("packet", "legit")));
-
         addSetting(mode);
     }
 
@@ -38,20 +36,19 @@ public final class Arson extends Module {
             Entity entity = findClosestEntity();
 
             if (entity != null) {
-                assert mc.player != null;
                 if (mc.player.getHeldItemMainhand().getItem() == Items.FLINT_AND_STEEL) {
                     BlockPos posToLight = getPosToLight(entity);
                     if (posToLight != null) {
-                        assert mc.world != null;
                         if (mc.world.getBlockState(posToLight).getBlock() != Blocks.FIRE) {
-                            //mc.playerController.processRightClickBlock(mc.player, mc.world, posToLight, EnumFacing.UP, new Vec3d(0.5, 0, 0.5), EnumHand.MAIN_HAND);
-                            assert mc.playerController != null;
-                            PlayerControllerUtils.rightClickBlock(new Vector3d(0.5, 0, 0.5), Direction.DOWN, posToLight);
+                            PlayerControllerUtils.rightClickBlock(
+                                    new Vector3d(0.5, 0, 0.5),
+                                    Direction.DOWN,
+                                    posToLight
+                            );
                             mc.player.swingArm(Hand.MAIN_HAND);
 
                             float[] rot = RotationUtils.getYawAndPitch(new Vector3d(posToLight.getX() + 0.5, posToLight.getY(), posToLight.getZ() + 0.5));
-                            if (mode.getValString() == "packet") {
-                                //mc.player.connection.sendPacket(new CPacketPlayer.Rotation(rot[0], rot[1], mc.player.onGround));
+                            if ("packet".equals(mode.getValString())) {
                                 mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
                             } else {
                                 mc.player.rotationYaw = rot[0];
@@ -71,13 +68,13 @@ public final class Arson extends Module {
     }
 
     private Entity findClosestEntity() {
+        if (mc.world == null || mc.player == null) return null;
+
         Entity closestEntity = null;
         double closestDistance = Double.MAX_VALUE;
 
-        assert mc.world != null;
         for (Entity entity : mc.world.getAllEntities()) {
-            if (entity != null && entity != mc.player) {
-                assert mc.player != null;
+            if (entity instanceof PlayerEntity && entity != mc.player) {
                 double distance = mc.player.getDistanceSq(entity);
                 if (distance < closestDistance) {
                     closestDistance = distance;
@@ -85,16 +82,13 @@ public final class Arson extends Module {
                 }
             }
         }
-        assert closestEntity != null;
-        if (mc.player.getDistance(closestEntity) < 5) {
-            return closestEntity;
-        } else {
-            return null;
-        }
+
+        return (closestEntity != null && mc.player.getDistance(closestEntity) < 5) ? closestEntity : null;
     }
 
     private int getSlot(Item item) {
-        for (int i = 0; i < Objects.requireNonNull(mc.player).inventory.mainInventory.size(); i++) {
+        if (mc.player == null) return -1;
+        for (int i = 0; i < mc.player.inventory.mainInventory.size(); i++) {
             if (mc.player.inventory.getStackInSlot(i).getItem() == item) {
                 return i;
             }
@@ -103,21 +97,18 @@ public final class Arson extends Module {
     }
 
     private BlockPos getPosToLight(Entity entity) {
-        BlockPos blockPos = null;
         BlockPos ePos = entity.getPosition();
 
-        assert mc.world != null;
-        if (!mc.world.getBlockState(ePos.add(1, -1, 0)).getBlock().equals(Blocks.AIR) && mc.world.getBlockState(ePos.add(1, 0, 0)).getBlock().equals(Blocks.AIR)) {
-            blockPos = ePos.add(1, -1, 0);
-        } else if (!mc.world.getBlockState(ePos.add(-1, -1, 0)).getBlock().equals(Blocks.AIR) && mc.world.getBlockState(ePos.add(-1, 0, 0)).getBlock().equals(Blocks.AIR)) {
-            blockPos = ePos.add(-1, -1, 0);
-        } else if (!mc.world.getBlockState(ePos.add(0, -1, 1)).getBlock().equals(Blocks.AIR) && mc.world.getBlockState(ePos.add(0, 0, 1)).getBlock().equals(Blocks.AIR)) {
-            blockPos = ePos.add(0, -1, 1);
-        } else if (!mc.world.getBlockState(ePos.add(0, -1, -1)).getBlock().equals(Blocks.AIR) && mc.world.getBlockState(ePos.add(0, 0, -1)).getBlock().equals(Blocks.AIR)) {
-            blockPos = ePos.add(0, -1, -1);
+        for (BlockPos offset : Arrays.asList(
+                ePos.add(1, -1, 0), ePos.add(-1, -1, 0),
+                ePos.add(0, -1, 1), ePos.add(0, -1, -1)
+        )) {
+            if (!mc.world.getBlockState(offset).getBlock().equals(Blocks.AIR) &&
+                    mc.world.getBlockState(offset.add(0, 1, 0)).getBlock().equals(Blocks.AIR)) {
+                return offset;
+            }
         }
-
-        return blockPos;
+        return null;
     }
 
     private enum Mode {
@@ -130,6 +121,7 @@ public final class Arson extends Module {
             this.name = name;
         }
 
+        @Override
         public String toString() {
             return name;
         }

@@ -10,7 +10,6 @@ package paul.fallen.module.modules.movement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.EditSignScreen;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraftforge.client.event.InputUpdateEvent;
@@ -29,7 +28,7 @@ public final class InvMove extends Module {
                 mc.gameSettings.keyBindBack, mc.gameSettings.keyBindForward, mc.gameSettings.keyBindJump,
                 mc.gameSettings.keyBindSprint};
 
-        if ((mc.currentScreen instanceof Screen)
+        if ((mc.currentScreen != null)
                 && !(mc.currentScreen instanceof ChatScreen) && !(mc.currentScreen instanceof EditSignScreen)) {
             KeyBinding[] array;
             int length = (array = moveKeys).length;

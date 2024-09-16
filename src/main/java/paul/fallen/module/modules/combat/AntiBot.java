@@ -10,7 +10,6 @@ package paul.fallen.module.modules.combat;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.potion.Effects;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -20,16 +19,19 @@ import paul.fallen.utils.client.ClientUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public final class AntiBot extends Module {
 
-    public static List<PlayerEntity> list;
+    private static final double IMPOSSIBLE_MOTION_THRESHOLD = 2.035;
+    private static final double IMPOSSIBLE_MOTION_Y_THRESHOLD = 0.407;
+
     private final Setting impMotionCheck;
     private final Setting healthCheck;
     private final Setting immuneCheck;
     private final Setting impMotionY;
     private final Setting inGroundCheck;
-    ArrayList<PlayerEntity> bots = new ArrayList<>();
+    private final List<PlayerEntity> bots = new ArrayList<>();
 
     public AntiBot(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
@@ -54,63 +56,72 @@ public final class AntiBot extends Module {
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
-        try {
-            for (PlayerEntity theBots : bots) {
-                assert mc.world != null;
-                mc.world.removeEntityFromWorld(theBots.getEntityId());
+        if (mc.world == null) return;
+
+        // Remove all bots from the world
+        bots.forEach(bot -> mc.world.removeEntityFromWorld(bot.getEntityId()));
+        bots.clear();
+
+        List<Entity> entities = (List<Entity>) mc.world.getAllEntities();
+        List<PlayerEntity> players = entities.stream()
+                .filter(PlayerEntity.class::isInstance)
+                .map(PlayerEntity.class::cast)
+                .filter(player -> player != mc.player)
+                .collect(Collectors.toList());
+
+        for (PlayerEntity player : players) {
+            boolean isBot = false;
+            String reason = "";
+
+            if (impMotionCheck.getValBoolean() && isImpossibleMotion(player)) {
+                isBot = true;
+                reason = "ImpossibleMotion";
+            } else if (healthCheck.getValBoolean() && isHealthCheck(player)) {
+                isBot = true;
+                reason = "HealthCheck";
+            } else if (immuneCheck.getValBoolean() && isImmuneCheck(player)) {
+                isBot = true;
+                reason = "ImmuneCheck";
+            } else if (impMotionY.getValBoolean() && isImpossibleMotionY(player)) {
+                isBot = true;
+                reason = "ImpossibleMotionY";
+            } else if (inGroundCheck.getValBoolean() && isInGroundCheck(player)) {
+                isBot = true;
+                reason = "InGroundCheck";
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            assert mc.world != null;
-            for (Entity e : mc.world.getAllEntities()) {
-                if (e instanceof PlayerEntity) {
-                    if (e != mc.player) {
-                        if (!(bots.contains(e))) {
-                            if (impMotionCheck.getValBoolean()) {
-                                if (e.getMotion().x > 2.035 || e.getMotion().x < -2.035 || e.getMotion().y > 0.407 || e.getMotion().y < -0.407 || e.getMotion().z > 2.035 || e.getMotion().z < -2.035) {
-                                    if (((PlayerEntity) e).isPotionActive(Effects.SPEED) || ((PlayerEntity) e).isPotionActive(Effects.JUMP_BOOST))
-                                        return;
-                                    bots.add((PlayerEntity) e);
-                                    ClientUtils.addChatMessage("[AB] We removed a bot:" + " " + e.getName() + " " + "for ImpossibleMotion");
-                                }
-                            }
-                            if (healthCheck.getValBoolean()) {
-                                if (e.ticksExisted < 1 && ((PlayerEntity) e).getHealth() <= 19) {
-                                    bots.add((PlayerEntity) e);
-                                    ClientUtils.addChatMessage("[AB] We removed a bot:" + " " + e.getName() + " " + "for HeathCheck");
-                                }
-                            }
-                            if (immuneCheck.getValBoolean()) {
-                                if (e.isInvisible() || e.isImmuneToFire() || e.isImmuneToExplosions()) {
-                                    bots.add((PlayerEntity) e);
-                                    ClientUtils.addChatMessage("[AB] We removed a bot:" + " " + e.getName());
-                                }
-                            }
-                            if (impMotionY.getValBoolean()) {
-                                if (e.isAirBorne && e.fallDistance > 1 && e.getMotion().y > 0) {
-                                    bots.add((PlayerEntity) e);
-                                    ClientUtils.addChatMessage("[AB] We removed a bot:" + " " + e.getName());
-                                }
-                            }
-                            if (inGroundCheck.getValBoolean()) {
-                                BlockPos leg = new BlockPos(e.getPosX(), e.getPosY(), e.getPosZ());
-                                BlockPos head = new BlockPos(e.getPosX(), e.getPosY() + 1, e.getPosZ());
-                                if (!mc.world.getBlockState(leg).getBlock().equals(Blocks.AIR)) {
-                                    bots.add((PlayerEntity) e);
-                                    ClientUtils.addChatMessage("[AB] We removed a bot:" + " " + e.getName());
-                                }
-                                if (!mc.world.getBlockState(head).getBlock().equals(Blocks.AIR)) {
-                                    bots.add((PlayerEntity) e);
-                                    ClientUtils.addChatMessage("[AB] We removed a bot:" + " " + e.getName());
-                                }
-                            }
-                        }
-                    }
-                }
+
+            if (isBot) {
+                bots.add(player);
+                ClientUtils.addChatMessage("[AB] We removed a bot: " + player.getName() + " for " + reason);
             }
-        } catch (Exception e) {
         }
+    }
+
+    private boolean isImpossibleMotion(PlayerEntity player) {
+        double x = player.getMotion().x;
+        double y = player.getMotion().y;
+        double z = player.getMotion().z;
+        return x > IMPOSSIBLE_MOTION_THRESHOLD || x < -IMPOSSIBLE_MOTION_THRESHOLD ||
+                y > IMPOSSIBLE_MOTION_Y_THRESHOLD || y < -IMPOSSIBLE_MOTION_Y_THRESHOLD ||
+                z > IMPOSSIBLE_MOTION_THRESHOLD || z < -IMPOSSIBLE_MOTION_THRESHOLD;
+    }
+
+    private boolean isHealthCheck(PlayerEntity player) {
+        return player.ticksExisted < 1 && player.getHealth() <= 19;
+    }
+
+    private boolean isImmuneCheck(PlayerEntity player) {
+        return player.isInvisible() || player.isImmuneToFire() || player.isImmuneToExplosions();
+    }
+
+    private boolean isImpossibleMotionY(PlayerEntity player) {
+        return player.isAirBorne && player.fallDistance > 1 && player.getMotion().y > 0;
+    }
+
+    private boolean isInGroundCheck(PlayerEntity player) {
+        BlockPos leg = new BlockPos(player.getPosX(), player.getPosY(), player.getPosZ());
+        BlockPos head = new BlockPos(player.getPosX(), player.getPosY() + 1, player.getPosZ());
+        return !mc.world.getBlockState(leg).getBlock().equals(Blocks.AIR) ||
+                !mc.world.getBlockState(head).getBlock().equals(Blocks.AIR);
     }
 }

@@ -1,6 +1,7 @@
 package paul.fallen.module.modules.world;
 
 import net.minecraft.block.Blocks;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -48,17 +49,12 @@ public class Nuker extends Module {
             if (event.phase == TickEvent.Phase.START) {
                 if (targetPosition == null || mc.world.getBlockState(targetPosition).getBlock().equals(Blocks.AIR)) {
                     targetPosition = getTargetPosition();
-                    if (legit.getValBoolean()) {
-                        mc.gameSettings.keyBindAttack.setPressed(false);
-                    }
                 } else {
                     if (!legit.getValBoolean()) {
-                        BlockUtils.breakBlock(targetPosition, mc.player.inventory.currentItem, true, true);
+                        //BlockUtils.breakBlock(targetPosition, mc.player.inventory.currentItem, true, true);
+                        BlockUtils.breakBlockPacketSpam(targetPosition);
                     } else {
-                        float[] rot = getRotationsBlock(targetPosition, mc.player.getHorizontalFacing());
-                        mc.player.rotationYaw = rot[0];
-                        mc.player.rotationPitch = rot[1];
-                        mc.gameSettings.keyBindAttack.setPressed(true);
+                        BlockUtils.breakBlock(targetPosition, Minecraft.getInstance().player.inventory.currentItem, true, true);
                     }
                 }
             }

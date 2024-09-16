@@ -1,5 +1,6 @@
 package paul.fallen.module.modules.combat;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.IPacket;
@@ -26,8 +27,8 @@ public class BackTrack extends Module {
     public static List<Vector3d> positions = new ArrayList<>();
     private final Deque<IPacket> packets = new ArrayDeque<>();
 
-    private Setting amount;
-    private Setting forward;
+    private final Setting amount;
+    private final Setting forward;
 
     private int ticks;
 
@@ -42,82 +43,81 @@ public class BackTrack extends Module {
 
     @Override
     public void onDisable() {
-        try {
-            super.onDisable();
-            target = null;
-            positions.clear();
-            pastPositions.clear();
-            forwardPositions.clear();
-            packets.clear();
-        } catch (Exception ignored) {
-        }
+        super.onDisable();
+        target = null;
+        positions.clear();
+        pastPositions.clear();
+        forwardPositions.clear();
+        packets.clear();
     }
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
-        try {
-            if (target == null) return;
+        if (target == null) return;
 
+        try {
+            // Update past positions
             pastPositions.add(new Vector3d(target.getPosX(), target.getPosY(), target.getPosZ()));
 
-            final double deltaX = (target.getPosX() - target.lastTickPosX) * 2;
-            final double deltaZ = (target.getPosZ() - target.lastTickPosZ) * 2;
+            // Calculate forward positions
+            double deltaX = (target.getPosX() - target.lastTickPosX) * 2;
+            double deltaZ = (target.getPosZ() - target.lastTickPosZ) * 2;
 
             forwardPositions.clear();
-            int i = 0;
-            while (forward.getValDouble() > forwardPositions.size()) {
-                i++;
+            int steps = (int) forward.getValDouble();
+            for (int i = 1; i <= steps; i++) {
                 forwardPositions.add(new Vector3d(target.getPosX() + deltaX * i, target.getPosY(), target.getPosZ() + deltaZ * i));
             }
 
-            while (pastPositions.size() > (int) amount.getValDouble()) {
-                pastPositions.remove(0);
+            // Trim past positions list
+            if (pastPositions.size() > (int) amount.getValDouble()) {
+                pastPositions = pastPositions.subList(pastPositions.size() - (int) amount.getValDouble(), pastPositions.size());
             }
 
+            // Update positions
             positions.clear();
             positions.addAll(forwardPositions);
             positions.addAll(pastPositions);
 
             ticks++;
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     @SubscribeEvent
     public void onRender3DEvent(RenderWorldLastEvent event) {
-        try {
-            if (target != null && !positions.isEmpty()) RenderUtils.renderPath(new ArrayList<>(positions), event);
-        } catch (Exception ignored) {
+        if (target != null && !positions.isEmpty()) {
+            RenderUtils.renderPath(new ArrayList<>(positions), event);
         }
     }
 
     @SubscribeEvent
     public void onAttackEvent(AttackEntityEvent event) {
-        try {
-            if (event.getTarget() instanceof PlayerEntity) target = (LivingEntity) event.getTarget();
+        if (event.getTarget() instanceof PlayerEntity) {
+            target = (LivingEntity) event.getTarget();
             ticks = 0;
-        } catch (Exception ignored) {
         }
     }
 
     @SubscribeEvent
     public void onPacketSend(PacketEvent.Outgoing event) {
+        if (target == null) return;
+
         try {
-            if (target == null) return;
-
-            IPacket p = event.getPacket();
-
-            packets.add(p);
+            IPacket packet = event.getPacket();
+            packets.add(packet);
             event.setCanceled(true);
 
-            if ((int) amount.getValDouble() <= pastPositions.size()) {
-
-                for (final IPacket thisPacket : packets) mc.player.connection.sendPacket(thisPacket);
-
-                pastPositions.clear();
+            if (pastPositions.size() >= (int) amount.getValDouble()) {
+                for (IPacket thisPacket : packets) {
+                    Minecraft.getInstance().player.connection.sendPacket(thisPacket);
+                }
                 packets.clear();
+                pastPositions.clear();
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

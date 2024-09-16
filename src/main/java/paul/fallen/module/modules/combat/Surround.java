@@ -1,39 +1,15 @@
 package paul.fallen.module.modules.combat;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.client.Minecraft;
 import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
+import paul.fallen.utils.entity.InventoryUtils;
 import paul.fallen.utils.world.BlockUtils;
 
 public class Surround extends Module {
 
-	Vector3d[] surroundTargets = {
-		new Vector3d(  1,   0,   0),
-		new Vector3d(  0,   0,   1),
-		new Vector3d(- 1,   0,   0),
-		new Vector3d(  0,   0, - 1),
-		new Vector3d(  1, - 1,   0),
-		new Vector3d(  0, - 1,   1),
-		new Vector3d(- 1, - 1,   0),
-		new Vector3d(  0, - 1, - 1),
-		new Vector3d(  0, - 1,   0)
-	};
-
-	private int y_level = 0;
-	private int tick_runs = 0;
-	private int offset_step = 0;
-
-	private Vector3d center_block = Vector3d.ZERO;
+	private int slot = 0;
 
 	public Surround(int bind, String name, String displayName, Category category) {
 		super(bind, name, displayName, category);
@@ -42,66 +18,49 @@ public class Surround extends Module {
 	@Override
 	public void onEnable() {
 		super.onEnable();
-		if (findInHotbar() == -1) {
-			this.toggle();;
-			return;
-		}
+
+		// Save held slot
+		slot = Minecraft.getInstance().player.inventory.currentItem;
+
+		// Center the player
+		centerPlayer();
+
+		// Switch to new slot
+		InventoryUtils.setSlot(getSlot());
+
+		// Try all positions around the player
+		BlockUtils.placeBlock(Minecraft.getInstance().player.getPosition().north(), Minecraft.getInstance().player.inventory.currentItem, true, true);
+		BlockUtils.placeBlock(Minecraft.getInstance().player.getPosition().east(), Minecraft.getInstance().player.inventory.currentItem, true, true);
+		BlockUtils.placeBlock(Minecraft.getInstance().player.getPosition().south(), Minecraft.getInstance().player.inventory.currentItem, true, true);
+		BlockUtils.placeBlock(Minecraft.getInstance().player.getPosition().west(), Minecraft.getInstance().player.inventory.currentItem, true, true);
+
+		// Switch back
+		InventoryUtils.setSlot(slot);
+
+		// Disable module
+		setState(false);
+		onDisable();
+	}
+
+	private void centerPlayer() {
 		if (mc.player != null) {
-			y_level = (int) Math.round(mc.player.getPosY());
-			center_block = getCenter(mc.player.getPosX(), mc.player.getPosY(), mc.player.getPosZ());
-			mc.player.setMotion(0, mc.player.getMotion().getY(), 0);
+			BlockPos pos = mc.player.getPosition();
+			// Calculate the offset to move the player to the center of the block
+			double offsetX = 0.5 - (mc.player.getPosX() - pos.getX());
+			double offsetZ = 0.5 - (mc.player.getPosZ() - pos.getZ());
+
+			// Apply the offset as motion
+			mc.player.setMotion(mc.player.getMotion().add(offsetX * 0.1, 0, offsetZ * 0.1));
 		}
 	}
-	
-	@SubscribeEvent
-	public void onUpdate(TickEvent.PlayerTickEvent event) {
-		if (event.phase == TickEvent.Phase.END)
-			return;
-		int blocks_placed = 0;
-		while (blocks_placed < 2) {
-			if (this.offset_step >= this.surroundTargets.length) {
-				this.offset_step = 0;
-				break;
+
+	private int getSlot() {
+		for (int i = 0; i < 9; i++) {
+			if (Minecraft.getInstance().player.inventory.getStackInSlot(i).getItem() instanceof BlockItem) {
+				return i;
 			}
-			BlockPos offsetPos = new BlockPos(this.surroundTargets[offset_step]);
-			BlockPos targetPos = new BlockPos(mc.player.getPosition()).add(offsetPos.getX(), offsetPos.getY(), offsetPos.getZ());
-			boolean try_to_place = true;
-			if (!mc.world.getBlockState(targetPos).getMaterial().isReplaceable()) {
-				try_to_place = false;
-			}
-			for (Entity entity : mc.world.getEntitiesWithinAABBExcludingEntity(null, new AxisAlignedBB(targetPos))) {
-				if (entity instanceof ItemEntity || entity.getType() == EntityType.EXPERIENCE_ORB) continue;
-				try_to_place = false;
-				break;
-			}
-			if (try_to_place && BlockUtils.placeBlock(targetPos, findInHotbar(), true, true)) {
-				blocks_placed++;
-			}
-			offset_step++;
 		}
-		this.tick_runs++;
+
+		return 0;
 	}
-	
-	private int findInHotbar() {
-        for (int i = 0; i < 9; ++i) {
-            final ItemStack stack = mc.player.inventory.getStackInSlot(i);
-            if (stack != ItemStack.EMPTY && stack.getItem() instanceof BlockItem) {
-                final Block block = ((BlockItem) stack.getItem()).getBlock();
-                if (block == Blocks.ENDER_CHEST)
-                    return i;
-                else if (block == Blocks.OBSIDIAN)
-                    return i;
-            }
-        }
-        return -1;
-	}
-
-	public Vector3d getCenter(double posX, double posY, double posZ) {
-        double x = Math.floor(posX) + 0.5D;
-        double y = Math.floor(posY);
-        double z = Math.floor(posZ) + 0.5D ;
-
-        return new Vector3d(x, y, z);
-    }
-
 }

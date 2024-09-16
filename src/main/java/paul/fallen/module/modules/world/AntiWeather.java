@@ -25,6 +25,7 @@ public final class AntiWeather extends Module {
 
     @Override
     public void onDisable() {
+        super.onDisable();
         try {
             if (opposite.getValBoolean()) {
                 assert mc.world != null;
