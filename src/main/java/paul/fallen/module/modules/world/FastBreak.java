@@ -1,10 +1,11 @@
 package paul.fallen.module.modules.world;
 
+import net.minecraft.network.play.client.CPlayerDiggingPacket;
+import net.minecraft.util.Direction;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
-import paul.fallen.utils.world.BlockUtils;
 
 public class FastBreak extends Module {
 
@@ -25,6 +26,7 @@ public class FastBreak extends Module {
         addSetting(packet);
     }
 
+
     @SubscribeEvent
     public void onTick(PlayerEvent.BreakSpeed event) {
         try {
@@ -35,8 +37,8 @@ public class FastBreak extends Module {
                     event.setNewSpeed(event.getOriginalSpeed());
                 }
             } else {
-                BlockUtils.breakBlockPacketSpam(event.getPos());
-                event.setCanceled(true);
+                mc.player.connection.sendPacket(new CPlayerDiggingPacket(CPlayerDiggingPacket.Action.START_DESTROY_BLOCK, event.getPos(), Direction.UP));
+                mc.player.connection.sendPacket(new CPlayerDiggingPacket(CPlayerDiggingPacket.Action.STOP_DESTROY_BLOCK, event.getPos(), Direction.UP));
             }
         } catch (Exception ignored) {
         }
