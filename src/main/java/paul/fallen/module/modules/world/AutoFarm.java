@@ -100,7 +100,7 @@ public class AutoFarm extends Module {
             if (event.phase == TickEvent.Phase.START) {
                 long currentTime = System.currentTimeMillis();
                 if (currentTime - lastActionTime < ACTION_DELAY) {
-                    return; // Return if the delay time hasn't passed
+                    return;
                 }
                 lastActionTime = currentTime;
 

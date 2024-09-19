@@ -2,9 +2,7 @@ package paul.fallen.module.modules.world;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
@@ -109,20 +107,5 @@ public class Nuker extends Module {
         } else {
             return new BlockPos(0, 0, 0);
         }
-    }
-
-    private float[] getRotationsBlock(BlockPos block, Direction face) {
-        assert mc.player != null;
-        double x = (double) block.getX() + 0.5 - mc.player.getPosX() + (double) face.getXOffset() / 2.0;
-        double z = (double) block.getZ() + 0.5 - mc.player.getPosZ() + (double) face.getZOffset() / 2.0;
-        double y = (double) block.getY() + 0.5;
-        double d1 = mc.player.getPosY() + (double) mc.player.getEyeHeight() - y;
-        double d3 = MathHelper.sqrt(x * x + z * z);
-        float yaw = (float) (Math.atan2(z, x) * 180.0 / 3.141592653589793) - 90.0f;
-        float pitch = (float) (Math.atan2(d1, d3) * 180.0 / 3.141592653589793);
-        if (yaw < 0.0f) {
-            yaw += 360.0f;
-        }
-        return new float[]{yaw, pitch};
     }
 }

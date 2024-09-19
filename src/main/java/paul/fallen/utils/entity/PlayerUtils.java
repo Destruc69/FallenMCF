@@ -8,21 +8,25 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.item.EnderCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.CombatRules;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.Timer;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.Explosion.Mode;
+import net.minecraftforge.common.ToolType;
 import paul.fallen.ClientSupport;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class PlayerUtils implements ClientSupport {
 
@@ -418,5 +422,29 @@ public class PlayerUtils implements ClientSupport {
         }
 
         return Vector3d.ZERO;
+    }
+
+    public static int geSlotHotbar(Item item) {
+        return IntStream.range(0, 9)
+                .filter(i -> {
+                    ItemStack stack = mc.player.inventory.getStackInSlot(i);
+                    return stack.getItem() == item;
+                })
+                .findFirst()
+                .orElse(-1);
+    }
+
+    public static int getSlotHotbarBestPickaxe() {
+        return IntStream.range(0, 9)
+                .filter(i -> {
+                    ItemStack stack = mc.player.inventory.getStackInSlot(i);
+                    return stack.getItem().getToolTypes(stack).contains(ToolType.PICKAXE);
+                })
+                .boxed()
+                .max(Comparator.comparingDouble(i -> {
+                    ItemStack stack = mc.player.inventory.getStackInSlot(i);
+                    return stack.getDestroySpeed(Blocks.STONE.getDefaultState()); // Efficiency against stone
+                }))
+                .orElse(-1); // Return -1 if no pickaxe is found
     }
 }
