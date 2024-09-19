@@ -16,6 +16,7 @@ public class FallFly extends Module {
 			return;
 
 		mc.player.startFallFlying();
+		mc.player.setSwimming(true);
 	}
 	
 	@Override
@@ -23,6 +24,7 @@ public class FallFly extends Module {
 		super.onDisable();
 		if(mc.player != null) {
 			mc.player.stopFallFlying();
+			mc.player.setSwimming(false);
 		}
 	}
 }

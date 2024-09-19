@@ -1,6 +1,5 @@
 package paul.fallen.module.modules.movement;
 
-import net.minecraft.item.TridentItem;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
