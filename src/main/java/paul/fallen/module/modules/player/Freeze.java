@@ -23,6 +23,7 @@ public final class Freeze extends Module {
     }
 
     public void onDisable() {
+        super.onDisable();
         try {
             if (!inputPackets.getValBoolean()) {
                 for (IPacket packet : packets) {

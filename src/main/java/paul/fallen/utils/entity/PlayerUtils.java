@@ -1,5 +1,6 @@
 package paul.fallen.utils.entity;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -10,6 +11,7 @@ import net.minecraft.entity.item.EnderCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ToolItem;
 import net.minecraft.util.CombatRules;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.NonNullList;
@@ -446,5 +448,19 @@ public class PlayerUtils implements ClientSupport {
                     return stack.getDestroySpeed(Blocks.STONE.getDefaultState()); // Efficiency against stone
                 }))
                 .orElse(-1); // Return -1 if no pickaxe is found
+    }
+
+    public static int getSlotHotbarBestToolForBlock(Block block) {
+        return IntStream.range(0, 9)
+                .filter(i -> {
+                    ItemStack stack = mc.player.inventory.getStackInSlot(i);
+                    return stack.getItem() instanceof ToolItem && !stack.getItem().getToolTypes(stack).isEmpty();
+                })
+                .boxed()
+                .max(Comparator.comparingDouble(i -> {
+                    ItemStack stack = mc.player.inventory.getStackInSlot(i);
+                    return stack.getDestroySpeed(block.getDefaultState()); // Efficiency against the given block
+                }))
+                .orElse(-1); // Return -1 if no suitable tool is found
     }
 }
