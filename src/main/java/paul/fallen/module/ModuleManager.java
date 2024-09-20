@@ -145,6 +145,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new AutoFarm(0, "AutoFarm", "AutoFarm", Category.World));
 		addModule(new AutoFish(0, "AutoFish", "AutoFish", Category.World));
 		addModule(new AutoEChestFarm(0, "AutoEChestFarm", "AutoEChestFarm", Category.World));
+		addModule(new Tunneler(0, "Tunneler", "Tunneler", Category.World));
 	}
 
 	public ArrayList<Module> getModules() {

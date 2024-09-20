@@ -185,7 +185,7 @@ public class BlockUtils implements ClientSupport {
         return false;
     }
 
-    public static boolean clickBlock(BlockPos pos, int slot, boolean rotate, boolean rotateBack) {
+    public static boolean rightClickBlock(BlockPos pos, int slot, boolean rotate, boolean rotateBack) {
         int old_slot = -1;
         if (slot != mc.player.inventory.currentItem) {
             old_slot = mc.player.inventory.currentItem;
@@ -198,7 +198,7 @@ public class BlockUtils implements ClientSupport {
             if (rotate) {
                 rotatePacket(vec.x, vec.y, vec.z);
             }
-            mc.playerController.clickBlock(pos, f);
+            mc.playerController.processRightClick(mc.player, mc.world, Hand.MAIN_HAND);
             if (rotateBack) {
                 mc.player.connection.sendPacket(new RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
             }
