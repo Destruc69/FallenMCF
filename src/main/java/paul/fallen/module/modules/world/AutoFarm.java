@@ -15,16 +15,12 @@ import paul.fallen.utils.entity.InventoryUtils;
 import paul.fallen.utils.render.RenderUtils;
 import paul.fallen.utils.world.BlockUtils;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class AutoFarm extends Module {
 
-    private static final long ACTION_DELAY = 100;
     private final Setting range;
     private final Setting harvest;
     private final Setting plant;
@@ -42,7 +38,6 @@ public class AutoFarm extends Module {
     private List<BlockPos> toFeedBlocks;
     private List<BlockPos> toHoeBlocks;
     private List<BlockPos> melonAndPumpkinBlocks;
-    private long lastActionTime = 0;
     private Iterator<BlockPos> farmIterator;
     private Iterator<BlockPos> cropIterator;
     private Iterator<BlockPos> hoeIterator;
@@ -93,54 +88,95 @@ public class AutoFarm extends Module {
         if (melon.getValBoolean()) selectedCropBlocks.add(Blocks.MELON);
     }
 
-
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase == TickEvent.Phase.END)
+            return;
+
         try {
-            if (event.phase == TickEvent.Phase.START) {
-                long currentTime = System.currentTimeMillis();
-                if (currentTime - lastActionTime < ACTION_DELAY) {
+            updateSelectedCrops();
+
+            BlockPos playerPos = mc.player.getPosition();
+
+            if (hoe.getValBoolean()) {
+                if (hoeIterator == null || !hoeIterator.hasNext()) {
+                    toHoeBlocks = getGrassBlocks().stream()
+                            .filter(this::hasSurroundingWater)
+                            .sorted(Comparator.comparingDouble(blockPos -> blockPos.distanceSq(playerPos)))
+                            .collect(Collectors.toList());
+                    hoeIterator = toHoeBlocks.iterator();
+                }
+
+                if (hoeIterator.hasNext()) {
+                    int hoeSlot = getHoeSlot();
+                    if (hoeSlot != -1) {
+                        InventoryUtils.setSlot(hoeSlot);
+                        if (mc.player.ticksExisted % 10 == 0) {
+                            BlockUtils.placeBlock(hoeIterator.next(), mc.player.inventory.currentItem, true, true);
+                        }
+                    }
                     return;
                 }
-                lastActionTime = currentTime;
+            }
 
-                updateSelectedCrops();
-
-                if (plant.getValBoolean()) {
-                    if (farmIterator == null || !farmIterator.hasNext()) {
-                        farmBlocks = getFarmBlocks().stream()
-                                .filter(blockPos -> !(mc.world.getBlockState(blockPos.up()).getBlock() instanceof CropsBlock))
-                                .collect(Collectors.toList());
-                        farmIterator = farmBlocks.iterator();
-                    }
-
-                    if (hoe.getValBoolean() && (hoeIterator == null || !hoeIterator.hasNext())) {
-                        toHoeBlocks = getGrassBlocks().stream()
-                                .filter(this::hasSurroundingWater)
-                                .collect(Collectors.toList());
-                        hoeIterator = toHoeBlocks.iterator();
-                    }
+            if (plant.getValBoolean()) {
+                if (farmIterator == null || !farmIterator.hasNext()) {
+                    farmBlocks = getFarmBlocks().stream()
+                            .filter(blockPos -> !(mc.world.getBlockState(blockPos.up()).getBlock() instanceof CropsBlock))
+                            .sorted(Comparator.comparingDouble(blockPos -> blockPos.distanceSq(playerPos)))
+                            .collect(Collectors.toList());
+                    farmIterator = farmBlocks.iterator();
                 }
 
-                if (harvest.getValBoolean()) {
-                    if (cropIterator == null || !cropIterator.hasNext()) {
-                        cropBlocks = getCropBlocks().stream()
-                                .filter(blockPos -> {
-                                    Block block = mc.world.getBlockState(blockPos).getBlock();
-                                    return block instanceof CropsBlock &&
-                                            selectedCropBlocks.contains(block) &&
-                                            ((CropsBlock) block).isMaxAge(mc.world.getBlockState(blockPos));
-                                })
-                                .collect(Collectors.toList());
-                        cropIterator = cropBlocks.iterator();
+                if (farmIterator.hasNext()) {
+                    int seedSlot = getSeedSlot();
+                    if (seedSlot != -1) {
+                        InventoryUtils.setSlot(seedSlot);
+                        if (mc.player.ticksExisted % 10 == 0) {
+                            BlockUtils.placeBlock(farmIterator.next(), mc.player.inventory.currentItem, true, true);
+                        }
                     }
+                    return;
+                }
+            }
 
-                    if (melonPumpkinIterator == null || !melonPumpkinIterator.hasNext()) {
-                        melonAndPumpkinBlocks = getMelonAndPumpkinBlocks();
-                        melonPumpkinIterator = melonAndPumpkinBlocks.iterator();
+            if (harvest.getValBoolean()) {
+                if (cropIterator == null || !cropIterator.hasNext()) {
+                    cropBlocks = getCropBlocks().stream()
+                            .filter(blockPos -> {
+                                Block block = mc.world.getBlockState(blockPos).getBlock();
+                                return block instanceof CropsBlock &&
+                                        selectedCropBlocks.contains(block) &&
+                                        ((CropsBlock) block).isMaxAge(mc.world.getBlockState(blockPos));
+                            })
+                            .sorted(Comparator.comparingDouble(blockPos -> blockPos.distanceSq(playerPos)))
+                            .collect(Collectors.toList());
+                    cropIterator = cropBlocks.iterator();
+                }
+
+                if (cropIterator.hasNext()) {
+                    if (mc.player.ticksExisted % 10 == 0) {
+                        BlockUtils.breakBlock(cropIterator.next(), mc.player.inventory.currentItem, true, true);
                     }
+                    return;
+                }
 
-                    if (boneMeal.getValBoolean() && (feedIterator == null || !feedIterator.hasNext())) {
+                if (melonPumpkinIterator == null || !melonPumpkinIterator.hasNext()) {
+                    melonAndPumpkinBlocks = getMelonAndPumpkinBlocks().stream()
+                            .sorted(Comparator.comparingDouble(blockPos -> blockPos.distanceSq(playerPos)))
+                            .collect(Collectors.toList());
+                    melonPumpkinIterator = melonAndPumpkinBlocks.iterator();
+                }
+
+                if (melonPumpkinIterator.hasNext()) {
+                    if (mc.player.ticksExisted % 10 == 0) {
+                        BlockUtils.breakBlock(melonPumpkinIterator.next(), mc.player.inventory.currentItem, true, true);
+                    }
+                    return;
+                }
+
+                if (boneMeal.getValBoolean()) {
+                    if (feedIterator == null || !feedIterator.hasNext()) {
                         toFeedBlocks = getCropBlocks().stream()
                                 .filter(blockPos -> {
                                     Block block = mc.world.getBlockState(blockPos).getBlock();
@@ -148,49 +184,23 @@ public class AutoFarm extends Module {
                                             selectedCropBlocks.contains(block) &&
                                             !((CropsBlock) block).isMaxAge(mc.world.getBlockState(blockPos));
                                 })
+                                .sorted(Comparator.comparingDouble(blockPos -> blockPos.distanceSq(playerPos)))
                                 .collect(Collectors.toList());
                         feedIterator = toFeedBlocks.iterator();
                     }
-                }
 
-                // Plant crops with a delay
-                if (plant.getValBoolean() && farmIterator != null && farmIterator.hasNext()) {
-                    int seedSlot = getSeedSlot();
-                    if (seedSlot != -1) {
-                        InventoryUtils.setSlot(seedSlot);
-                        BlockUtils.placeBlock(farmIterator.next(), mc.player.inventory.currentItem, true, true);
-                    }
-                }
-
-                // Hoe the blocks with a delay
-                if (hoe.getValBoolean() && hoeIterator != null && hoeIterator.hasNext()) {
-                    int hoeSlot = getHoeSlot();
-                    if (hoeSlot != -1) {
-                        InventoryUtils.setSlot(hoeSlot);
-                        BlockUtils.placeBlock(hoeIterator.next(), mc.player.inventory.currentItem, true, true);
-                    }
-                }
-
-                // Harvest crops with a delay
-                if (harvest.getValBoolean()) {
-                    if (cropIterator != null && cropIterator.hasNext()) {
-                        BlockUtils.breakBlock(cropIterator.next(), mc.player.inventory.currentItem, true, true);
-                    }
-
-                    if (melonPumpkinIterator != null && melonPumpkinIterator.hasNext()) {
-                        BlockUtils.breakBlock(melonPumpkinIterator.next(), mc.player.inventory.currentItem, true, true);
-                    }
-
-                    // Use bone meal with a delay
-                    if (boneMeal.getValBoolean() && feedIterator != null && feedIterator.hasNext()) {
+                    if (feedIterator.hasNext()) {
                         int boneMealSlot = getBoneMealSlot();
                         if (boneMealSlot != -1) {
                             InventoryUtils.setSlot(boneMealSlot);
-                            BlockUtils.placeBlock(feedIterator.next(), mc.player.inventory.currentItem, true, true);
+                            if (mc.player.ticksExisted % 10 == 0) {
+                                BlockUtils.placeBlock(feedIterator.next(), mc.player.inventory.currentItem, true, true);
+                            }
                         }
                     }
                 }
             }
+
         } catch (Exception ignored) {
         }
     }

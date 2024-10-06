@@ -9,6 +9,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.item.EnderCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ToolItem;
@@ -431,6 +432,16 @@ public class PlayerUtils implements ClientSupport {
                 .filter(i -> {
                     ItemStack stack = mc.player.inventory.getStackInSlot(i);
                     return stack.getItem() == item;
+                })
+                .findFirst()
+                .orElse(-1);
+    }
+
+    public static int geBlockItemSlotHotBar() {
+        return IntStream.range(0, 9)
+                .filter(i -> {
+                    ItemStack stack = mc.player.inventory.getStackInSlot(i);
+                    return stack.getItem() instanceof BlockItem;
                 })
                 .findFirst()
                 .orElse(-1);

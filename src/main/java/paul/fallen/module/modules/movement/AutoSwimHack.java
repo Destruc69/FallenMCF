@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public final class AutoSwimHack extends Module {
+
     private final Setting mode;
 
     public AutoSwimHack(int bind, String name, String displayName, Category category) {

@@ -20,6 +20,8 @@ public class TriggerBot extends Module {
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase == TickEvent.Phase.END)
+            return;
         try {
             if (mc.pointedEntity != null) {
                 if (mc.player.ticksExisted % delay.getValDouble() == 0) {

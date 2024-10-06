@@ -8,6 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItem;
+import net.minecraft.network.play.client.CAnimateHandPacket;
 import net.minecraft.network.play.client.CEntityActionPacket;
 import net.minecraft.network.play.client.CEntityActionPacket.Action;
 import net.minecraft.network.play.client.CPlayerDiggingPacket;
@@ -46,6 +48,16 @@ public class BlockUtils implements ClientSupport {
     public static Block getBlockAbovePlayer(PlayerEntity inPlayer, double blocks) {
         blocks += inPlayer.getHeight();
         return getBlockAtPos(new BlockPos(inPlayer.getPosX(), inPlayer.getPosY() + blocks, inPlayer.getPosZ()));
+    }
+
+    private int getAnyBlockItemSlotHotBar() {
+        for (int i = 0; i < 9; i++) {
+            if (Minecraft.getInstance().player.inventory.getStackInSlot(i).getItem() instanceof BlockItem) {
+                return i;
+            }
+        }
+
+        return 0;
     }
 
     public static Block getBlockAtPos(BlockPos inBlockPos) {
@@ -148,7 +160,8 @@ public class BlockUtils implements ClientSupport {
             if (rotateBack) {
                 mc.player.connection.sendPacket(new RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
             }
-            mc.player.swingArm(Hand.MAIN_HAND);
+            //mc.player.swingArm(Hand.MAIN_HAND);
+            mc.player.connection.sendPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
             if (old_slot != -1) {
                 mc.player.inventory.currentItem = old_slot;
             }
@@ -175,7 +188,8 @@ public class BlockUtils implements ClientSupport {
             if (rotateBack) {
                 mc.player.connection.sendPacket(new RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
             }
-            mc.player.swingArm(Hand.MAIN_HAND);
+            //mc.player.swingArm(Hand.MAIN_HAND);
+            mc.player.connection.sendPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
             if (old_slot != -1) {
                 mc.player.inventory.currentItem = old_slot;
             }
@@ -202,7 +216,8 @@ public class BlockUtils implements ClientSupport {
             if (rotateBack) {
                 mc.player.connection.sendPacket(new RotationPacket(rot[0], rot[1], mc.player.isOnGround()));
             }
-            mc.player.swingArm(Hand.MAIN_HAND);
+            //mc.player.swingArm(Hand.MAIN_HAND);
+            mc.player.connection.sendPacket(new CAnimateHandPacket(Hand.MAIN_HAND));
             if (old_slot != -1) {
                 mc.player.inventory.currentItem = old_slot;
             }

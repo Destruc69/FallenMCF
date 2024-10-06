@@ -25,7 +25,7 @@ public class HUD extends Module {
 	private final Setting watermark;
 	private final Setting arrayList;
 	private final Setting coords;
-	private static final int RADAR_SIZE = 110; // Size of the radar square
+	private static final int RADAR_SIZE = 110;
 	private final Setting radar;
 
 	public HUD(int bind, String name, Category category) {
@@ -140,10 +140,8 @@ public class HUD extends Module {
 					//UIUtils.drawRect(arrowX - 2, arrowY - 2, 6, 6, Color.WHITE.getRGB());
 					UIUtils.drawCircle(arrowX - 2, arrowY - 2, 2, Color.WHITE.getRGB());
 
-
-
 					// Draw line with marks indicating rotation yaw
-					int marksCount = 8; // Number of marks
+					int marksCount = 4; // Number of marks
 					int markLength = 5; // Length of each mark
 					int markSpacing = 20; // Spacing between marks
 					int lineLength = markSpacing * (marksCount - 1); // Total length of line

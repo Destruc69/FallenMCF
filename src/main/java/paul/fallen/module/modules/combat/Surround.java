@@ -3,13 +3,12 @@ package paul.fallen.module.modules.combat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.BlockItem;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
-import paul.fallen.utils.entity.InventoryUtils;
 import paul.fallen.utils.world.BlockUtils;
 
 public class Surround extends Module {
-
-	private int slot = 0;
 
 	public Surround(int bind, String name, String displayName, Category category) {
 		super(bind, name, displayName, category);
@@ -19,39 +18,63 @@ public class Surround extends Module {
 	public void onEnable() {
 		super.onEnable();
 
-		// Save held slot
-		slot = Minecraft.getInstance().player.inventory.currentItem;
+		try {
+			centerPlayer();
+		} catch (Exception ignored) {
+		}
+	}
 
-		// Center the player
-		centerPlayer();
+	@SubscribeEvent
+	public void onUpdate(TickEvent.PlayerTickEvent event) {
+		if (event.phase == TickEvent.Phase.END || mc.player == null)
+			return;
 
-		// Switch to new slot
-		InventoryUtils.setSlot(getSlot());
+		try {
+			if (!isPlayerCentered()) {
+				centerPlayer();
+			} else {
+				BlockPos a = mc.player.getPosition().add(1, 0, 0);
+				BlockPos b = mc.player.getPosition().add(-1, 0, 0);
+				BlockPos c = mc.player.getPosition().add(0, 0, 1);
+				BlockPos d = mc.player.getPosition().add(0, 0, -1);
 
-		// Try all positions around the player
-		BlockUtils.placeBlock(Minecraft.getInstance().player.getPosition().north(), Minecraft.getInstance().player.inventory.currentItem, true, true);
-		BlockUtils.placeBlock(Minecraft.getInstance().player.getPosition().east(), Minecraft.getInstance().player.inventory.currentItem, true, true);
-		BlockUtils.placeBlock(Minecraft.getInstance().player.getPosition().south(), Minecraft.getInstance().player.inventory.currentItem, true, true);
-		BlockUtils.placeBlock(Minecraft.getInstance().player.getPosition().west(), Minecraft.getInstance().player.inventory.currentItem, true, true);
+				if (canPlace(a)) {
+					BlockUtils.placeBlock(a.down(), getSlot(), true, true);
+				}
+				if (canPlace(b)) {
+					BlockUtils.placeBlock(b.down(), getSlot(), true, true);
+				}
+				if (canPlace(c)) {
+					BlockUtils.placeBlock(c.down(), getSlot(), true, true);
+				}
+				if (canPlace(d)) {
+					BlockUtils.placeBlock(d.down(), getSlot(), true, true);
+				}
+			}
+		} catch (Exception ignored) {
+		}
+	}
 
-		// Switch back
-		InventoryUtils.setSlot(slot);
-
-		// Disable module
-		setState(false);
-		onDisable();
+	private boolean canPlace(BlockPos blockPos) {
+		return mc.world.getBlockState(blockPos).isAir() && !mc.world.getBlockState(blockPos.down()).isAir();
 	}
 
 	private void centerPlayer() {
-		if (mc.player != null) {
-			BlockPos pos = mc.player.getPosition();
-			// Calculate the offset to move the player to the center of the block
-			double offsetX = 0.5 - (mc.player.getPosX() - pos.getX());
-			double offsetZ = 0.5 - (mc.player.getPosZ() - pos.getZ());
+		BlockPos pos = mc.player.getPosition();
+		double offsetX = 0.5 - (mc.player.getPosX() - pos.getX());
+		double offsetZ = 0.5 - (mc.player.getPosZ() - pos.getZ());
 
-			// Apply the offset as motion
-			mc.player.setMotion(mc.player.getMotion().add(offsetX * 0.1, 0, offsetZ * 0.1));
-		}
+		// Adjust motion towards the center if needed
+		mc.player.setMotion(mc.player.getMotion().add(offsetX * 0.1, 0, offsetZ * 0.1));
+	}
+
+	private boolean isPlayerCentered() {
+		BlockPos pos = mc.player.getPosition();
+		double distanceX = Math.abs(mc.player.getPosX() - (pos.getX() + 0.5));
+		double distanceZ = Math.abs(mc.player.getPosZ() - (pos.getZ() + 0.5));
+
+		// Return true if the player is within a small threshold of the center
+		return distanceX < 0.01 && distanceZ < 0.01;
 	}
 
 	private int getSlot() {
