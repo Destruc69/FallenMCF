@@ -6,17 +6,19 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
-import paul.fallen.utils.entity.PlayerUtils;
 import paul.fallen.utils.render.RenderUtils;
 import paul.fallen.utils.world.BlockUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class AutoFill extends Module {
 
-    private ArrayList<BlockPos> fillBlocks;
+    private List<BlockPos> fillBlocks;
 
     public AutoFill(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
@@ -31,11 +33,15 @@ public class AutoFill extends Module {
             if (fillBlocks == null || fillBlocks.isEmpty()) {
                 fillBlocks = getFillBlocks();
             } else {
-                fillBlocks.removeIf(blockPos -> !mc.world.getBlockState(blockPos).isAir());
-                BlockPos t = fillBlocks.get(0);
-                if (mc.player.ticksExisted % 5 == 0) {
-                    BlockUtils.placeBlock(t.down(), PlayerUtils.geBlockItemSlotHotBar(), true, true);
-                }
+                fillBlocks.removeIf(blockPos -> {
+                    if (mc.world.getBlockState(blockPos).isAir()) {
+                        BlockUtils.placeBlock(blockPos.down(), mc.player.inventory.currentItem, true, true);
+                        return false;
+                    }
+                    return true;
+                });
+
+                fillBlocks.removeIf(blockPos -> mc.player.getDistanceSq(blockPos.getX(), mc.player.getPosY(), blockPos.getZ()) > 4);
             }
         } catch (Exception ignored) {
         }
@@ -44,74 +50,48 @@ public class AutoFill extends Module {
     @SubscribeEvent
     public void onRender(RenderWorldLastEvent event) {
         try {
-            for (BlockPos blockPos : getFillBlocks()) {
-                RenderUtils.drawOutlinedBox(blockPos, 0, 1, 0, event);
-            }
+            if (fillBlocks == null)
+                return;
+            fillBlocks.forEach(blockPos -> RenderUtils.drawOutlinedBox(blockPos, 0, 1, 0, event));
         } catch (Exception ignored) {
         }
     }
 
-    private ArrayList<BlockPos> getFillBlocks() {
-        ArrayList<BlockPos> fillBlocks = new ArrayList<>();
+    private List<BlockPos> getFillBlocks() {
         Set<BlockPos> visited = new HashSet<>();
+        int range = 4;
 
-        int range = 5;
-
-        for (int x = -range; x <= range; x++) {
-            for (int z = -range; z <= range; z++) {
-                BlockPos pos = mc.player.getPosition().add(x, -1, z);
-                if (mc.world.getBlockState(pos).getBlock() == Blocks.AIR && !visited.contains(pos)) {
-                    if (isValidHole(pos, visited)) {
-                        findHole(pos, visited, fillBlocks);
-                    }
-                }
-            }
-        }
-        return fillBlocks;
+        return IntStream.rangeClosed(-range, range)
+                .boxed()
+                .flatMap(x -> IntStream.rangeClosed(-range, range)
+                        .mapToObj(z -> {
+                            BlockPos pos = mc.player.getPosition().add(x, -1, z);
+                            return (mc.world.getBlockState(pos).getBlock() == Blocks.AIR && !visited.contains(pos) && isValidHole(pos, visited))
+                                    ? findHoles(pos, visited) : new ArrayList<BlockPos>();
+                        }))
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
     private boolean isValidHole(BlockPos pos, Set<BlockPos> visited) {
         BlockPos below = pos.down();
-        if (!mc.world.getBlockState(below).isAir()) {
-            return checkPerimeter(pos, visited);
-        }
-        return false;
+        return !mc.world.getBlockState(below).isAir() && checkPerimeter(pos, visited);
     }
 
     private boolean checkPerimeter(BlockPos startPos, Set<BlockPos> visited) {
-        boolean northSolid = false;
-        boolean southSolid = false;
-        boolean eastSolid = false;
-        boolean westSolid = false;
+        List<BlockPos> holeBlocks = findHoles(startPos, visited);
 
-        ArrayList<BlockPos> holeBlocks = new ArrayList<>();
-        findHole(startPos, visited, holeBlocks);
-
-        for (BlockPos block : holeBlocks) {
-            BlockPos north = block.north();
-            BlockPos south = block.south();
-            BlockPos east = block.east();
-            BlockPos west = block.west();
-
-            if (mc.world.getBlockState(north).getBlock() != Blocks.AIR) {
-                northSolid = true;
-            }
-            if (mc.world.getBlockState(south).getBlock() != Blocks.AIR) {
-                southSolid = true;
-            }
-            if (mc.world.getBlockState(east).getBlock() != Blocks.AIR) {
-                eastSolid = true;
-            }
-            if (mc.world.getBlockState(west).getBlock() != Blocks.AIR) {
-                westSolid = true;
-            }
-        }
+        boolean northSolid = holeBlocks.stream().anyMatch(block -> mc.world.getBlockState(block.north()).getBlock() != Blocks.AIR);
+        boolean southSolid = holeBlocks.stream().anyMatch(block -> mc.world.getBlockState(block.south()).getBlock() != Blocks.AIR);
+        boolean eastSolid = holeBlocks.stream().anyMatch(block -> mc.world.getBlockState(block.east()).getBlock() != Blocks.AIR);
+        boolean westSolid = holeBlocks.stream().anyMatch(block -> mc.world.getBlockState(block.west()).getBlock() != Blocks.AIR);
 
         return northSolid && southSolid && eastSolid && westSolid;
     }
 
-    private void findHole(BlockPos startPos, Set<BlockPos> visited, ArrayList<BlockPos> fillBlocks) {
-        ArrayList<BlockPos> queue = new ArrayList<>();
+    private List<BlockPos> findHoles(BlockPos startPos, Set<BlockPos> visited) {
+        List<BlockPos> fillBlocks = new ArrayList<>();
+        List<BlockPos> queue = new ArrayList<>();
         queue.add(startPos);
         visited.add(startPos);
 
@@ -130,5 +110,6 @@ public class AutoFill extends Module {
                 }
             }
         }
+        return fillBlocks;
     }
 }
