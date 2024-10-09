@@ -1,7 +1,6 @@
 package paul.fallen.module.modules.render;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.WaterMobEntity;
@@ -19,6 +18,8 @@ import paul.fallen.utils.render.UIUtils;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Spliterators;
+import java.util.stream.StreamSupport;
 
 public class HUD extends Module {
 
@@ -89,99 +90,39 @@ public class HUD extends Module {
 					Minecraft mc = Minecraft.getInstance();
 					int screenWidth = mc.getMainWindow().getScaledWidth();
 
-					// Calculate player's rotation
 					float playerYaw = mc.player.rotationYaw;
 
-					// Draw radar texture
 					int radarX = screenWidth - 80 - RADAR_SIZE / 2;
 					int radarY = 2;
-					//UIUtils.drawCustomSizedTexture(RADAR_TEXTURE, radarX, radarY, 0, 0, RADAR_SIZE, RADAR_SIZE, RADAR_SIZE, RADAR_SIZE);
 
-					// Draw player arrow
 					int arrowX = radarX + RADAR_SIZE / 2;
 					int arrowY = radarY + RADAR_SIZE / 2;
 
-					//mc.textureManager.bindTexture(getEntityFaceSkin(mc.player));
-					//UIUtils.drawCustomSizedTexture(getEntityFaceSkin(mc.player), arrowX - 2, arrowY - 2, 0, 0, 10, 10, 10, 10);
-					//UIUtils.drawRect(arrowX - 2, arrowY - 2, 6, 6, Color.WHITE.getRGB());
+					StreamSupport.stream(Spliterators.spliteratorUnknownSize(mc.world.getAllEntities().iterator(), 0), false)
+							.filter(entity -> entity != null && entity != mc.player)
+							.forEach(entity -> {
+								double relativeX = entity.getPosX() - mc.player.getPosX();
+								double relativeZ = entity.getPosZ() - mc.player.getPosZ();
+								double angle = MathHelper.atan2(relativeZ, relativeX) - Math.toRadians(playerYaw - 180);
+								double distance = Math.sqrt(relativeX * relativeX + relativeZ * relativeZ);
 
-					// Draw other entities on radar
-					for (Entity entity : mc.world.getAllEntities()) {
-						if (entity != null && !(entity == mc.player)) {
-							double relativeX = entity.getPosX() - mc.player.getPosX();
-							double relativeZ = entity.getPosZ() - mc.player.getPosZ();
-							double angle = MathHelper.atan2(relativeZ, relativeX) - Math.toRadians(playerYaw - 180);
-							double distance = Math.sqrt(relativeX * relativeX + relativeZ * relativeZ);
+								int entityRadarX = (int) (arrowX + distance * Math.cos(angle));
+								int entityRadarY = (int) (arrowY + distance * Math.sin(angle));
 
-							// Calculate position on radar
-							int entityRadarX = (int) (arrowX + distance * Math.cos(angle));
-							int entityRadarY = (int) (arrowY + distance * Math.sin(angle));
+								int color = Color.YELLOW.getRGB();
+								if (entity instanceof MobEntity) {
+									color = Color.RED.getRGB();
+								} else if (entity instanceof AnimalEntity) {
+									color = Color.GREEN.getRGB();
+								} else if (entity instanceof WaterMobEntity) {
+									color = Color.BLUE.getRGB();
+								} else if (entity instanceof PlayerEntity) {
+									color = Color.WHITE.getRGB();
+								}
 
-							//mc.textureManager.bindTexture(getEntityFaceSkin(entity));
-							//UIUtils.drawCustomSizedTexture(getEntityFaceSkin(entity), entityRadarX - 2, entityRadarY - 2, 0, 0, 10, 10, 10, 10);
-							if (entity instanceof MobEntity) {
-								//UIUtils.drawRect(entityRadarX - 2, entityRadarY - 2, 4, 4, Color.RED.getRGB());
-								UIUtils.drawCircle(entityRadarX - 2, entityRadarY - 2, 1, Color.RED.getRGB());
-							} else if (entity instanceof AnimalEntity) {
-								//UIUtils.drawRect(entityRadarX - 2, entityRadarY - 2, 4, 4, Color.GREEN.getRGB());
-								UIUtils.drawCircle(entityRadarX - 2, entityRadarY - 2, 1, Color.GREEN.getRGB());
-							} else if (entity instanceof WaterMobEntity) {
-								//UIUtils.drawRect(entityRadarX - 2, entityRadarY - 2, 4, 4, Color.BLUE.getRGB());
-								UIUtils.drawCircle(entityRadarX - 2, entityRadarY - 2, 1, Color.BLUE.getRGB());
-							} else if (entity instanceof PlayerEntity) {
-								//UIUtils.drawRect(entityRadarX - 2, entityRadarY - 2, 4, 4, Color.ORANGE.getRGB());
-								UIUtils.drawCircle(entityRadarX - 2, entityRadarY - 2, 2, Color.WHITE.getRGB());
-							} else {
-								UIUtils.drawCircle(entityRadarX - 2, entityRadarY - 2, 1, Color.YELLOW.getRGB());
-							}
-						}
-					}
-
-					//UIUtils.drawRect(arrowX - 2, arrowY - 2, 6, 6, Color.WHITE.getRGB());
-					UIUtils.drawCircle(arrowX - 2, arrowY - 2, 2, Color.WHITE.getRGB());
-
-					// Draw line with marks indicating rotation yaw
-					int marksCount = 4; // Number of marks
-					int markLength = 5; // Length of each mark
-					int markSpacing = 20; // Spacing between marks
-					int lineLength = markSpacing * (marksCount - 1); // Total length of line
-
-					// Draw the line
-					int startX = arrowX - lineLength / 2;
-					int endX = startX + lineLength;
-					int lineY = arrowY + RADAR_SIZE / 2 + 5; // Position below the radar
-					UIUtils.drawLine(startX, lineY, endX, lineY, Color.WHITE.getRGB());
-
-					// Draw marks
-					for (int i = 0; i < marksCount; i++) {
-						int markX = startX + i * markSpacing;
-						UIUtils.drawLine(markX, lineY - markLength / 2, markX, lineY + markLength / 2, Color.WHITE.getRGB());
-					}
-
-					// Adjust playerYaw if it exceeds 360 or goes below 0
-					if (playerYaw > 360) {
-						playerYaw %= 360;
-					} else if (playerYaw < 0) {
-						playerYaw += 360;
-					}
-
-					// Calculate the player's yaw position on the line
-					int playerMarkX = startX + (int) ((playerYaw % 360) / 360.0 * lineLength);
-					if (playerMarkX < startX) {
-						playerMarkX = startX + lineLength - (startX - playerMarkX);
-					} else if (playerMarkX > endX) {
-						playerMarkX = endX - (playerMarkX - endX);
-					}
-
-					// Draw the current rotation yaw mark
-					UIUtils.drawLine(playerMarkX, lineY - markLength, playerMarkX, lineY + markLength, Color.RED.getRGB());
-
-					// Display the current yaw value
-					String yawText = "Yaw: " + String.format("%.2f", playerYaw);
-					int textWidth = mc.fontRenderer.getStringWidth(yawText);
-					int textX = arrowX - textWidth / 2;
-					int textY = lineY + markLength + 5; // Below the line marks
-					UIUtils.drawTextOnScreenWithShadow(yawText, textX, textY, new Color(255, 255, 255).getRGB());
+								int radius = (entity instanceof PlayerEntity) ? 2 : 1;
+								UIUtils.drawCircle(entityRadarX - 2, entityRadarY - 2, radius, color);
+							});
 				}
 			}
 		} catch (Exception ignored) {

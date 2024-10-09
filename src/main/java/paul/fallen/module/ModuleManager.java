@@ -132,6 +132,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new WaypointModule(0, "Waypoint", "Waypoint", Category.Render));
 		addModule(new HeadRoll(0, "HeadRoll", "HeadRoll", Category.Render));
 		addModule(new BodySpin(0, "BodySpin", "BodySpin", Category.Render));
+		addModule(new NameTags(0, "NameTags", "NameTags", Category.Render));
 
 		addModule(new FakePlayer(0, "FakePlayer", "FakePlayer", Category.World));
 		addModule(new AntiFog(0, "AntiFog", "AntiFog", Category.World));
@@ -148,6 +149,14 @@ public class ModuleManager implements ClientSupport {
 		addModule(new AutoEChestFarm(0, "AutoEChestFarm", "AutoEChestFarm", Category.World));
 		addModule(new Tunneler(0, "Tunneler", "Tunneler", Category.World));
 		addModule(new AutoFill(0, "AutoFill", "AutoFill", Category.World));
+
+		// Sort modules so they are shown alphabetically
+		this.modules.sort((module1, module2) -> {
+			String name1 = module1.getName();
+			String name2 = module2.getName();
+
+			return Character.compare(name1.charAt(0), name2.charAt(0));
+		});
 	}
 
 	public ArrayList<Module> getModules() {
