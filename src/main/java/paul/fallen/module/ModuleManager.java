@@ -132,7 +132,6 @@ public class ModuleManager implements ClientSupport {
 		addModule(new WaypointModule(0, "Waypoint", "Waypoint", Category.Render));
 		addModule(new HeadRoll(0, "HeadRoll", "HeadRoll", Category.Render));
 		addModule(new BodySpin(0, "BodySpin", "BodySpin", Category.Render));
-		addModule(new NameTags(0, "NameTags", "NameTags", Category.Render));
 
 		addModule(new FakePlayer(0, "FakePlayer", "FakePlayer", Category.World));
 		addModule(new AntiFog(0, "AntiFog", "AntiFog", Category.World));
