@@ -18,8 +18,8 @@ import paul.fallen.module.modules.client.Pathfinder;
 import paul.fallen.module.modules.client.Tones;
 import paul.fallen.module.modules.combat.*;
 import paul.fallen.module.modules.movement.*;
-import paul.fallen.module.modules.pathing.AutoMine;
 import paul.fallen.module.modules.pathing.AutoPilot;
+import paul.fallen.module.modules.pathing.TreeBot;
 import paul.fallen.module.modules.player.*;
 import paul.fallen.module.modules.render.*;
 import paul.fallen.module.modules.world.*;
@@ -68,7 +68,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new Untrap(0, "UnTrap", "UnTrap", Category.Combat));
 
 		addModule(new AutoPilot(0, "AutoPilot", "AutoPilot", Category.Pathing));
-		addModule(new AutoMine(0, "AutoMine", "AutoMine", Category.Pathing));
+		addModule(new TreeBot(0, "AutoMine", "AutoMine", Category.Pathing));
 
 		addModule(new FallenLanguage(0, "FallenLanguage", "FallenLanguage", Category.Client));
 		clickGuiHack = new ClickGuiHack(KeyEvent.VK_P, "ClickGUI", "ClickGUI", Category.Client);

@@ -38,6 +38,9 @@ public final class AutoTotem extends Module {
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase == TickEvent.Phase.END)
+            return;
+
         try {
             finishMovingTotem();
 

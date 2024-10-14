@@ -107,8 +107,10 @@ public class Walker {
         LookManager.getInstance().setTarget(angles.getA(), currentTarget instanceof JumpTarget ? -10 : 10);
 
         // This is to prevent the player from falling when not facing accurate enough
-        if (currentTarget.getCurrentTarget().getY() == Minecraft.getInstance().player.getPosY()) {
-            KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindSneak.getKey().getKeyCode(), 0), Minecraft.getInstance().player.isOnGround() && Minecraft.getInstance().world.getBlockState(Minecraft.getInstance().player.getPosition().down()).isAir());
+        if (currentTarget.getCurrentTarget() != null) {
+            if (currentTarget.getCurrentTarget().getY() == Minecraft.getInstance().player.getPosY()) {
+                KeyBinding.setKeyBindState(InputMappings.getInputByCode(Minecraft.getInstance().gameSettings.keyBindSneak.getKey().getKeyCode(), 0), Minecraft.getInstance().player.isOnGround() && Minecraft.getInstance().world.getBlockState(Minecraft.getInstance().player.getPosition().down()).isAir());
+            }
         }
 
         float yawDifference = Math.abs(Math.round(angles.getA()) - Math.round(Minecraft.getInstance().player.rotationYaw));

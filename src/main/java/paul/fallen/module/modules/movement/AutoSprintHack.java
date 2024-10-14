@@ -24,4 +24,6 @@ public final class AutoSprintHack extends Module {
         } catch (Exception ignored) {
         }
     }
+
+
 }
