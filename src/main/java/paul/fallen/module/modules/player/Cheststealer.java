@@ -23,6 +23,9 @@ public final class Cheststealer extends Module {
 
     @SubscribeEvent
     public void onTickEvent(TickEvent.PlayerTickEvent event) {
+        if (event.phase == TickEvent.Phase.END || mc.player == null || mc.world == null)
+            return;
+
         if (mc.currentScreen instanceof ContainerScreen) {
             assert mc.player != null;
             if (mc.player.ticksExisted % 5 == 0) {

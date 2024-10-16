@@ -103,6 +103,8 @@ public class ModuleManager implements ClientSupport {
 		addModule(new Jesus(0, "Jesus", "Jesus", Category.Movement));
 		addModule(new FallFly(0, "FallFly", "FallFly", Category.Movement));
 		addModule(new BetterSwim(0, "BetterSwim", "BetterSwim", Category.Movement));
+		addModule(new FastSwim(0, "FastSwim", "FastSwim", Category.Movement));
+		addModule(new PerfectHorseJump(0, "PerfectHorseJump", "PerfectHorseJump", Category.Movement));
 
 		addModule(new HandPosition(0, "HandPosition", "HandPosition", Category.Player));
 		addModule(new AntiCollide(0, "AntiCollide", "AntiCollide", Category.Player));

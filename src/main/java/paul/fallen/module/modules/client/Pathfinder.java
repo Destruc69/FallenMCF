@@ -12,7 +12,7 @@ public class Pathfinder extends Module {
     public void onEnable() {
         super.onEnable();
 
-        setState(false);
-        onDisable();
+        //setState(false);
+        //onDisable();
     }
 }

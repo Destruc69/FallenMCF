@@ -19,9 +19,12 @@ import java.util.stream.IntStream;
 
 public class TreeBot extends Module {
 
-    private static final double BREAK_DISTANCE = 2.0; // Distance to start breaking logs
+    private static final double BREAK_DISTANCE = 5.0; // Distance to start breaking logs
+    private static final int MAX_LOG_HEIGHT = 5; // Max log height to break
     private BlockPos cachedTreePos = null; // Position of the current tree
     private List<BlockPos> logsToBreak = new ArrayList<>(); // Track the logs to be broken
+    private boolean isWalkingToTree = false; // Track if the bot is already walking to the tree
+    private boolean isTreeReached = false; // Track if the tree has been reached
 
     public TreeBot(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
@@ -30,63 +33,89 @@ public class TreeBot extends Module {
     @Override
     public void onEnable() {
         super.onEnable();
+
         cachedTreePos = null; // Reset cache when enabled
         logsToBreak.clear(); // Clear the list when module is enabled
+        isWalkingToTree = false; // Reset walking state
+        isTreeReached = false; // Reset tree reached state
         Walker.getInstance().setActive(false); // Deactivate Walker
     }
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
-        try {
-            if (event.phase != TickEvent.Phase.START) return;
+        if (event.phase != TickEvent.Phase.START || mc.player == null || mc.world == null) return;
 
-            // If there are no logs to break, find a new tree
-            if (logsToBreak.isEmpty()) {
-                cachedTreePos = findFirstLog(); // Find the nearest tree
-                if (cachedTreePos != null) {
-                    logsToBreak = getEntireTree(cachedTreePos); // Get all logs from the tree
+        // If there are no logs to break, find a new tree
+        if (logsToBreak.isEmpty() && cachedTreePos == null) {
+            cachedTreePos = findFirstLog(); // Find the nearest tree
+            if (cachedTreePos != null) {
+                logsToBreak = getEntireTree(cachedTreePos); // Get all logs from the tree
+                isWalkingToTree = false; // Reset walking state when a new tree is found
+                isTreeReached = false; // Reset tree reached state
+            }
+        }
+
+        // Move towards the tree if not close enough
+        if (cachedTreePos != null && !isTreeReached) {
+            if (mc.player.getDistanceSq(Vector3d.copyCentered(cachedTreePos)) > BREAK_DISTANCE * BREAK_DISTANCE) {
+                // Check if we are already walking
+                if (!isWalkingToTree || !Walker.getInstance().isActive()) {
+                    // If Walker is inactive and we are not within the break distance, keep walking
+                    Walker.getInstance().walk(mc.player.getPosition(), cachedTreePos, 10); // Walk to tree again
+                    isWalkingToTree = true; // Set walking flag
+                }
+            } else if (!Walker.getInstance().isActive()) {
+                // Ensure the player is at the tree when Walker stops
+                double distanceToTree = mc.player.getDistanceSq(Vector3d.copyCentered(cachedTreePos));
+                if (distanceToTree <= BREAK_DISTANCE * BREAK_DISTANCE) {
+                    isTreeReached = true; // Tree is reached, start breaking logs
+                    isWalkingToTree = false; // Reset walking flag
+                } else {
+                    // If Walker stopped but we're not at the tree, start walking again
+                    Walker.getInstance().walk(mc.player.getPosition(), cachedTreePos, 10);
                 }
             }
-
-            // Move towards the tree if not close enough
-            if (cachedTreePos != null && mc.player.getDistanceSq(Vector3d.copyCentered(cachedTreePos)) > BREAK_DISTANCE * BREAK_DISTANCE) {
-                Walker.getInstance().walk(mc.player.getPosition(), cachedTreePos, 10);
-            } else {
-                // If close enough, break the next log
-                breakNextLog();
-            }
-
-            // Check if all logs are broken to find the next tree
-            if (logsToBreak.isEmpty() && cachedTreePos != null) {
-                cachedTreePos = null; // Clear the cached tree position to find a new one
-            }
-
-        } catch (Exception ignored) {
         }
-    }
 
-    private void breakNextLog() {
-        if (!logsToBreak.isEmpty()) {
-            BlockPos logToBreak = logsToBreak.remove(0); // Get the next log to break
-            BlockUtils.breakBlock(logToBreak, mc.player.inventory.currentItem, true, true); // Break log
+        // Start breaking logs only when tree is reached and Walker is inactive
+        if (isTreeReached && !logsToBreak.isEmpty() && !Walker.getInstance().isActive()) {
+            BlockPos logPos = logsToBreak.get(0); // Get the first log in the list
+
+            if (mc.world.getBlockState(logPos).getBlock() == Blocks.AIR) {
+                // If the block is already broken, remove it from the list
+                logsToBreak.remove(0);
+            } else {
+                // Check if the log is within the breakable height
+                if (logPos.getY() - cachedTreePos.getY() <= MAX_LOG_HEIGHT) {
+                    // Continuously try to break the log until it's fully broken
+                    BlockUtils.breakBlock(logPos, mc.player.inventory.currentItem, true, true);
+                } else {
+                    // Skip breaking this log as it's too high
+                    logsToBreak.remove(0);
+                }
+            }
+        }
+
+        // If all logs are broken, find the next tree
+        if (logsToBreak.isEmpty() && cachedTreePos != null) {
+            cachedTreePos = null; // Clear the cached tree position to find a new one
+            isWalkingToTree = false; // Reset walking state when the tree is done
+            isTreeReached = false; // Reset tree reached state
         }
     }
 
     @SubscribeEvent
     public void onRender(RenderWorldLastEvent event) {
-        try {
-            if (cachedTreePos != null) {
-                RenderUtils.drawOutlinedBox(cachedTreePos, 0, 1, 0, event); // Render cached tree position
-            }
-        } catch (Exception ignored) {
+        if (cachedTreePos != null) {
+            RenderUtils.drawOutlinedBox(cachedTreePos, 0, 1, 0, event); // Render cached tree position
         }
     }
 
     public List<BlockPos> getEntireTree(BlockPos stump) {
         List<BlockPos> logs = new ArrayList<>();
 
-        // Check up to 10 blocks above the stump for logs
-        for (int y = 0; y < 10; y++) {
+        // Check up to MAX_LOG_HEIGHT blocks above the stump for logs
+        for (int y = 0; y < MAX_LOG_HEIGHT; y++) {
             BlockPos currentPos = stump.add(0, y, 0);
             Block block = mc.world.getBlockState(currentPos).getBlock();
 

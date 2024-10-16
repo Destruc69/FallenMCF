@@ -2,6 +2,7 @@ package paul.fallen.module.modules.world;
 
 import net.minecraft.block.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -9,16 +10,12 @@ import paul.fallen.module.Module;
 import paul.fallen.utils.render.RenderUtils;
 import paul.fallen.utils.world.BlockUtils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 import java.util.stream.IntStream;
 
 public class AutoFill extends Module {
 
-    private List<BlockPos> fillBlocks;
+    private BlockPos position;
 
     public AutoFill(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
@@ -30,18 +27,11 @@ public class AutoFill extends Module {
             return;
 
         try {
-            if (fillBlocks == null || fillBlocks.isEmpty()) {
-                fillBlocks = getFillBlocks();
-            } else {
-                fillBlocks.removeIf(blockPos -> {
-                    if (mc.world.getBlockState(blockPos).isAir()) {
-                        BlockUtils.placeBlock(blockPos.down(), mc.player.inventory.currentItem, true, true);
-                        return false;
-                    }
-                    return true;
-                });
-
-                fillBlocks.removeIf(blockPos -> mc.player.getDistanceSq(blockPos.getX(), mc.player.getPosY(), blockPos.getZ()) > 4);
+            if (position == null || !mc.world.getBlockState(position).isAir()) {
+                position = getPosition();
+            }
+            if (position != null && mc.player.getDistanceSq(Vector3d.copyCentered(position)) <= 4) {
+                BlockUtils.placeBlock(position.down(), mc.player.inventory.currentItem, true, true);
             }
         } catch (Exception ignored) {
         }
@@ -50,14 +40,14 @@ public class AutoFill extends Module {
     @SubscribeEvent
     public void onRender(RenderWorldLastEvent event) {
         try {
-            if (fillBlocks == null)
-                return;
-            fillBlocks.forEach(blockPos -> RenderUtils.drawOutlinedBox(blockPos, 0, 1, 0, event));
+            if (position != null) {
+                RenderUtils.drawOutlinedBox(position, 0, 1, 0, event);
+            }
         } catch (Exception ignored) {
         }
     }
 
-    private List<BlockPos> getFillBlocks() {
+    private BlockPos getPosition() {
         Set<BlockPos> visited = new HashSet<>();
         int range = 4;
 
@@ -66,11 +56,14 @@ public class AutoFill extends Module {
                 .flatMap(x -> IntStream.rangeClosed(-range, range)
                         .mapToObj(z -> {
                             BlockPos pos = mc.player.getPosition().add(x, -1, z);
-                            return (mc.world.getBlockState(pos).getBlock() == Blocks.AIR && !visited.contains(pos) && isValidHole(pos, visited))
-                                    ? findHoles(pos, visited) : new ArrayList<BlockPos>();
+                            if (mc.world.getBlockState(pos).getBlock() == Blocks.AIR && !visited.contains(pos) && isValidHole(pos, visited)) {
+                                return pos;
+                            }
+                            return null;
                         }))
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
     private boolean isValidHole(BlockPos pos, Set<BlockPos> visited) {

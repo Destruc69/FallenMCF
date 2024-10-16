@@ -29,6 +29,9 @@ public final class Step extends Module {
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase == TickEvent.Phase.END || mc.player == null || mc.world == null)
+            return;
+
         try {
             PlayerEntity player = mc.player;
 
