@@ -62,7 +62,7 @@ public class TreeBot extends Module {
                 double distanceToTree = mc.player.getDistanceSq(Vector3d.copyCentered(cachedTreePos));
                 if (distanceToTree > BREAK_DISTANCE * BREAK_DISTANCE) {
                     if (!isWalkingToTree || !Walker.getInstance().isActive()) {
-                        Walker.getInstance().walk(mc.player.getPosition(), cachedTreePos, 10);
+                        Walker.getInstance().walk(mc.player.getPosition(), cachedTreePos, 100);
                         isWalkingToTree = true;
                     }
                 } else if (!Walker.getInstance().isActive()) {
@@ -70,7 +70,7 @@ public class TreeBot extends Module {
                         isTreeReached = true;
                         isWalkingToTree = false;
                     } else {
-                        Walker.getInstance().walk(mc.player.getPosition(), cachedTreePos, 10);
+                        Walker.getInstance().walk(mc.player.getPosition(), cachedTreePos, 100);
                     }
                 }
             }
