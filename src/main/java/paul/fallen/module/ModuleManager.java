@@ -68,7 +68,7 @@ public class ModuleManager implements ClientSupport {
 		addModule(new Untrap(0, "UnTrap", "UnTrap", Category.Combat));
 
 		addModule(new AutoPilot(0, "AutoPilot", "AutoPilot", Category.Pathing));
-		addModule(new TreeBot(0, "AutoMine", "AutoMine", Category.Pathing));
+		addModule(new TreeBot(0, "TreeBot", "TreeBot", Category.Pathing));
 
 		addModule(new FallenLanguage(0, "FallenLanguage", "FallenLanguage", Category.Client));
 		clickGuiHack = new ClickGuiHack(KeyEvent.VK_P, "ClickGUI", "ClickGUI", Category.Client);

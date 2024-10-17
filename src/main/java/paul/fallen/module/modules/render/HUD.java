@@ -98,6 +98,8 @@ public class HUD extends Module {
 					int arrowX = radarX + RADAR_SIZE / 2;
 					int arrowY = radarY + RADAR_SIZE / 2;
 
+					UIUtils.drawCircle(arrowX, arrowY, 2, Color.WHITE.getRGB());
+
 					StreamSupport.stream(Spliterators.spliteratorUnknownSize(mc.world.getAllEntities().iterator(), 0), false)
 							.filter(entity -> entity != null && entity != mc.player)
 							.forEach(entity -> {

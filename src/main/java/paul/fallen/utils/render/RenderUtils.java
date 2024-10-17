@@ -87,7 +87,7 @@ public class RenderUtils implements ClientSupport {
     }
 
     public static void drawLine(BlockPos a, BlockPos b, float red, float green, float blue, RenderWorldLastEvent event) {
-        drawLineBoundingBox(event.getMatrixStack(), new AxisAlignedBB(0, 0, 0, 1, 1, 1), red, green, blue, 1.0F, a, b);
+        drawLineBoundingBox(event.getMatrixStack(), new AxisAlignedBB(0.5, 0.5, 0.5, 0.5, 0.5, 0.5), red, green, blue, 1.0F, a, b);
     }
 
     private static void drawLineBoundingBox(MatrixStack matrixStack, AxisAlignedBB aabb, float red, float green, float blue, float alpha, BlockPos posA, BlockPos posB) {
@@ -127,7 +127,7 @@ public class RenderUtils implements ClientSupport {
         if (path.size() > 0) {
             for (int i = 0; i < path.size() - 1; i++) {
                 if (path.get(i + 1) != null) {
-                    RenderUtils.drawLine(new BlockPos(path.get(i).x + 0.5, path.get(i).y, path.get(i).z + 0.5), new BlockPos(path.get(i + 1).x + 0.5, path.get(i + 1).y, path.get(i + 1).z + 0.5), 0, 1, 0, event);
+                    RenderUtils.drawLine(new BlockPos(path.get(i).x, path.get(i).y, path.get(i).z), new BlockPos(path.get(i + 1).x + 0.5, path.get(i + 1).y, path.get(i + 1).z + 0.5), 0, 1, 0, event);
                 }
             }
         }

@@ -130,7 +130,8 @@ public class AStarNode {
                 Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof WallBlock ||
                 Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof GlassBlock ||
                 Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof SkullBlock ||
-                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof SandBlock;
+                Minecraft.getInstance().world.getBlockState(block).getBlock() instanceof SandBlock ||
+                Minecraft.getInstance().world.getBlockState(blockPos).getBlock() instanceof LeavesBlock;
     }
 
     public void calculateHeuristic(AStarNode endNode) {

@@ -247,4 +247,32 @@ public class UIUtils implements ClientSupport {
         Minecraft.getInstance().getTextureManager().bindTexture(resourceLocation);
         AbstractGui.blit(new MatrixStack(), x, y, textureX, textureY, width, height, textureWidth, textureHeight);
     }
+
+    public static void drawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int color) {
+        // Determine the bounding box of the triangle
+        int minX = Math.min(Math.min(x1, x2), x3);
+        int maxX = Math.max(Math.max(x1, x2), x3);
+        int minY = Math.min(Math.min(y1, y2), y3);
+        int maxY = Math.max(Math.max(y1, y2), y3);
+
+        // Iterate over each point in the bounding box
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                // Check if the point is inside the triangle using the area method
+                if (isPointInTriangle(x, y, x1, y1, x2, y2, x3, y3)) {
+                    drawRect(x, y, 1, 1, color);
+                }
+            }
+        }
+    }
+
+    // Helper method to determine if a point is inside a triangle
+    private static boolean isPointInTriangle(int px, int py, int x1, int y1, int x2, int y2, int x3, int y3) {
+        // Calculate the area of the whole triangle
+        float area = 0.5f * (-y2 * x1 + y1 * (-x2 + x3) + x2 * y1 + y2 * (x3 - x1) + x1 * (y2 - y3));
+        // Calculate the area of the sub-triangles
+        float s = 1 / (2 * area) * (y1 * x2 - x1 * y2 + (x2 - x1) * py + (x1 - px) * (y2 - y1));
+        float t = 1 / (2 * area) * (x1 * y3 - y1 * x3 + (y1 - py) * (x3 - x1) + (px - x1) * (y1 - y2));
+        return s >= 0 && t >= 0 && (s + t) <= 1;
+    }
 }
