@@ -29,8 +29,8 @@ public final class ElytraFlight extends Module {
 
     private boolean isTakingOff = false;
 
-    public ElytraFlight(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public ElytraFlight(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         autoPilot = new Setting("AutoPilot", this, false);
         upSpeed = new Setting("Up-Speed", this, 0.05F, 0.005F, 10, false);

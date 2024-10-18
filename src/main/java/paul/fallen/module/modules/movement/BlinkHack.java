@@ -23,8 +23,8 @@ public final class BlinkHack extends Module {
 
     private final Deque<CPlayerPacket> packets = new LinkedList<>();
 
-    public BlinkHack(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public BlinkHack(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
         limit = new Setting("Limit", this, 100, 20, 500, true);
         addSetting(limit);
     }

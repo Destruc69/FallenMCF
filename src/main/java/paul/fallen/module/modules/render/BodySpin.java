@@ -7,10 +7,10 @@ import paul.fallen.module.Module;
 
 public class BodySpin extends Module {
 
-    private Setting backward;
+    private final Setting backward;
 
-    public BodySpin(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public BodySpin(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         backward = new Setting("Backward", this, false);
         addSetting(backward);

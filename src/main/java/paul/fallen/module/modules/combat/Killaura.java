@@ -26,8 +26,8 @@ public final class Killaura extends Module {
 
     private long lastAttackTime = 0L;
 
-    public Killaura(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public Killaura(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         delay = new Setting("Delay", this, 10, 0, 20, true);
         addSetting(delay);

@@ -6,8 +6,8 @@ import paul.fallen.module.Module;
 
 public final class FullbrightHack extends Module {
 
-    public FullbrightHack(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public FullbrightHack(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @Override

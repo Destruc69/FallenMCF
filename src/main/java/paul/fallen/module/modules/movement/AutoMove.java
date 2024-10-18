@@ -18,8 +18,8 @@ public final class AutoMove extends Module {
     private final Setting back;
     private final Setting left;
 
-    public AutoMove(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AutoMove(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
         forward = new Setting("Forward", this, false);
         right = new Setting("Right", this, false);
         back = new Setting("Back", this, false);

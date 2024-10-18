@@ -12,8 +12,8 @@ public class Jesus extends Module {
 
     private final Setting ground;
 
-    public Jesus(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public Jesus(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         ground = new Setting("Ground", this, false);
         addSetting(ground);

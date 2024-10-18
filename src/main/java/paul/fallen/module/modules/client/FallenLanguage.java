@@ -13,8 +13,8 @@ import java.util.Map;
 
 public class FallenLanguage extends Module {
 
-    public FallenLanguage(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public FallenLanguage(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @Override

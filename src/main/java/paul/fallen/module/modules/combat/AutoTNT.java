@@ -31,8 +31,8 @@ public final class AutoTNT extends Module {
 
     private final Setting mode;
 
-    public AutoTNT(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AutoTNT(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         mode = new Setting("Mode", this, "legit", new ArrayList<>(Arrays.asList("packet", "legit")));
         addSetting(mode);

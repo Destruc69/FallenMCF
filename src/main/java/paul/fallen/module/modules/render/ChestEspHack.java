@@ -21,8 +21,8 @@ import java.util.stream.Stream;
 
 public final class ChestEspHack extends Module {
 
-    public ChestEspHack(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public ChestEspHack(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @SubscribeEvent

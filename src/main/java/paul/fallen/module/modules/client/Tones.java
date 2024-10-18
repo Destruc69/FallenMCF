@@ -23,8 +23,8 @@ public class Tones extends Module {
     private int currentTrackIndex = 0; // keep track of the current track index
     private boolean isTrackPlaying = false;
 
-    public Tones(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public Tones(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
         shuffle = new Setting("Shuffle", this, false);
         addSetting(shuffle);
     }

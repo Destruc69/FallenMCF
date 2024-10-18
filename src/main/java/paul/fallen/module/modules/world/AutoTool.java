@@ -15,8 +15,8 @@ import paul.fallen.utils.entity.PlayerUtils;
 
 public final class AutoTool extends Module {
 
-    public AutoTool(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AutoTool(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @SubscribeEvent

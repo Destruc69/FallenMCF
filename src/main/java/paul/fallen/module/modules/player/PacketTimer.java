@@ -8,10 +8,10 @@ import paul.fallen.packetevent.PacketEvent;
 
 public class PacketTimer extends Module {
 
-    private Setting amount;
+    private final Setting amount;
 
-    public PacketTimer(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public PacketTimer(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         amount = new Setting("Amount", this, 2, 1, 20, true);
         addSetting(amount);

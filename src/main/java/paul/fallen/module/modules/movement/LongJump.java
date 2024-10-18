@@ -13,8 +13,8 @@ public class LongJump extends Module {
     private final Setting ncp;
     private final Setting customSpeed;
 
-    public LongJump(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public LongJump(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         ncp = new Setting("NCP", this, false);
         customSpeed = new Setting("CustomSpeed", this, 0.3f, 0f, 1, false);

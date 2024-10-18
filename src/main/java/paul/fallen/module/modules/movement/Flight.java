@@ -24,8 +24,8 @@ public final class Flight extends Module {
     private final Setting downSpeed;
     private final Setting antiKick;
 
-    public Flight(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public Flight(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         mode = new Setting("Mode", this, "ncp", new ArrayList<>(Arrays.asList("ncp", "vanilla", "blink")));
         upSpeed = new Setting("Up-Speed", this, 1.0F, 0.0005F, 10.0F, false);

@@ -6,8 +6,8 @@ import roger.pathfind.main.walk.Walker;
 
 public class AutoPilot extends Module {
 
-    public AutoPilot(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AutoPilot(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @Override

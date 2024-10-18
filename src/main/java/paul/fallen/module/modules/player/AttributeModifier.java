@@ -8,12 +8,12 @@ import paul.fallen.module.Module;
 
 public class AttributeModifier extends Module {
 
-    private Setting g;
-    private Setting gVal;
+    private final Setting g;
+    private final Setting gVal;
 
 
-    public AttributeModifier(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AttributeModifier(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         g = new Setting("Gravity", this, false);
         gVal = new Setting("G-Value", this, 0.08, 0.01, 2, false);

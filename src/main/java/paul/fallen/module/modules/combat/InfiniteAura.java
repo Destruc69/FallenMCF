@@ -29,8 +29,8 @@ public class InfiniteAura extends Module {
     private Entity entity;
     private long lastActionTime = 0L; // Variable to store the timestamp of the last action
 
-    public InfiniteAura(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public InfiniteAura(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         antiTP = new Setting("AntiTP", this, false);
         addSetting(antiTP);

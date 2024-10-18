@@ -22,8 +22,8 @@ public final class EntityFlight extends Module {
     private final Setting bypass;
     private final Setting velocity;
 
-    public EntityFlight(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public EntityFlight(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
         upSpeed = new Setting("UpSpeed", this, 0.1f, 0.05f, 10, false);
         downSpeed = new Setting("DownSpeed", this, 0.1f, 0.05f, 10, false);
         bypass = new Setting("Bypass", this, false);

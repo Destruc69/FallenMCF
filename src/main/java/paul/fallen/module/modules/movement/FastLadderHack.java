@@ -14,8 +14,8 @@ import paul.fallen.module.Module;
 import paul.fallen.utils.entity.EntityUtils;
 
 public final class FastLadderHack extends Module {
-    public FastLadderHack(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public FastLadderHack(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @SubscribeEvent

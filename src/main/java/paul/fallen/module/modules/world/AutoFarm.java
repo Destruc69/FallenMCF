@@ -44,8 +44,8 @@ public class AutoFarm extends Module {
     private Iterator<BlockPos> feedIterator;
     private Iterator<BlockPos> melonPumpkinIterator;
 
-    public AutoFarm(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AutoFarm(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         range = new Setting("Range", this, 4, 1, 4, true);
 

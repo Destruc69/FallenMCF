@@ -10,8 +10,8 @@ public class FastSwim extends Module {
 
     private final Setting speed;
 
-    public FastSwim(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public FastSwim(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         speed = new Setting("Speed", this, 1, 0, 5, true);
         addSetting(speed);

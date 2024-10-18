@@ -32,8 +32,8 @@ public class BackTrack extends Module {
 
     private int ticks;
 
-    public BackTrack(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public BackTrack(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         amount = new Setting("Amount", this, 20, 1, 100, true);
         forward = new Setting("Forward", this, 20, 1, 100, true);

@@ -6,8 +6,8 @@ import paul.fallen.module.Module;
 
 public class ClickGuiHack extends Module {
 
-    public ClickGuiHack(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public ClickGuiHack(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @Override

@@ -14,8 +14,8 @@ import paul.fallen.packetevent.PacketEvent;
 
 public final class AntiHunger extends Module {
 
-    public AntiHunger(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AntiHunger(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @SubscribeEvent

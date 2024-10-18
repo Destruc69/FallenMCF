@@ -8,11 +8,11 @@ import paul.fallen.module.Module;
 
 public class TriggerBot extends Module {
 
-    private Setting delay;
+    private final Setting delay;
     private boolean a = true;
 
-    public TriggerBot(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public TriggerBot(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         delay = new Setting("Delay", this, 10, 0, 20, true);
         addSetting(delay);

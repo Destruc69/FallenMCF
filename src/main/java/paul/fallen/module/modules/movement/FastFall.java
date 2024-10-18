@@ -24,8 +24,8 @@ public final class FastFall extends Module {
     private final Setting mode;
     private final Setting speed;
 
-    public FastFall(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public FastFall(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         mode = new Setting("mode", this, "normal", new ArrayList<>(Arrays.asList("normal", "ncp")));
         addSetting(mode);

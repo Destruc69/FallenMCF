@@ -25,8 +25,8 @@ public class AutoEat extends Module {
     private int oldSlot = -1;
     private int bestSlot = -1;
 
-    public AutoEat(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AutoEat(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
         mode = new Setting("Mode", this, "packet", new ArrayList<>(Arrays.asList("packet", "legit")));
         addSetting(mode);
     }

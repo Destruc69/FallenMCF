@@ -10,8 +10,8 @@ public class ComboAttack extends Module {
 
     private final Setting strength;
 
-    public ComboAttack(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public ComboAttack(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         strength = new Setting("Strength", this, 1, 1, 20, true);
         addSetting(strength);

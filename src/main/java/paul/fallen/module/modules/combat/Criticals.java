@@ -18,8 +18,8 @@ public final class Criticals extends Module {
 
     private final Setting neww;
 
-    public Criticals(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public Criticals(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         neww = new Setting("New", this, false);
         addSetting(neww);

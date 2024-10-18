@@ -22,8 +22,8 @@ public class AutoHighway extends Module {
     private ArrayList<ActionBlockPos> blockPosArrayList;
     private long lastActionTime = 0L;
 
-    public AutoHighway(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AutoHighway(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         delay = new Setting("Delay", this, 100, 0, 1000, true);
         addSetting(delay);

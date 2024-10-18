@@ -22,8 +22,8 @@ public final class HandPosition extends Module {
     private final Setting leftHandY;
     private final Setting leftHandZ;
 
-    public HandPosition(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public HandPosition(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
         this.rightHandX = new Setting("Right Hand X offset", this, 0.0f, -2.0f, 2.0f, true);
         this.rightHandY = new Setting("Right Hand Y offset", this, 0.0f, -2.0f, 2.0f, true);
         this.rightHandZ = new Setting("Right Hand Z offset", this, 0.0f, -2.0f, 2.0f, true);

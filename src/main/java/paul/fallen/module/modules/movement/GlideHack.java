@@ -19,8 +19,8 @@ import java.util.Arrays;
 public final class GlideHack extends Module {
     private final Setting mode;
 
-    public GlideHack(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public GlideHack(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         mode = new Setting("Mode", this, "normal",
                 new ArrayList<>(Arrays.asList("normal", "aac", "vulcan")));

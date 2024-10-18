@@ -26,8 +26,8 @@ public final class NoFall extends Module {
     private boolean falling = false;
     private boolean canPlaceWater = false;
 
-    public NoFall(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public NoFall(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         mlg = new Setting("MLG", this, false);
         addSetting(mlg);

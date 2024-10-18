@@ -190,7 +190,7 @@ public class ModuleManager implements ClientSupport {
 				return m;
 			}
 		}
-		return new Module(0, "Null", Category.World);
+		return new Module(0, "Null", Category.World, "");
 	}
 
 	public void addModule(Module m) {

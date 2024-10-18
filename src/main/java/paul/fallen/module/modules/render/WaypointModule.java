@@ -1,7 +1,6 @@
 package paul.fallen.module.modules.render;
 
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.client.event.RenderNameplateEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.FALLENClient;
@@ -11,8 +10,8 @@ import paul.fallen.waypoint.Waypoint;
 
 public final class WaypointModule extends Module {
 
-    public WaypointModule(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public WaypointModule(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @SubscribeEvent

@@ -10,20 +10,21 @@ public class Module implements ClientSupport {
 
     public boolean toggled;
     private int bind, color = 0xffffffff, categoryColor = 0xffffffff;
-    private String name = "", displayName = "", suffix = "";
+    private String name = "", displayName = "", description = "";
     private boolean hidden = false;
     private Category category;
 
-    public Module(int bind, String name, Category category) {
-        this(bind, name, name, category);
+    public Module(int bind, String name, Category category, String description) {
+        this(bind, name, name, category, description);
     }
 
-    public Module(int bind, String name, String displayName, Category category) {
+    public Module(int bind, String name, String displayName, Category category, String description) {
         this.bind = bind;
         this.name = name;
         this.displayName = displayName;
         this.color = ColorUtils.generateColor();
         this.category = category;
+        this.description = description;
         switch (this.category) {
             case Combat:
                 this.categoryColor = 0xffe53935;
@@ -83,12 +84,12 @@ public class Module implements ClientSupport {
         this.name = name;
     }
 
-    public String getSuffix() {
-        return suffix;
+    public String getDescription() {
+        return description;
     }
 
-    public void setSuffix(String suffix) {
-        this.suffix = suffix;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getDisplayName() {

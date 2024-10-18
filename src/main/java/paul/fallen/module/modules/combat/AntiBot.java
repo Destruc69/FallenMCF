@@ -33,8 +33,8 @@ public final class AntiBot extends Module {
     private final Setting inGroundCheck;
     private final List<PlayerEntity> bots = new ArrayList<>();
 
-    public AntiBot(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AntiBot(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         impMotionCheck = new Setting("ImpossibleMotionCheck", this, false);
         healthCheck = new Setting("HealthCheck", this, false);

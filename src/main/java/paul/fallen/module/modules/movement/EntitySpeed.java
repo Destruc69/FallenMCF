@@ -21,8 +21,8 @@ public final class EntitySpeed extends Module {
     private final Setting speed;
     private final Setting bypass;
 
-    public EntitySpeed(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public EntitySpeed(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
         speed = new Setting("Speed", this, 0.1f, 0.05f, 10, false);
         bypass = new Setting("Bypass", this, false);
         addSetting(speed);

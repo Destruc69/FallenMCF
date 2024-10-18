@@ -15,8 +15,8 @@ import paul.fallen.module.Module;
 public final class AntiAFK extends Module {
     private final Setting crazy;
 
-    public AntiAFK(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AntiAFK(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
         crazy = new Setting("CrazyMode", this, false);
         addSetting(crazy);
     }

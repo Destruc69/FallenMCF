@@ -12,8 +12,8 @@ import paul.fallen.module.Module;
 
 public final class HideMyAss extends Module {
 
-    public HideMyAss(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public HideMyAss(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
 

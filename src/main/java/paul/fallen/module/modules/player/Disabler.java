@@ -25,8 +25,8 @@ public final class Disabler extends Module {
     private final ConcurrentHashMap<CPlayerPacket, Long> packets = new ConcurrentHashMap<>();
     private CPlayerPacket sentPacket = null;
 
-    public Disabler(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public Disabler(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @SubscribeEvent

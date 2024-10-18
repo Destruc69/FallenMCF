@@ -23,14 +23,12 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.clickgui.settings.Setting;
 import paul.fallen.module.Module;
 import paul.fallen.utils.client.MathUtils;
-import paul.fallen.utils.entity.EntityUtils;
 import paul.fallen.utils.entity.InventoryUtils;
 import paul.fallen.utils.entity.RotationUtils;
 
@@ -47,8 +45,8 @@ public class CrystalAuraHack extends Module {
     private final Setting faceBlocks;
     private final Setting tick;
 
-    public CrystalAuraHack(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public CrystalAuraHack(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         range = new Setting("range", this, 4, 2, 6, true);
         autoPlace = new Setting("Auto-place crystals", this, true);

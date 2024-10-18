@@ -26,8 +26,8 @@ public class TreeBot extends Module {
     private boolean isWalkingToTree = false;
     private boolean isTreeReached = false;
 
-    public TreeBot(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public TreeBot(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @Override

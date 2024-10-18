@@ -8,8 +8,8 @@ import paul.fallen.packetevent.PacketEvent;
 
 public class NoKnockBack extends Module {
 
-    public NoKnockBack(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public NoKnockBack(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @SubscribeEvent

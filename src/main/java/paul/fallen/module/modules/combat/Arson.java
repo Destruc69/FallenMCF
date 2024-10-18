@@ -24,8 +24,8 @@ public final class Arson extends Module {
 
     private final Setting mode;
 
-    public Arson(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public Arson(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
         mode = new Setting("Mode", this, "packet", new ArrayList<>(Arrays.asList("packet", "legit")));
         addSetting(mode);
     }

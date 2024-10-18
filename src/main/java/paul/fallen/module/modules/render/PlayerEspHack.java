@@ -25,8 +25,8 @@ public final class PlayerEspHack extends Module {
 
     Setting mode;
 
-    public PlayerEspHack(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public PlayerEspHack(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         mode = new Setting("Mode", this, "glow", new ArrayList<>(Arrays.asList("glow", "box")));
         addSetting(mode);

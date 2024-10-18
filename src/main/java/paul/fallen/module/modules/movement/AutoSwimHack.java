@@ -20,8 +20,8 @@ public final class AutoSwimHack extends Module {
 
     private final Setting mode;
 
-    public AutoSwimHack(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AutoSwimHack(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
         mode = new Setting("Mode", this, "Dolphin", new ArrayList<>(Arrays.asList("Dolphin", "Fish")));
         addSetting(mode);
     }

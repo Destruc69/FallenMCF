@@ -12,8 +12,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.module.Module;
 
 public final class AntiVoid extends Module {
-    public AntiVoid(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AntiVoid(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @SubscribeEvent

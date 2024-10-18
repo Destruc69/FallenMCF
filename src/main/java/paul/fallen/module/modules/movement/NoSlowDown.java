@@ -21,8 +21,8 @@ public final class NoSlowDown extends Module {
     private final Setting ncp;
     private final Setting other;
 
-    public NoSlowDown(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public NoSlowDown(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         ncp = new Setting("ncp", this, false);
         other = new Setting("other", this, true);

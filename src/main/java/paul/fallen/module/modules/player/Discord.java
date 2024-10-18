@@ -15,8 +15,8 @@ public final class Discord extends Module {
 
     public static DiscordRPC rpc = DiscordRPC.INSTANCE;
 
-    public Discord(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public Discord(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @Override

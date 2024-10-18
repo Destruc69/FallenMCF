@@ -8,8 +8,8 @@ public final class YawLock extends Module {
 
     public double yawthis;
 
-    public YawLock(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public YawLock(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @Override

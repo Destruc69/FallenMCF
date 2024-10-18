@@ -17,8 +17,8 @@ public class AutoFill extends Module {
 
     private BlockPos position;
 
-    public AutoFill(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AutoFill(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @SubscribeEvent

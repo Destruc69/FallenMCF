@@ -11,8 +11,8 @@ import paul.fallen.utils.world.BlockUtils;
 
 public class LegitFightBot extends Module {
 
-    public LegitFightBot(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public LegitFightBot(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @SubscribeEvent

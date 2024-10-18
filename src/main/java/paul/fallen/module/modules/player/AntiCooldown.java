@@ -13,8 +13,8 @@ import paul.fallen.module.Module;
 import paul.fallen.packetevent.PacketEvent;
 
 public final class AntiCooldown extends Module {
-    public AntiCooldown(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AntiCooldown(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @SubscribeEvent

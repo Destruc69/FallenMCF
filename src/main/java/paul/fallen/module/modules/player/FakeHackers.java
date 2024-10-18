@@ -8,8 +8,8 @@ import paul.fallen.module.Module;
 
 public class FakeHackers extends Module {
 
-    public FakeHackers(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public FakeHackers(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @SubscribeEvent

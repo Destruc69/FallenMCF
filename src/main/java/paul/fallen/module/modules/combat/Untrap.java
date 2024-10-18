@@ -12,8 +12,8 @@ import paul.fallen.utils.world.BlockUtils;
 
 public class Untrap extends Module {
 
-	public Untrap(int bind, String name, String displayName, Category category) {
-		super(bind, name, displayName, category);
+	public Untrap(int bind, String name, String displayName, Category category, String description) {
+		super(bind, name, displayName, category, description);
 	}
 
 	@SubscribeEvent
@@ -23,7 +23,7 @@ public class Untrap extends Module {
 
 		BlockPos above = new BlockPos(mc.player.getPosX(), mc.player.getPosY() + 2, mc.player.getPosZ());
 		double oldPosY = mc.player.getPosY();
-		if(!BlockUtils.isBlockEmpty(above)) {
+		if (!BlockUtils.isBlockEmpty(above)) {
 			mc.playerController.onPlayerDestroyBlock(above);
 			mc.player.setMotion(mc.player.getMotion().getX(), 0.42d, mc.player.getMotion().getZ());
 			if(mc.player.getPosY() >= (oldPosY + 1)) {

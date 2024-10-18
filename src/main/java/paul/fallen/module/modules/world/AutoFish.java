@@ -11,8 +11,8 @@ import paul.fallen.packetevent.PacketEvent;
 
 public class AutoFish extends Module {
 
-    public AutoFish(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AutoFish(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     private boolean a = false;

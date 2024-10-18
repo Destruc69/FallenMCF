@@ -21,8 +21,8 @@ public final class HighJump extends Module {
     private final Setting speed;
     private boolean a;
 
-    public HighJump(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public HighJump(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         effect = new Setting("Effect", this, false);
         speed = new Setting("Speed", this, 0.2f, 0.1f, 20.0f, true);

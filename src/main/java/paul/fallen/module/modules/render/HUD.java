@@ -29,8 +29,8 @@ public class HUD extends Module {
 	private static final int RADAR_SIZE = 110;
 	private final Setting radar;
 
-	public HUD(int bind, String name, Category category) {
-		super(bind, name, category);
+	public HUD(int bind, String name, Category category, String description) {
+		super(bind, name, category, description);
 		this.setState(true);
 		this.setHidden(true);
 		watermark = new Setting("Watermark", this, true);

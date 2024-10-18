@@ -25,8 +25,8 @@ public final class ItemEspHack extends Module {
 
     Setting mode;
 
-    public ItemEspHack(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public ItemEspHack(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         mode = new Setting("Mode", this, "glow", new ArrayList<>(Arrays.asList("glow", "box")));
         addSetting(mode);

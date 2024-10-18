@@ -26,8 +26,8 @@ public class Tunneler extends Module {
 
     private List<BlockPos> tunnel;
 
-    public Tunneler(int bind, String name, String displayName, Module.Category category) {
-        super(bind, name, displayName, category);
+    public Tunneler(int bind, String name, String displayName, Module.Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         method = new Setting("Method", this, "legit", new ArrayList<>(Arrays.asList("legit", "packet")));
         auto = new Setting("Auto", this, false);

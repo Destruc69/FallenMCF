@@ -13,8 +13,8 @@ public final class Freeze extends Module {
     private Setting inputPackets;
     private ArrayList<IPacket> packets;
 
-    public Freeze(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public Freeze(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     public void onEnable() {

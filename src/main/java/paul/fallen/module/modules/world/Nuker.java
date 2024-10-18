@@ -25,8 +25,8 @@ public class Nuker extends Module {
 
     private BlockPos targetPosition;
 
-    public Nuker(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public Nuker(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         legit = new Setting("Legit", this, false);
         x = new Setting("X", this, 2, 0, 5, true);

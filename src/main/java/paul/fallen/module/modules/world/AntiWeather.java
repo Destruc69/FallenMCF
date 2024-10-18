@@ -16,8 +16,8 @@ public final class AntiWeather extends Module {
 
     Setting opposite;
 
-    public AntiWeather(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AntiWeather(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         opposite = new Setting("Opposite", this, false);
         addSetting(opposite);

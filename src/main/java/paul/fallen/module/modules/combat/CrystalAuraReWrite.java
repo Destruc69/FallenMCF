@@ -30,8 +30,8 @@ public class CrystalAuraReWrite extends Module {
     private final Setting minDamage;
     private final Setting maxDamageSelf;
 
-    public CrystalAuraReWrite(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public CrystalAuraReWrite(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         breakTicks = new Setting("BreakTicks", this, 10, 1, 20, true);
         placeTicks = new Setting("PlaceTicks", this, 10, 1, 20, true);

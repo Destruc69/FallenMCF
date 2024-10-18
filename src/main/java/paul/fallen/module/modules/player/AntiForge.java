@@ -11,8 +11,8 @@ import java.lang.reflect.Field;
 
 public class AntiForge extends Module {
 
-    public AntiForge(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AntiForge(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @SubscribeEvent

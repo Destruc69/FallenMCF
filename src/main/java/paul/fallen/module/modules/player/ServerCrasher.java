@@ -7,8 +7,8 @@ import paul.fallen.module.Module;
 
 public class ServerCrasher extends Module {
 
-    public ServerCrasher(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public ServerCrasher(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @Override

@@ -27,8 +27,8 @@ public final class AutoTotem extends Module {
     private boolean wasTotemInOffhand = false;
     private int timer = 0;
 
-    public AutoTotem(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AutoTotem(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         delay = new Setting("Delay", this, 0, 0, 20, true);
         health = new Setting("Health", this, 0, 0, 20, true);

@@ -17,8 +17,8 @@ import paul.fallen.module.Module;
 public final class Cheststealer extends Module {
     double slot;
 
-    public Cheststealer(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public Cheststealer(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @SubscribeEvent

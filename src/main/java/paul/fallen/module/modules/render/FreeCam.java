@@ -14,8 +14,8 @@ import java.util.UUID;
 
 public final class FreeCam extends Module {
 
-    public FreeCam(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public FreeCam(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     private static PlayerEntity freecamEntity;

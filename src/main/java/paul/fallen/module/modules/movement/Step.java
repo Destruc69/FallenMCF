@@ -16,10 +16,10 @@ import java.util.stream.Stream;
 
 public final class Step extends Module {
 
-    private Setting mode;
+    private final Setting mode;
 
-    public Step(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public Step(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         mode = new Setting("Mode", this, "ncp", new ArrayList<>(Arrays.asList("ncp", "aac")));
         addSetting(mode);

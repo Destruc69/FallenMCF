@@ -15,8 +15,8 @@ public class AutoEChestFarm extends Module {
 
     private BlockPos targetPosition;
 
-    public AutoEChestFarm(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AutoEChestFarm(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @Override

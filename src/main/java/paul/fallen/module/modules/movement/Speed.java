@@ -19,8 +19,8 @@ public final class Speed extends Module {
 
     private boolean a = false;
 
-    public Speed(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public Speed(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         ncp = new Setting("NCP", this, false);
         addSetting(ncp);

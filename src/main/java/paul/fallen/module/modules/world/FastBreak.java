@@ -13,8 +13,8 @@ public class FastBreak extends Module {
     private final Setting multiplyBy;
     private final Setting packet;
 
-    public FastBreak(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public FastBreak(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         reset = new Setting("Reset", this, false);
         addSetting(reset);

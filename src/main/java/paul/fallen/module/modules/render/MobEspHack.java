@@ -9,7 +9,6 @@ package paul.fallen.module.modules.render;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MobEntity;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import paul.fallen.clickgui.settings.Setting;
@@ -26,8 +25,8 @@ public final class MobEspHack extends Module {
 
     Setting mode;
 
-    public MobEspHack(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public MobEspHack(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         mode = new Setting("Mode", this, "glow", new ArrayList<>(Arrays.asList("glow", "box")));
         addSetting(mode);

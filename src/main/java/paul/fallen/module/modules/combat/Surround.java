@@ -10,18 +10,18 @@ import paul.fallen.utils.world.BlockUtils;
 
 public class Surround extends Module {
 
-	public Surround(int bind, String name, String displayName, Category category) {
-		super(bind, name, displayName, category);
-	}
+    public Surround(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
+    }
 
-	@Override
-	public void onEnable() {
-		super.onEnable();
+    @Override
+    public void onEnable() {
+        super.onEnable();
 
-		try {
-			centerPlayer();
-		} catch (Exception ignored) {
-		}
+        try {
+            centerPlayer();
+        } catch (Exception ignored) {
+        }
 	}
 
 	@SubscribeEvent

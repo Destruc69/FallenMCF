@@ -7,8 +7,8 @@ import paul.fallen.module.Module;
 
 public class BetterSwim extends Module {
 
-    public BetterSwim(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public BetterSwim(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @SubscribeEvent

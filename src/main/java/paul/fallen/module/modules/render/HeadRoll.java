@@ -13,8 +13,8 @@ public class HeadRoll extends Module {
     private final Setting mode;
     int i = 0;
 
-    public HeadRoll(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public HeadRoll(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         mode = new Setting("Mode", this, "roll", new ArrayList<>(Arrays.asList("roll", "upsidedown")));
         addSetting(mode);

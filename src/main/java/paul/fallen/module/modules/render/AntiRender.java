@@ -6,8 +6,8 @@ import paul.fallen.module.Module;
 
 public class AntiRender extends Module {
 
-    public AntiRender(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public AntiRender(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
     }
 
     @SubscribeEvent

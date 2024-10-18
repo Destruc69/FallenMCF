@@ -37,8 +37,8 @@ public final class Scaffold extends Module {
     private float currentYaw = 0;
     private float currentPitch = 0;
 
-    public Scaffold(int bind, String name, String displayName, Category category) {
-        super(bind, name, displayName, category);
+    public Scaffold(int bind, String name, String displayName, Category category, String description) {
+        super(bind, name, displayName, category, description);
 
         mode = new Setting("Mode", this, "blatant", new ArrayList<>(Arrays.asList("blatant", "legit")));
         swing = new Setting("Swing", this, true);
