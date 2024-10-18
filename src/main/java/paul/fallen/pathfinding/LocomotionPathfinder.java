@@ -13,13 +13,13 @@ import java.util.Collections;
 import java.util.Comparator;
 
 public class LocomotionPathfinder {
-    private BlockPos startPos;
-    private BlockPos endPos;
+    private final BlockPos startPos;
+    private final BlockPos endPos;
     private ArrayList<BlockPos> path = new ArrayList<>();
-    private ArrayList<Hub> hubs = new ArrayList<>();
-    private ArrayList<Hub> hubsToWork = new ArrayList<>();
-    private double minDistanceSquared = 9;
-    private boolean nearest = true;
+    private final ArrayList<Hub> hubs = new ArrayList<>();
+    private final ArrayList<Hub> hubsToWork = new ArrayList<>();
+    private final double minDistanceSquared = 9;
+    private final boolean nearest = true;
 
     private static final Minecraft mc = Minecraft.getInstance();
 
@@ -128,12 +128,9 @@ public class LocomotionPathfinder {
     public static boolean checkPositionValidity(int x, int y, int z) {
         BlockPos block1 = new BlockPos(x, y, z);
         BlockPos block2 = new BlockPos(x, y + 1, z);
-        BlockPos block3 = new BlockPos(x, y - 1, z);
 
         return !isBlockSolid(block1) &&
-                !isBlockSolid(block2) &&
-                isBlockSolid(block3) &&
-                isSafeToWalkOn(block3);
+                !isBlockSolid(block2);
     }
 
     private static boolean isBlockSolid(BlockPos block) {

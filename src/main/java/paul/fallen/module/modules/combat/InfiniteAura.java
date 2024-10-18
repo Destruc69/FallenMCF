@@ -19,88 +19,102 @@ import paul.fallen.utils.render.RenderUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+
 
 public class InfiniteAura extends Module {
 
     private final Setting antiTP;
+
     private LocomotionPathfinder aStarCustomPathFinder;
-    private Entity targetEntity;
-    private long lastActionTime = 0L;
+    private Entity entity;
+    private long lastActionTime = 0L; // Variable to store the timestamp of the last action
 
     public InfiniteAura(int bind, String name, String displayName, Category category) {
         super(bind, name, displayName, category);
+
         antiTP = new Setting("AntiTP", this, false);
         addSetting(antiTP);
     }
 
-    @Override
-    public void onDisable() {
-        super.onDisable();
-        aStarCustomPathFinder = null;
-        targetEntity = null;
-    }
-
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase != TickEvent.Phase.START) return;
+        try {
+            if (event.phase == TickEvent.Phase.START) {
+                Entity entity = findClosestEntity();
 
-        if (System.currentTimeMillis() - lastActionTime < 500) return;
+                // Skip if less than 1 second has passed since the last action
+                if (System.currentTimeMillis() - lastActionTime < 500) {
+                    return;
+                }
 
-        lastActionTime = System.currentTimeMillis();
+                // Set the last action time to the current time
+                lastActionTime = System.currentTimeMillis();
 
-        Entity entity = findClosestEntity();
-        if (entity == null) return;
+                if (entity == null)
+                    return;
 
-        this.targetEntity = entity;
+                // Move to entity
+                aStarCustomPathFinder = new LocomotionPathfinder(mc.player.getPosition(), entity.getPosition());
+                aStarCustomPathFinder.compute();
 
-        // Calculate path to entity
-        aStarCustomPathFinder = new LocomotionPathfinder(mc.player.getPosition(), entity.getPosition());
-        aStarCustomPathFinder.compute();
+                this.entity = entity;
 
-        // Move to entity
-        for (BlockPos pos : aStarCustomPathFinder.getPath()) {
-            mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(pos.getX(), pos.getY(), pos.getZ(), true));
-        }
+                // Move forward
+                int pathSize = aStarCustomPathFinder.getPath().size(); // Store the size of the path
+                for (int a = 0; a < pathSize; a++) {
+                    BlockPos v = aStarCustomPathFinder.getPath().get(a);
+                    mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(v.getX(), v.getY(), v.getZ(), true));
+                }
 
-        // Look at entity
-        Vector3d targetPos = new Vector3d(
-                aStarCustomPathFinder.getPath().get(aStarCustomPathFinder.getPath().size() - 1).getX() + 0.5,
-                aStarCustomPathFinder.getPath().get(aStarCustomPathFinder.getPath().size() - 1).getY() + 1.5,
-                aStarCustomPathFinder.getPath().get(aStarCustomPathFinder.getPath().size() - 1).getZ() + 0.5
-        );
-        float[] rot = RotationUtils.getYawAndPitch(targetPos, entity.getBoundingBox().getCenter());
-        mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], true));
+                // Look at entity
+                float[] rot = RotationUtils.getYawAndPitch(new Vector3d(aStarCustomPathFinder.getPath().get(pathSize - 1).getX(), aStarCustomPathFinder.getPath().get(pathSize - 1).getY(), aStarCustomPathFinder.getPath().get(pathSize - 1).getZ()), entity.getBoundingBox().getCenter());
+                mc.player.connection.sendPacket(new CPlayerPacket.RotationPacket(rot[0], rot[1], true));
 
-        // Attack entity
-        mc.playerController.attackEntity(mc.player, entity);
-        mc.player.swingArm(Hand.MAIN_HAND);
+                // Attack entity
+                mc.playerController.attackEntity(mc.player, entity);
+                mc.player.swingArm(Hand.MAIN_HAND);
 
-        // Move back
-        List<BlockPos> reversedPath = new ArrayList<>(aStarCustomPathFinder.getPath());
-        Collections.reverse(reversedPath);
-        for (BlockPos pos : reversedPath) {
-            mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(pos.getX(), pos.getY(), pos.getZ(), true));
+                // Reverse path
+                ArrayList<BlockPos> vector3ds = new ArrayList<>();
+
+                vector3ds.addAll(aStarCustomPathFinder.getPath());
+
+                Collections.reverse(vector3ds);
+
+                // Move back
+                pathSize = vector3ds.size(); // Update the size of the path
+                for (int b = 0; b < pathSize; b++) {
+                    BlockPos v = vector3ds.get(b);
+                    mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(v.getX(), v.getY(), v.getZ(), true));
+                }
+            }
+        } catch (Exception ignored) {
         }
     }
 
     @SubscribeEvent
     public void onPacket(PacketEvent event) {
-        if (!antiTP.getValBoolean()) return;
-
-        if (event.getPacket() instanceof SPlayerPositionLookPacket) {
-            mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX(), mc.player.getPosY(), mc.player.getPosZ(), mc.player.isOnGround()));
-            event.setCanceled(true);
+        try {
+            if (antiTP.getValBoolean()) {
+                if (event.getPacket() instanceof SPlayerPositionLookPacket) {
+                    mc.player.connection.sendPacket(new CPlayerPacket.PositionPacket(mc.player.getPosX(), mc.player.getPosY(), mc.player.getPosZ(), mc.player.isOnGround()));
+                    event.setCanceled(true);
+                }
+            }
+        } catch (Exception ignored) {
         }
     }
 
     @SubscribeEvent
     public void onRender(RenderWorldLastEvent event) {
-        if (aStarCustomPathFinder != null && !aStarCustomPathFinder.getPath().isEmpty()) {
-            aStarCustomPathFinder.renderPath(event);
-        }
-        if (targetEntity != null) {
-            RenderUtils.drawOutlinedBox(targetEntity.getPosition(), 0, 1, 0, event);
+        try {
+            if (aStarCustomPathFinder.getPath().size() > 0 && aStarCustomPathFinder != null) {
+                aStarCustomPathFinder.renderPath(event);
+            }
+            if (entity != null) {
+                RenderUtils.drawOutlinedBox(entity.getPosition(), 0, 1, 0, event);
+            }
+        } catch (Exception ignored) {
         }
     }
 
@@ -108,17 +122,20 @@ public class InfiniteAura extends Module {
         Entity closestEntity = null;
         double closestDistance = Double.MAX_VALUE;
 
-        if (mc.world == null || mc.player == null) return null;
-
+        assert mc.world != null;
         for (Entity entity : mc.world.getAllEntities()) {
             if (entity != null && entity != mc.player && entity instanceof LivingEntity) {
+                assert mc.player != null;
                 double distance = mc.player.getDistanceSq(entity.getPosX(), entity.getPosY(), entity.getPosZ());
-                if (distance < closestDistance) {
+                if (distance < closestDistance) { // Fixed variable name
                     closestDistance = distance;
                     closestEntity = entity;
                 }
             }
         }
-        return closestEntity;
+        if (closestEntity != null && mc.player != null) { // Removed assertion for closestEntity not being null
+            return closestEntity;
+        }
+        return null; // Moved return statement out of the if condition
     }
 }
