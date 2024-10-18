@@ -1,5 +1,6 @@
 package paul.fallen.clickgui.component.components;
 
+import net.minecraft.client.Minecraft;
 import paul.fallen.FALLENClient;
 import paul.fallen.clickgui.component.Component;
 import paul.fallen.clickgui.component.Frame;
@@ -92,7 +93,11 @@ public class Button extends Component {
 		}
 
 		if (this.isHovered) {
-			UIUtils.drawTextOnScreenWithShadow(mod.getDescription(), 300, 300, Color.WHITE.getRGB());
+			UIUtils.drawRect(400, 400 - Minecraft.getInstance().fontRenderer.FONT_HEIGHT, Minecraft.getInstance().fontRenderer.getStringWidth(mod.getDisplayName()), Minecraft.getInstance().fontRenderer.FONT_HEIGHT, new Color(30, 30, 30, 191).getRGB());
+			UIUtils.drawTextOnScreenWithShadow(mod.getDisplayName(), 400, 400 - Minecraft.getInstance().fontRenderer.FONT_HEIGHT, Color.WHITE.getRGB());
+
+			UIUtils.drawRect(400, 400, Minecraft.getInstance().fontRenderer.getStringWidth(mod.getDescription()), Minecraft.getInstance().fontRenderer.FONT_HEIGHT, new Color(30, 30, 30, 191).getRGB());
+			UIUtils.drawTextOnScreenWithShadow(mod.getDescription(), 400, 400, Color.WHITE.getRGB());
 		}
 	}
 
