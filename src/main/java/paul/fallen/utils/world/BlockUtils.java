@@ -24,6 +24,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.World;
 import paul.fallen.ClientSupport;
 
 import java.util.ArrayList;
@@ -325,5 +326,86 @@ public class BlockUtils implements ClientSupport {
 
         // If it's not a crop block, return false
         return false;
+    }
+
+    public static BlockPos getMiddlePointBetweenBlocks(PlayerEntity player) {
+        World world = player.world;
+        BlockPos playerPos = player.getPosition();
+
+        BlockPos blockBelow = null;
+        for (int y = playerPos.getY(); y >= 0; y--) {
+            BlockPos posBelow = new BlockPos(playerPos.getX(), y, playerPos.getZ());
+            if (!world.isAirBlock(posBelow)) {
+                blockBelow = posBelow;
+                break;
+            }
+        }
+
+        BlockPos blockAbove = null;
+        for (int y = playerPos.getY(); y < world.getHeight(); y++) {
+            BlockPos posAbove = new BlockPos(playerPos.getX(), y, playerPos.getZ());
+            if (!world.isAirBlock(posAbove)) {
+                blockAbove = posAbove;
+                break;
+            }
+        }
+
+        if (blockAbove == null) {
+            return null;
+        }
+
+        int middleY = (blockBelow.getY() + blockAbove.getY()) / 2;
+        return new BlockPos(playerPos.getX(), middleY, playerPos.getZ());
+    }
+
+    public static double getDistanceToClosestBlock(PlayerEntity player) {
+        World world = player.world;
+        BlockPos playerPos = player.getPosition();
+        BlockPos closestBlock = null;
+
+        int searchRadius = 10;
+
+        for (int x = playerPos.getX() - searchRadius; x <= playerPos.getX() + searchRadius; x++) {
+            for (int z = playerPos.getZ() - searchRadius; z <= playerPos.getZ() + searchRadius; z++) {
+                for (int y = playerPos.getY() - 1; y <= playerPos.getY() + 1; y++) {
+                    BlockPos checkPos = new BlockPos(x, y, z);
+                    if (!world.isAirBlock(checkPos)) {
+                        if (closestBlock == null || playerPos.distanceSq(checkPos) < playerPos.distanceSq(closestBlock)) {
+                            closestBlock = checkPos;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (closestBlock == null) {
+            return -1;
+        }
+
+        return Math.sqrt(playerPos.distanceSq(closestBlock.getX(), closestBlock.getY(), closestBlock.getZ(), true));
+    }
+
+
+    public static BlockPos getClosestBlock(PlayerEntity player) {
+        World world = player.world;
+        BlockPos playerPos = player.getPosition();
+        BlockPos closestBlock = null;
+
+        int searchRadius = 10;
+
+        for (int x = playerPos.getX() - searchRadius; x <= playerPos.getX() + searchRadius; x++) {
+            for (int z = playerPos.getZ() - searchRadius; z <= playerPos.getZ() + searchRadius; z++) {
+                for (int y = playerPos.getY() - 1; y <= playerPos.getY() + 1; y++) {
+                    BlockPos checkPos = new BlockPos(x, y, z);
+                    if (!world.isAirBlock(checkPos)) {
+                        if (closestBlock == null || playerPos.distanceSq(checkPos) < playerPos.distanceSq(closestBlock)) {
+                            closestBlock = checkPos;
+                        }
+                    }
+                }
+            }
+        }
+
+        return closestBlock;
     }
 }
