@@ -90,6 +90,10 @@ public class Button extends Component {
 				//Gui.drawRect(parent.getX() + 2, parent.getY() + this.offset + 12, parent.getX() + 3, parent.getY() + this.offset + ((this.subcomponents.size() + 1) * 12), new Color(255, 0, 255, 191).getRGB());
 			}
 		}
+
+		if (this.isHovered) {
+			UIUtils.drawTextOnScreenWithShadow(mod.getDescription(), 300, 300, Color.WHITE.getRGB());
+		}
 	}
 
 
