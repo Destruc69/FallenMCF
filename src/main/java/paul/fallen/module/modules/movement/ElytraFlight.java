@@ -34,7 +34,7 @@ public final class ElytraFlight extends Module {
 
         autoPilot = new Setting("AutoPilot", this, false);
         upSpeed = new Setting("Up-Speed", this, 0.05F, 0.005F, 10, false);
-        baseSpeed = new Setting("Base-Speed", this, 0.05F, 0.02F, 10, false);
+        baseSpeed = new Setting("Base-Speed", this, 0.05, 0.02, 10, false);
         downSpeed = new Setting("Down-Speed", this, 0.0F, 0.002F, 10, false);
         easyTakeoff = new Setting("EasyTakeOff", this, false);
 
@@ -47,74 +47,89 @@ public final class ElytraFlight extends Module {
 
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase == TickEvent.Phase.END) return;
+        if (event.phase == TickEvent.Phase.END)
+            return;
 
-        handleEasyTakeoff();
+        try {
+            handleEasyTakeoff();
 
-        if (mc.player.isElytraFlying()) {
+            if (!mc.player.isElytraFlying())
+                return;
+
             handleFlight();
             handleAutoPilot();
+        } catch (Exception ignored) {
         }
     }
 
     @SubscribeEvent
     public void onRender(RenderWorldLastEvent event) {
-        if (!autoPilot.getValBoolean()) return;
-
-        BlockPos middlePoint = BlockUtils.getMiddlePointBetweenBlocks(mc.player);
-        BlockPos closestBlock = BlockUtils.getClosestBlock(mc.player);
-
-        if (middlePoint != null && mc.player.getDistanceSq(middlePoint.getX(), middlePoint.getY(), middlePoint.getZ()) > 1) {
-            RenderUtils.drawOutlinedBox(middlePoint, 0, 1, 0, event);
+        try {
+            if (autoPilot.getValBoolean()) {
+                if (mc.player.getDistanceSq(BlockUtils.getMiddlePointBetweenBlocks(mc.player).getX(), BlockUtils.getMiddlePointBetweenBlocks(mc.player).getY(), BlockUtils.getMiddlePointBetweenBlocks(mc.player).getZ()) > 1) {
+                    RenderUtils.drawOutlinedBox(BlockUtils.getMiddlePointBetweenBlocks(mc.player), 0, 1, 0, event);
+                }
+                RenderUtils.drawOutlinedBox(BlockUtils.getClosestBlock(mc.player), 1, 0, 0, event);
+                RenderUtils.drawLine(mc.player.getPosition().down(), BlockUtils.getClosestBlock(mc.player), 0, 0, 1, event);
+            }
+        } catch (Exception ignored) {
         }
-
-        RenderUtils.drawOutlinedBox(closestBlock, 1, 0, 0, event);
-        RenderUtils.drawLine(mc.player.getPosition().down(), closestBlock, 0, 0, 1, event);
     }
 
     private void handleAutoPilot() {
-        if (!autoPilot.getValBoolean() || mc.gameSettings.keyBindJump.isKeyDown()) return;
+        if (!autoPilot.getValBoolean())
+            return;
 
-        BlockPos middlePoint = BlockUtils.getMiddlePointBetweenBlocks(mc.player);
-        Vector3d motion = mc.player.getMotion();
-        double playerY = mc.player.getPosY();
-        double up = upSpeed.getValDouble();
-        double down = downSpeed.getValDouble();
+        // If the jump key is pressed, just pause auto pilot, Just for disengage.
+        if (!mc.gameSettings.keyBindJump.isKeyDown()) {
+            BlockPos m = BlockUtils.getMiddlePointBetweenBlocks(mc.player);
+            Vector3d motion = mc.player.getMotion();
 
-        if (middlePoint == null) {
-            // Handle altitude when no middle point found
-            if (playerY < 256) mc.player.setMotion(motion.x, up, motion.z);
-            else if (playerY > 256) mc.player.setMotion(motion.x, -down, motion.z);
-            else mc.player.setMotion(motion.x, 0, motion.z);
-        } else {
-            // Handle Y axis relative to middle point
-            if (playerY < middlePoint.getY()) mc.player.setMotion(motion.x, up, motion.z);
-            else if (playerY > middlePoint.getY()) mc.player.setMotion(motion.x, -down, motion.z);
-            else mc.player.setMotion(motion.x, 0, motion.z);
-        }
-
-        // Handle XZ movement
-        double distance = BlockUtils.getDistanceToClosestBlock(mc.player);
-        if (distance > 2 || distance == -1) {
-            if (isAnyMovementKeyDown()) {
-                MathUtils.setSpeed(baseSpeed.getValDouble());
+            // Y handle
+            if (m == null) {
+                if (mc.player.getPosY() < 256) {
+                    mc.player.setMotion(motion.x, upSpeed.getValDouble(), motion.z);
+                } else if (mc.player.getPosY() > 256) {
+                    mc.player.setMotion(motion.x, -downSpeed.getValDouble(), motion.z);
+                } else {
+                    mc.player.setMotion(motion.x, 0, motion.z);
+                }
             } else {
-                mc.player.setMotion(0, motion.y, 0);
+                if (mc.player.getPosY() < m.getY()) {
+                    mc.player.setMotion(motion.x, upSpeed.getValDouble(), motion.z);
+                } else if (mc.player.getPosY() > m.getY()) {
+                    mc.player.setMotion(motion.x, -downSpeed.getValDouble(), motion.z);
+                } else {
+                    mc.player.setMotion(motion.x, 0, motion.z);
+                }
             }
-        } else {
-            BlockPos closestBlock = BlockUtils.getClosestBlock(mc.player);
-            if (closestBlock != null) {
-                Vector3d pushDirection = new Vector3d(mc.player.getPosX(), playerY, mc.player.getPosZ())
-                        .subtract(Vector3d.copyCentered(closestBlock))
-                        .normalize();
 
-                mc.player.setMotion(pushDirection.x * 0.2, motion.y, pushDirection.z * 0.2);
+            // XZ handle
+            double d = BlockUtils.getDistanceToClosestBlock(mc.player);
+            if (d > 2 || d == -1) {
+                if (isAnyMovementKeyDown()) {
+                    MathUtils.setSpeed(baseSpeed.getValDouble());
+                } else {
+                    mc.player.setMotion(0, mc.player.getMotion().y, 0);
+                }
+            } else {
+                BlockPos c = BlockUtils.getClosestBlock(mc.player);
+                Vector3d playerPos = new Vector3d(mc.player.getPosX(), mc.player.getPosY(), mc.player.getPosZ());
+
+                if (c == null)
+                    return;
+
+                Vector3d pushDirection = playerPos.subtract(Vector3d.copyCentered(c)).normalize();
+
+                double pushStrength = 0.2;
+                mc.player.setMotion(pushDirection.x * pushStrength, motion.y, pushDirection.z * pushStrength);
             }
         }
     }
 
     private void handleFlight() {
-        if (autoPilot.getValBoolean()) return;
+        if (autoPilot.getValBoolean())
+            return;
 
         Vector3d motion = mc.player.getMotion();
         if (mc.gameSettings.keyBindJump.isKeyDown()) {
@@ -128,15 +143,12 @@ public final class ElytraFlight extends Module {
         if (isAnyMovementKeyDown()) {
             MathUtils.setSpeed(baseSpeed.getValDouble());
         } else {
-            mc.player.setMotion(0, motion.y, 0);
+            mc.player.setMotion(0, mc.player.getMotion().y, 0);
         }
     }
 
     private void handleEasyTakeoff() {
-        if (easyTakeoff.getValBoolean() &&
-                mc.world.getBlockState(mc.player.getPosition().down()).getBlock().isAir(mc.world.getBlockState(mc.player.getPosition().down()), mc.world, mc.player.getPosition().down()) &&
-                mc.player.getMotion().y < 0) {
-
+        if (easyTakeoff.getValBoolean() && mc.world.getBlockState(mc.player.getPosition().down()).getBlock().isAir(mc.world.getBlockState(mc.player.getPosition().down()), mc.world, mc.player.getPosition().down()) && mc.player.getMotion().y < 0) {
             if (!isTakingOff) {
                 mc.player.connection.sendPacket(new CEntityActionPacket(mc.player, CEntityActionPacket.Action.START_FALL_FLYING));
                 mc.player.startFallFlying();
