@@ -34,36 +34,46 @@ public class AutoHighway extends Module {
         try {
             if (event.phase == TickEvent.Phase.START) {
                 blockPosArrayList = getBlocksPositions();
-
-                mc.player.rotationYaw = roundYaw();
-
-                mc.gameSettings.keyBindForward.setPressed(blockPosArrayList.stream().allMatch(actionBlockPos -> (actionBlockPos.getAction() == Action.PLACE) != mc.world.getBlockState(actionBlockPos.getBlockPos()).isAir()));
-                mc.gameSettings.keyBindSneak.setPressed(mc.player.isOnGround() && mc.world.getBlockState(mc.player.getPosition().down()).isAir());
-
-                // Skip if less than 1 second has passed since the last action
-                if (System.currentTimeMillis() - lastActionTime < delay.getValDouble()) {
+                if (blockPosArrayList.isEmpty()) {
                     return;
                 }
 
-                // Set the last action time to the current time
+                mc.player.rotationYaw = roundYaw();
+
+                boolean shouldMoveForward = blockPosArrayList.stream().anyMatch(actionBlockPos ->
+                        (actionBlockPos.getAction() == Action.PLACE) != mc.world.getBlockState(actionBlockPos.getBlockPos()).isAir());
+                mc.gameSettings.keyBindForward.setPressed(shouldMoveForward);
+                mc.gameSettings.keyBindSneak.setPressed(mc.player.isOnGround() && mc.world.getBlockState(mc.player.getPosition().down()).isAir());
+
+                if (System.currentTimeMillis() - lastActionTime < delay.getValDouble()) {
+                    return;
+                }
                 lastActionTime = System.currentTimeMillis();
 
+                // Remove processed positions
                 blockPosArrayList.removeIf(actionBlockPos ->
                         (actionBlockPos.getAction() == Action.BREAK && mc.world.getBlockState(actionBlockPos.getBlockPos()).isAir()) ||
                                 (actionBlockPos.getAction() == Action.PLACE && !mc.world.getBlockState(actionBlockPos.getBlockPos()).isAir())
                 );
 
-                ActionBlockPos blockPos = blockPosArrayList.get(0);
-
-                if (blockPos.action == Action.PLACE) {
-                    BlockUtils.placeBlock(blockPos.blockPos, mc.player.inventory.currentItem, true, true);
-                } else if (blockPos.action == Action.BREAK) {
-                    BlockUtils.breakBlock(blockPos.blockPos, mc.player.inventory.currentItem, true, true);
+                if (!blockPosArrayList.isEmpty()) {
+                    ActionBlockPos blockPos = blockPosArrayList.get(0);
+                    if (blockPos.action == Action.PLACE) {
+                        boolean placed = BlockUtils.placeBlock(blockPos.blockPos, mc.player.inventory.currentItem, true, true);
+                        System.out.println("Attempting to place block at " + blockPos.getBlockPos() + " - Success: " + placed);
+                        if (!placed) {
+                            System.out.println("Failed to place block. Retrying...");
+                        }
+                    } else if (blockPos.action == Action.BREAK) {
+                        BlockUtils.breakBlock(blockPos.blockPos, mc.player.inventory.currentItem, true, true);
+                    }
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            e.printStackTrace(); // Log any issues for troubleshooting
         }
     }
+
 
     @SubscribeEvent
     public void onRender(RenderWorldLastEvent event) {
