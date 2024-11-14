@@ -41,14 +41,13 @@ public final class AntiWeather extends Module {
     @SubscribeEvent
     public void onTick(TickEvent.PlayerTickEvent event) {
         try {
+            assert mc.world != null;
             if (!opposite.getValBoolean()) {
-                assert mc.world != null;
                 mc.world.rainingStrength = 0f;
                 mc.world.prevRainingStrength = 0f;
                 mc.world.thunderingStrength = 0f;
                 mc.world.prevThunderingStrength = 0f;
             } else {
-                assert mc.world != null;
                 mc.world.rainingStrength = 1f;
                 mc.world.prevRainingStrength = 1f;
                 mc.world.thunderingStrength = 1f;

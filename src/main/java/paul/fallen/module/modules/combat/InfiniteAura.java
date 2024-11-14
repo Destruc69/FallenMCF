@@ -109,7 +109,7 @@ public class InfiniteAura extends Module {
     public void onRender(RenderWorldLastEvent event) {
         try {
             if (aStarCustomPathFinder.getPath().size() > 0 && aStarCustomPathFinder != null) {
-                aStarCustomPathFinder.renderPath(event);
+                //aStarCustomPathFinder.renderPath(event);
             }
             if (entity != null) {
                 RenderUtils.drawOutlinedBox(entity.getPosition(), 0, 1, 0, event);
