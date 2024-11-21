@@ -26,6 +26,8 @@ import java.util.List;
 
 public final class ElytraFlight extends Module {
 
+    private BlockPos target = null;
+
     private final Setting autoPilot;
     private final Setting upSpeed;
     private final Setting baseSpeed;
@@ -56,6 +58,16 @@ public final class ElytraFlight extends Module {
     @Override
     public void onEnable() {
         super.onEnable();
+
+        // Calculate the target position far in the direction the player is facing
+        Vector3d playerPosition = mc.player.getPositionVec();
+        Vector3d lookDirection = mc.player.getLookVec();
+
+        // Define the distance for the autopilot target, e.g., 100 blocks in the direction the player is facing
+        double targetDistance = 10000.0;
+        Vector3d targetPosition = playerPosition.add(lookDirection.scale(targetDistance));
+
+        target = new BlockPos(targetPosition.x, 255 % 2, targetPosition.z);
 
         airPathfinder = null;
         path = null;
@@ -150,28 +162,32 @@ public final class ElytraFlight extends Module {
                 }
             }
         } else if (autoPilot.getValString().equals("full")) {
-            // Check if we need to recalculate the path
+            // Recalculate path if the pathfinder or path is null or the player has reached the end of the path
             if (airPathfinder == null || path == null || path.isEmpty() || isAtEndOfPath()) {
-                // Trigger pathfinding again only if necessary
-                airPathfinder = new LocomotionPathfinder(mc.player.getPosition(), new BlockPos(0, 100, 0));
+                // Initialize the pathfinder with the player's current position and the calculated target position
+                airPathfinder = new LocomotionPathfinder(mc.player.getPosition(), target);
                 airPathfinder.compute();
                 path = airPathfinder.getPath();
 
-                // Ensure path is valid before proceeding
+                // Ensure path is valid
                 if (path == null || path.isEmpty()) {
-                    airPathfinder = null;  // Invalidate if no valid path found
+                    airPathfinder = null;  // Invalidate if no path is found
                 }
             }
 
-            // Check if the path is valid and not empty
+            // Follow the calculated path if it's valid
             if (path != null && !path.isEmpty()) {
-                // Get the next block the player needs to move towards
                 BlockPos nextBlock = airPathfinder.getNextBlockToMove();
-
-                // If the next block is not null, move towards it
                 if (nextBlock != null) {
-                    // Calculate the direction to move towards the next block (could be more complex, depending on movement mechanics)
                     moveToBlock(nextBlock);
+                }
+            }
+
+            for (BlockPos blockPos : airPathfinder.getPath()) {
+                if (!mc.world.getBlockState(blockPos).isAir()) {
+                    airPathfinder = new LocomotionPathfinder(mc.player.getPosition(), target);
+                    airPathfinder.compute();
+                    path = airPathfinder.getPath();
                 }
             }
         }
@@ -201,7 +217,6 @@ public final class ElytraFlight extends Module {
         }
     }
 
-
     // Method to check if the player is near the end of the path
     private boolean isAtEndOfPath() {
         if (path != null && !path.isEmpty()) {
@@ -211,7 +226,6 @@ public final class ElytraFlight extends Module {
         }
         return false;
     }
-
 
     private void handleFlight() {
         if (autoPilot.getValBoolean())

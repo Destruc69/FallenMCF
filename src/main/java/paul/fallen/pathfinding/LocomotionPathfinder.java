@@ -13,15 +13,6 @@ public class LocomotionPathfinder {
     private final PriorityQueue<Hub> hubsToWork = new PriorityQueue<>(new CompareHub());
     private static final Minecraft mc = Minecraft.getInstance();
 
-    private static final BlockPos[] flatCardinalDirections = {
-            new BlockPos(1, 0, 0), new BlockPos(-1, 0, 0), new BlockPos(0, 0, 1), new BlockPos(0, 0, -1),
-            new BlockPos(1, 1, 0), new BlockPos(-1, 1, 0), new BlockPos(0, 1, 1), new BlockPos(0, 1, -1),
-            new BlockPos(1, -1, 0), new BlockPos(-1, -1, 0), new BlockPos(0, -1, 1), new BlockPos(0, -1, -1),
-            new BlockPos(1, 0, 1), new BlockPos(-1, 0, -1), new BlockPos(-1, 0, 1), new BlockPos(1, 0, -1),
-            new BlockPos(1, 1, 1), new BlockPos(-1, 1, -1), new BlockPos(1, 1, -1), new BlockPos(-1, 1, 1),
-            new BlockPos(1, -1, 1), new BlockPos(-1, -1, -1), new BlockPos(1, -1, -1), new BlockPos(-1, -1, 1)
-    };
-
     public LocomotionPathfinder(BlockPos startPos, BlockPos endPos) {
         this.startPos = startPos;
         this.endPos = endPos;
@@ -53,7 +44,14 @@ public class LocomotionPathfinder {
 
             hubs.add(hub);
 
-            for (BlockPos direction : flatCardinalDirections) {
+            // Prioritize movements that can happen in the air first
+            BlockPos[] moveDirections = {
+                    new BlockPos(1, 0, 0), new BlockPos(-1, 0, 0), new BlockPos(0, 0, 1), new BlockPos(0, 0, -1), // Horizontal
+                    new BlockPos(0, 1, 0), new BlockPos(0, -1, 0) // Vertical Up and Down
+            };
+
+            // First check horizontal moves that do not touch the ground
+            for (BlockPos direction : moveDirections) {
                 BlockPos loc = hub.getLoc().add(direction);
                 if (checkPositionValidity(loc) && !visited.contains(loc)) {
                     visited.add(loc);
@@ -63,6 +61,7 @@ public class LocomotionPathfinder {
                 }
             }
 
+            // Second, check vertical movements above or below if we haven't added the goal
             BlockPos loc1 = hub.getLoc().up();
             if (checkPositionValidity(loc1) && !visited.contains(loc1)) {
                 visited.add(loc1);
@@ -98,9 +97,9 @@ public class LocomotionPathfinder {
             return false;
         }
 
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dy = -1; dy <= 1; dy++) {
-                for (int dz = -1; dz <= 1; dz++) {
+        for (int dx = -3; dx <= 3; dx++) {
+            for (int dy = -3; dy <= 3; dy++) {
+                for (int dz = -3; dz <= 3; dz++) {
                     if (dx == 0 && dy == 0 && dz == 0) continue;
 
                     BlockPos neighbor = block.add(dx, dy, dz);
@@ -160,27 +159,21 @@ public class LocomotionPathfinder {
 
         BlockPos currentPlayerPos = new BlockPos(mc.player.getPosX(), mc.player.getPosY(), mc.player.getPosZ());
 
-        // Find the next block that is closer to the goal
         for (BlockPos nextBlock : path) {
             if (isCloserToGoal(currentPlayerPos, nextBlock)) {
                 return nextBlock;
             }
         }
 
-        // If no valid forward block is found, return null
         return null;
     }
 
-    // Utility method to check if the next block is closer to the goal
     private boolean isCloserToGoal(BlockPos currentPos, BlockPos nextPos) {
-        // Calculate Manhattan distance to the goal (endPos) from the current position
         double currentDistance = currentPos.manhattanDistance(endPos);
         double nextDistance = nextPos.manhattanDistance(endPos);
 
-        // If next position is closer to the goal, return true
         return nextDistance < currentDistance;
     }
-
 
     private static class Hub {
         private BlockPos loc;
@@ -252,3 +245,4 @@ public class LocomotionPathfinder {
         }
     }
 }
+
